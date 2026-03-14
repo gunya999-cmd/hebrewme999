@@ -1,10 +1,13 @@
 import { Verb } from "@/types/verb";
+import { PAAL_VERBS } from "./verbs-paal";
+import { OTHER_BINYAN_VERBS } from "./verbs-other";
 
 const f = (hebrew: string, transcription: string, translation: string) => ({
   hebrew, transcription, translation,
 });
 
-export const SEED_VERBS: Verb[] = [
+// Verbs 1-5 with full conjugations (original)
+const CORE_VERBS: Verb[] = [
   {
     id: "1",
     infinitive_hebrew: "לכתוב",
@@ -210,50 +213,10 @@ export const SEED_VERBS: Verb[] = [
       },
     },
   },
-  // Basic verbs without full conjugations
-  { id: "6", infinitive_hebrew: "לאכול", transcription_ru: "лээхо́ль", translation_ru: "есть, кушать", root: "אכל", binyan: "פעל", difficulty: "easy" },
-  { id: "7", infinitive_hebrew: "לשתות", transcription_ru: "лишто́т", translation_ru: "пить", root: "שתה", binyan: "פעל", difficulty: "easy" },
-  { id: "8", infinitive_hebrew: "לראות", transcription_ru: "лиръо́т", translation_ru: "видеть", root: "ראה", binyan: "פעל", difficulty: "easy" },
-  { id: "9", infinitive_hebrew: "לשמוע", transcription_ru: "лишмо́а", translation_ru: "слышать", root: "שמע", binyan: "פעל", difficulty: "easy" },
-  { id: "10", infinitive_hebrew: "לדעת", transcription_ru: "лада́ат", translation_ru: "знать", root: "ידע", binyan: "פעל", difficulty: "easy" },
-  { id: "11", infinitive_hebrew: "לרצות", transcription_ru: "лирцо́т", translation_ru: "хотеть", root: "רצה", binyan: "פעל", difficulty: "easy" },
-  { id: "12", infinitive_hebrew: "ללכת", transcription_ru: "лале́хет", translation_ru: "идти, ходить", root: "הלכ", binyan: "פעל", difficulty: "easy" },
-  { id: "13", infinitive_hebrew: "לבוא", transcription_ru: "лаво́", translation_ru: "приходить", root: "בוא", binyan: "פעל", difficulty: "easy" },
-  { id: "14", infinitive_hebrew: "לתת", transcription_ru: "лате́т", translation_ru: "давать", root: "נתנ", binyan: "פעל", difficulty: "medium" },
-  { id: "15", infinitive_hebrew: "לקחת", transcription_ru: "лака́хат", translation_ru: "брать", root: "לקח", binyan: "פעל", difficulty: "easy" },
-  { id: "16", infinitive_hebrew: "לעשות", transcription_ru: "лаасо́т", translation_ru: "делать", root: "עשה", binyan: "פעל", difficulty: "easy" },
-  { id: "17", infinitive_hebrew: "לומר", transcription_ru: "лома́р", translation_ru: "сказать", root: "אמר", binyan: "פעל", difficulty: "easy" },
-  { id: "18", infinitive_hebrew: "לחשוב", transcription_ru: "лахшо́в", translation_ru: "думать", root: "חשב", binyan: "פעל", difficulty: "easy" },
-  { id: "19", infinitive_hebrew: "לעבוד", transcription_ru: "лааво́д", translation_ru: "работать", root: "עבד", binyan: "פעל", difficulty: "easy" },
-  { id: "20", infinitive_hebrew: "לגור", transcription_ru: "лагу́р", translation_ru: "жить, проживать", root: "גור", binyan: "פעל", difficulty: "easy" },
-  { id: "21", infinitive_hebrew: "לישון", transcription_ru: "лишо́н", translation_ru: "спать", root: "ישנ", binyan: "פעל", difficulty: "easy" },
-  { id: "22", infinitive_hebrew: "לקום", transcription_ru: "лаку́м", translation_ru: "вставать", root: "קומ", binyan: "פעל", difficulty: "easy" },
-  { id: "23", infinitive_hebrew: "לשבת", transcription_ru: "лаше́вет", translation_ru: "сидеть", root: "ישב", binyan: "פעל", difficulty: "easy" },
-  { id: "24", infinitive_hebrew: "לקרוא", transcription_ru: "ликро́", translation_ru: "читать, звать", root: "קרא", binyan: "פעל", difficulty: "easy" },
-  { id: "25", infinitive_hebrew: "לשלם", transcription_ru: "лешале́м", translation_ru: "платить", root: "שלמ", binyan: "פיעל", difficulty: "medium" },
-  { id: "26", infinitive_hebrew: "לבקר", transcription_ru: "леваке́р", translation_ru: "навещать", root: "בקר", binyan: "פיעל", difficulty: "medium" },
-  { id: "27", infinitive_hebrew: "לספר", transcription_ru: "лесапе́р", translation_ru: "рассказывать", root: "ספר", binyan: "פיעל", difficulty: "medium" },
-  { id: "28", infinitive_hebrew: "לחפש", transcription_ru: "лехапе́с", translation_ru: "искать", root: "חפש", binyan: "פיעל", difficulty: "medium" },
-  { id: "29", infinitive_hebrew: "לנסות", transcription_ru: "ленасо́т", translation_ru: "пробовать", root: "נסה", binyan: "פיעל", difficulty: "medium" },
-  { id: "30", infinitive_hebrew: "לטייל", transcription_ru: "летайе́ль", translation_ru: "гулять", root: "טיל", binyan: "פיעל", difficulty: "medium" },
-  { id: "31", infinitive_hebrew: "להסביר", transcription_ru: "леhасби́р", translation_ru: "объяснять", root: "סבר", binyan: "הפעיל", difficulty: "medium" },
-  { id: "32", infinitive_hebrew: "להזמין", transcription_ru: "леhазми́н", translation_ru: "приглашать, заказывать", root: "זמנ", binyan: "הפעיל", difficulty: "medium" },
-  { id: "33", infinitive_hebrew: "להתחיל", transcription_ru: "леhатхи́ль", translation_ru: "начинать", root: "חלל", binyan: "הפעיל", difficulty: "medium" },
-  { id: "34", infinitive_hebrew: "להמשיך", transcription_ru: "леhамши́х", translation_ru: "продолжать", root: "משכ", binyan: "הפעיל", difficulty: "medium" },
-  { id: "35", infinitive_hebrew: "להגיע", transcription_ru: "леhаги́а", translation_ru: "прибывать, достигать", root: "נגע", binyan: "הפעיל", difficulty: "medium" },
-  { id: "36", infinitive_hebrew: "להכיר", transcription_ru: "леhаки́р", translation_ru: "знать (человека)", root: "נכר", binyan: "הפעיל", difficulty: "medium" },
-  { id: "37", infinitive_hebrew: "להתקשר", transcription_ru: "леhиткаше́р", translation_ru: "звонить", root: "קשר", binyan: "התפעל", difficulty: "medium" },
-  { id: "38", infinitive_hebrew: "להתרחץ", transcription_ru: "леhитрахе́ц", translation_ru: "мыться", root: "רחצ", binyan: "התפעל", difficulty: "medium" },
-  { id: "39", infinitive_hebrew: "להתחתן", transcription_ru: "леhитхате́н", translation_ru: "жениться", root: "חתנ", binyan: "התפעל", difficulty: "hard" },
-  { id: "40", infinitive_hebrew: "להתאמן", transcription_ru: "леhитъамме́н", translation_ru: "тренироваться", root: "אמנ", binyan: "התפעל", difficulty: "medium" },
-  { id: "41", infinitive_hebrew: "להיכתב", transcription_ru: "леhикате́в", translation_ru: "быть написанным", root: "כתב", binyan: "נפעל", difficulty: "hard" },
-  { id: "42", infinitive_hebrew: "להישמע", transcription_ru: "леhишама́", translation_ru: "быть услышанным", root: "שמע", binyan: "נפעל", difficulty: "hard" },
-  { id: "43", infinitive_hebrew: "להיפגש", transcription_ru: "леhипаге́ш", translation_ru: "встречаться", root: "פגש", binyan: "נפעל", difficulty: "medium" },
-  { id: "44", infinitive_hebrew: "להיכנס", transcription_ru: "леhикане́с", translation_ru: "входить", root: "כנס", binyan: "נפעל", difficulty: "medium" },
-  { id: "45", infinitive_hebrew: "להישאר", transcription_ru: "леhишаэ́р", translation_ru: "оставаться", root: "שאר", binyan: "נפעל", difficulty: "medium" },
-  { id: "46", infinitive_hebrew: "לפתוח", transcription_ru: "лифто́ах", translation_ru: "открывать", root: "פתח", binyan: "פעל", difficulty: "easy" },
-  { id: "47", infinitive_hebrew: "לסגור", transcription_ru: "лисго́р", translation_ru: "закрывать", root: "סגר", binyan: "פעל", difficulty: "easy" },
-  { id: "48", infinitive_hebrew: "לשיר", transcription_ru: "лаши́р", translation_ru: "петь", root: "שיר", binyan: "פעל", difficulty: "easy" },
-  { id: "49", infinitive_hebrew: "לרקוד", transcription_ru: "лирко́д", translation_ru: "танцевать", root: "רקד", binyan: "פעל", difficulty: "easy" },
-  { id: "50", infinitive_hebrew: "לנהוג", transcription_ru: "линhо́г", translation_ru: "водить (машину)", root: "נהג", binyan: "פעל", difficulty: "easy" },
+];
+
+export const SEED_VERBS: Verb[] = [
+  ...CORE_VERBS,
+  ...PAAL_VERBS,
+  ...OTHER_BINYAN_VERBS,
 ];
