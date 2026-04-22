@@ -9,6 +9,7 @@ import { useLearning } from "@/hooks/useLearning";
 interface Question {
   verbId: string;
   verbHebrewInf: string;
+  verbTranscription: string;
   verbTranslation: string;
   person: string;
   personLabel: string;
@@ -45,6 +46,7 @@ function generateQuestions(count: number): Question[] {
     questions.push({
       verbId: verb.id,
       verbHebrewInf: verb.infinitive_hebrew,
+      verbTranscription: verb.transcription_ru,
       verbTranslation: verb.translation_ru,
       person,
       personLabel: PERSON_LABELS[person] || person,
@@ -169,6 +171,7 @@ export default function GuessFormGame() {
             <h2 className="font-hebrew text-3xl font-bold text-foreground mb-1">
               {question.verbHebrewInf}
             </h2>
+            <p className="text-sm text-muted-foreground mb-1">{question.verbTranscription}</p>
             <p className="text-lg text-muted-foreground">{question.verbTranslation}</p>
           </div>
 

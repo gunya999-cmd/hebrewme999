@@ -12,8 +12,12 @@ import GuessFormGame from "@/pages/GuessFormGame";
 import WriteFormGame from "@/pages/WriteFormGame";
 import GuessRootGame from "@/pages/GuessRootGame";
 import GuessBinyanGame from "@/pages/GuessBinyanGame";
+import PrepFillGame from "@/pages/PrepFillGame";
 import AITutor from "@/pages/AITutor";
-import Stats from "@/pages/Stats";
+import VoiceDialogue from "@/pages/VoiceDialogue";
+import Prepositions from "@/pages/Prepositions";
+import PrepDetail from "@/pages/PrepDetail";
+import About from "@/pages/About";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,8 +38,12 @@ const App = () => (
             <Route path="/games/write-form" element={<WriteFormGame />} />
             <Route path="/games/guess-root" element={<GuessRootGame />} />
             <Route path="/games/guess-binyan" element={<GuessBinyanGame />} />
+            <Route path="/games/prep-fill" element={<PrepFillGame />} />
             <Route path="/ai-tutor" element={<AITutor />} />
-            <Route path="/stats" element={<Stats />} />
+            <Route path="/voice-dialogue" element={<VoiceDialogue />} />
+            <Route path="/prepositions" element={<Prepositions />} />
+            <Route path="/preposition/:id" element={<PrepDetail />} />
+            <Route path="/about" element={<About />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           <BottomNav />

@@ -1,4 +1,4 @@
-import { Home, BookOpen, Gamepad2, Bot, BarChart3 } from "lucide-react";
+import { Home, BookOpen, Gamepad2, Bot } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 
@@ -6,8 +6,7 @@ const tabs = [
   { path: "/", icon: Home, label: "Главная" },
   { path: "/dictionary", icon: BookOpen, label: "Словарь" },
   { path: "/games", icon: Gamepad2, label: "Игры" },
-  { path: "/ai-tutor", icon: Bot, label: "AI" },
-  { path: "/stats", icon: BarChart3, label: "Стат-ка" },
+  { path: "/ai-tutor", icon: Bot, label: "AI Учитель" },
 ];
 
 export default function BottomNav() {
