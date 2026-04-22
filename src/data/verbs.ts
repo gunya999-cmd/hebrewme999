@@ -1,6 +1,8 @@
 import { Verb } from "@/types/verb";
 import { PAAL_VERBS } from "./verbs-paal";
 import { OTHER_BINYAN_VERBS } from "./verbs-other";
+import { EXTRA_VERBS } from "./verbs-extra";
+import { MORE_VERBS } from "./verbs-more";
 
 const f = (hebrew: string, transcription: string, translation: string) => ({
   hebrew, transcription, translation,
@@ -46,6 +48,8 @@ const CORE_VERBS: Verb[] = [
       imperative: {
         ms: f("כתוב", "ктов", "пиши (м)"),
         fs: f("כתבי", "китви", "пиши (ж)"),
+        mp: f("כתבו", "китву", "пиши (мн)"),
+        fp: f("כתבו", "китву", "пиши (мн.ж)"),
       },
     },
   },
@@ -87,6 +91,8 @@ const CORE_VERBS: Verb[] = [
       imperative: {
         ms: f("דבר", "дабе́р", "говори (м)"),
         fs: f("דברי", "дабри́", "говори (ж)"),
+        mp: f("דברו", "дабру́", "говори (мн)"),
+        fp: f("דברו", "дабру́", "говори (мн.ж)"),
       },
     },
   },
@@ -128,6 +134,8 @@ const CORE_VERBS: Verb[] = [
       imperative: {
         ms: f("למד", "лма́д", "учи (м)"),
         fs: f("למדי", "лимди́", "учи (ж)"),
+        mp: f("למדו", "лимду́", "учи (мн)"),
+        fp: f("למדו", "лимду́", "учи (мн.ж)"),
       },
     },
   },
@@ -169,6 +177,8 @@ const CORE_VERBS: Verb[] = [
       imperative: {
         ms: f("הבן", "hаве́н", "пойми (м)"),
         fs: f("הביני", "hави́ни", "пойми (ж)"),
+        mp: f("הבינו", "hави́ну", "пойми (мн)"),
+        fp: f("הבינו", "hави́ну", "пойми (мн.ж)"),
       },
     },
   },
@@ -210,6 +220,8 @@ const CORE_VERBS: Verb[] = [
       imperative: {
         ms: f("התלבש", "hитлабе́ш", "оденься (м)"),
         fs: f("התלבשי", "hитлабши́", "оденься (ж)"),
+        mp: f("התלבשו", "hитлабшу́", "оденься (мн)"),
+        fp: f("התלבשו", "hитлабшу́", "оденься (мн.ж)"),
       },
     },
   },
@@ -219,4 +231,6 @@ export const SEED_VERBS: Verb[] = [
   ...CORE_VERBS,
   ...PAAL_VERBS,
   ...OTHER_BINYAN_VERBS,
+  ...EXTRA_VERBS,
+  ...MORE_VERBS,
 ];

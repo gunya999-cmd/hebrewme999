@@ -1,12 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Brain, PenLine, Puzzle, Layers } from "lucide-react";
+import { Brain, PenLine, Puzzle, Layers, BookOpen } from "lucide-react";
 
 const games = [
   {
     id: "guess-form",
     title: "Угадай форму",
-    desc: "Выбери правильную форму глагола",
+    desc: "Выбери правильную форму глагола из 4 вариантов",
     icon: Brain,
     color: "bg-primary/10 text-primary",
     path: "/games/guess-form",
@@ -14,26 +14,34 @@ const games = [
   {
     id: "write-form",
     title: "Напиши форму",
-    desc: "Напиши форму глагола по заданию",
+    desc: "Напечатай форму глагола на иврите вручную",
     icon: PenLine,
     color: "bg-success/10 text-success",
-    path: "/games/guess-form",
+    path: "/games/write-form",
   },
   {
     id: "guess-root",
     title: "Угадай корень",
-    desc: "Определи корень глагола",
+    desc: "Определи трёхбуквенный корень глагола",
     icon: Puzzle,
     color: "bg-streak/10 text-streak",
-    path: "/games/guess-form",
+    path: "/games/guess-root",
   },
   {
     id: "guess-binyan",
-    title: "Угадай беньян",
-    desc: "К какому беньяну относится глагол?",
+    title: "Угадай биньян",
+    desc: "К какому биньяну относится глагол?",
     icon: Layers,
     color: "bg-destructive/10 text-destructive",
-    path: "/games/guess-form",
+    path: "/games/guess-binyan",
+  },
+  {
+    id: "prep-fill",
+    title: "Вставь предлог",
+    desc: "Вставь правильный предлог в предложение на иврите",
+    icon: BookOpen,
+    color: "bg-accent/20 text-accent-foreground",
+    path: "/games/prep-fill",
   },
 ];
 

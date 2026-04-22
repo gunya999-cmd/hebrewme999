@@ -1,28 +1,16 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Volume2, ExternalLink } from "lucide-react";
+import { ArrowLeft, Volume2 } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { SEED_VERBS } from "@/data/verbs";
 import { BINYAN_NAMES, PERSON_LABELS, TENSE_LABELS, ConjugationForm } from "@/types/verb";
-import { useLearning } from "@/hooks/useLearning";
 
 const TENSES = ["present", "past", "future", "imperative"] as const;
-
-const SRS_LEVEL_LABELS = ["Новый", "Ур. 1", "Ур. 2", "Ур. 3", "Ур. 4", "Выучен ✓"];
-const SRS_LEVEL_COLORS = [
-  "bg-muted text-muted-foreground",
-  "bg-primary/20 text-primary",
-  "bg-primary/40 text-primary",
-  "bg-success/30 text-success",
-  "bg-success/50 text-success",
-  "bg-success text-success-foreground",
-];
 
 export default function VerbDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [activeTense, setActiveTense] = useState<string>("present");
-  const { progress } = useLearning();
 
   const verb = SEED_VERBS.find((v) => v.id === id);
   if (!verb) {
@@ -32,9 +20,6 @@ export default function VerbDetail() {
       </div>
     );
   }
-
-  const verbProgress = progress[verb.id];
-  const srsLevel = verbProgress?.level ?? 0;
 
   const conjugation = verb.conjugations;
   const activeForms: Record<string, ConjugationForm> | undefined = conjugation
@@ -47,20 +32,13 @@ export default function VerbDetail() {
     speechSynthesis.speak(utterance);
   };
 
-  const pealimUrl = `https://www.pealim.com/search/?q=${encodeURIComponent(verb.infinitive_hebrew)}`;
-
   return (
     <div className="min-h-screen bg-background pb-20">
       {/* Header */}
       <div className="bg-primary px-4 pt-10 pb-6 rounded-b-[2rem]">
-        <div className="flex items-center justify-between mb-4">
-          <button onClick={() => navigate(-1)} className="text-primary-foreground/80">
-            <ArrowLeft className="w-6 h-6" />
-          </button>
-          <span className={`text-xs font-bold rounded-full px-3 py-1 ${SRS_LEVEL_COLORS[srsLevel]}`}>
-            {SRS_LEVEL_LABELS[srsLevel]}
-          </span>
-        </div>
+        <button onClick={() => navigate(-1)} className="mb-4 text-primary-foreground/80">
+          <ArrowLeft className="w-6 h-6" />
+        </button>
         <div className="text-center">
           <h1 className="font-hebrew text-4xl font-bold text-primary-foreground mb-1">{verb.infinitive_hebrew}</h1>
           <p className="text-primary-foreground/80 font-medium text-lg">{verb.transcription_ru}</p>
@@ -73,22 +51,12 @@ export default function VerbDetail() {
               <span className="font-hebrew">{verb.binyan}</span> {BINYAN_NAMES[verb.binyan]}
             </span>
           </div>
-          <div className="flex items-center justify-center gap-2 mt-3">
-            <button
-              onClick={() => speak(verb.infinitive_hebrew)}
-              className="bg-primary-foreground/20 rounded-full p-2.5 active:scale-90 transition-transform"
-            >
-              <Volume2 className="w-5 h-5 text-primary-foreground" />
-            </button>
-            <a
-              href={pealimUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-primary-foreground/20 rounded-full px-3 py-2 text-xs font-bold text-primary-foreground flex items-center gap-1 active:scale-90 transition-transform"
-            >
-              Pealim <ExternalLink className="w-3.5 h-3.5" />
-            </a>
-          </div>
+          <button
+            onClick={() => speak(verb.infinitive_hebrew)}
+            className="mt-3 bg-primary-foreground/20 rounded-full p-2.5 mx-auto block active:scale-90 transition-transform"
+          >
+            <Volume2 className="w-5 h-5 text-primary-foreground" />
+          </button>
         </div>
       </div>
 
@@ -111,6 +79,7 @@ export default function VerbDetail() {
             ))}
           </div>
 
+          {/* Forms */}
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTense}

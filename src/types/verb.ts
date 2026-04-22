@@ -25,6 +25,8 @@ export interface PastFutureTense {
 export interface ImperativeTense {
   ms: ConjugationForm;
   fs: ConjugationForm;
+  mp: ConjugationForm;
+  fp: ConjugationForm;
 }
 
 export interface VerbConjugations {
