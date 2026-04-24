@@ -385,7 +385,14 @@ export default function VoiceDialogue() {
     });
   }, []);
 
-  /* ── Cleanup on unmount ── */
+  /* ── Auto-start when navigated with preselected level ── */
+  useEffect(() => {
+    const state = location.state as { level?: Level; autoStart?: boolean } | null;
+    if (state?.autoStart && state.level && !autoStartedRef.current && !connected && !connecting) {
+      autoStartedRef.current = true;
+      startSession(state.level);
+    }
+  }, [location.state, connected, connecting, startSession]);
   useEffect(() => {
     return () => {
       wsRef.current?.close(1000);
