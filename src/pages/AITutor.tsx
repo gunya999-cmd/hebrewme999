@@ -481,7 +481,11 @@ export default function AITutor() {
     setScreen("chat");
     setMessages([]);
     setLoading(true);
-    const initMsg: Msg = { role: "user", content: `התחל שיחה על הנושא: "${topic}". הצג את עצמך כמרים והתחל שיחה.` };
+    const isFree = topic === "Свободная беседа" || topic.toLowerCase().includes("свободн");
+    const initContent = isFree
+      ? `שלום! את מרים. פתחי שיחה חופשית עם התלמיד בעברית בלבד. הציגי את עצמך בקצרה (משפט אחד), שאלי לשלומו ושאלי שאלה פתוחה אחת מעניינת כדי להתחיל דיאלוג חי (למשל על היום שלו, תחביבים, או משהו שקרה לאחרונה). אל תציעי רשימת נושאים — פשוט התחילי לדבר באופן טבעי כמו חברה.`
+      : `התחל שיחה על הנושא: "${topic}". הצג את עצמך כמרים בקצרה והתחל שיחה עם שאלה ראשונה לתלמיד.`;
+    const initMsg: Msg = { role: "user", content: initContent };
     let hebrewSoFar = "";
     await streamChat({
       messages: [initMsg], level,
