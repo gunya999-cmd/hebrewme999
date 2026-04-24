@@ -103,6 +103,7 @@ async function translateToRussian(text: string): Promise<string> {
 
 export default function VoiceDialogue() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [level, setLevel] = useState<Level | null>(null);
   const [connected, setConnected] = useState(false);
   const [connecting, setConnecting] = useState(false);
@@ -112,6 +113,7 @@ export default function VoiceDialogue() {
   const [error, setError] = useState<string | null>(null);
   const [currentAiText, setCurrentAiText] = useState("");
   const [currentUserText, setCurrentUserText] = useState("");
+  const autoStartedRef = useRef(false);
 
   const wsRef = useRef<WebSocket | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
