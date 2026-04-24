@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { ArrowLeft, Mic, MicOff, Phone, PhoneOff, Settings2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import tutorAvatar from "@/assets/tutor-avatar.png";
 
 /* ── Types ── */
@@ -103,6 +103,7 @@ async function translateToRussian(text: string): Promise<string> {
 
 export default function VoiceDialogue() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [level, setLevel] = useState<Level | null>(null);
   const [connected, setConnected] = useState(false);
   const [connecting, setConnecting] = useState(false);
@@ -112,6 +113,7 @@ export default function VoiceDialogue() {
   const [error, setError] = useState<string | null>(null);
   const [currentAiText, setCurrentAiText] = useState("");
   const [currentUserText, setCurrentUserText] = useState("");
+  const autoStartedRef = useRef(false);
 
   const wsRef = useRef<WebSocket | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -383,7 +385,14 @@ export default function VoiceDialogue() {
     });
   }, []);
 
-  /* ── Cleanup on unmount ── */
+  /* ── Auto-start when navigated with preselected level ── */
+  useEffect(() => {
+    const state = location.state as { level?: Level; autoStart?: boolean } | null;
+    if (state?.autoStart && state.level && !autoStartedRef.current && !connected && !connecting) {
+      autoStartedRef.current = true;
+      startSession(state.level);
+    }
+  }, [location.state, connected, connecting, startSession]);
   useEffect(() => {
     return () => {
       wsRef.current?.close(1000);

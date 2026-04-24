@@ -1025,16 +1025,19 @@ export default function AITutor() {
             ))}
           </div>
 
-          {/* Free chat */}
+          {/* Free chat — voice mode */}
           <motion.button whileTap={{ scale: 0.97 }}
-            onClick={() => startTopicChat("Свободная беседа")}
-            className="w-full mb-5 p-4 rounded-2xl bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20 flex items-center gap-4 text-left hover:from-primary/15 transition-all">
-            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-              <MessageSquare className="w-6 h-6 text-primary" />
+            onClick={() => navigate("/voice-dialogue", { state: { level, autoStart: true } })}
+            className="w-full mb-5 p-4 rounded-2xl bg-gradient-to-r from-primary/15 to-primary/5 border border-primary/30 flex items-center gap-4 text-left hover:from-primary/20 transition-all">
+            <div className="w-12 h-12 rounded-xl bg-primary/15 flex items-center justify-center">
+              <Mic className="w-6 h-6 text-primary" />
             </div>
-            <div>
-              <p className="font-bold text-foreground">Свободная беседа</p>
-              <p className="text-xs text-muted-foreground">Поговори с Мирьям на любую тему</p>
+            <div className="flex-1">
+              <p className="font-bold text-foreground flex items-center gap-2">
+                Свободная беседа
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-primary text-primary-foreground">🎤 ГОЛОС</span>
+              </p>
+              <p className="text-xs text-muted-foreground">Живое голосовое общение с Мирьям через микрофон</p>
             </div>
           </motion.button>
 
