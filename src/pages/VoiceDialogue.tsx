@@ -323,66 +323,73 @@ export default function VoiceDialogue() {
       silentGain.connect(audioCtx.destination);
       startVoiceActivityMonitor();
 
-      // Connect WebSocket to Gemini
-      const model = "gemini-2.5-flash-preview-native-audio-dialog";
+      // Connect WebSocket to Gemini Live API (native audio)
+      const model = "gemini-2.5-flash-native-audio-preview-09-2025";
       const wsUrl = `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent?key=${apiKey}`;
       const ws = new WebSocket(wsUrl);
       wsRef.current = ws;
 
       ws.onopen = () => {
-        // Send setup message
+        // Send setup message — native audio supports only AUDIO modality;
+        // transcription comes via inputAudioTranscription / outputAudioTranscription.
         const setup = {
           setup: {
             model: `models/${model}`,
-            generation_config: {
-              response_modalities: ["AUDIO", "TEXT"],
-              speech_config: {
-                voice_config: {
-                  prebuilt_voice_config: {
-                    voice_name: "Aoede",
+            generationConfig: {
+              responseModalities: ["AUDIO"],
+              speechConfig: {
+                voiceConfig: {
+                  prebuiltVoiceConfig: {
+                    voiceName: "Aoede",
                   },
                 },
-                language_code: "iw-IL",
+                languageCode: "he-IL",
               },
             },
-            system_instruction: {
+            systemInstruction: {
               parts: [{ text: LEVEL_INSTRUCTIONS[selectedLevel] }],
             },
+            inputAudioTranscription: {},
+            outputAudioTranscription: {},
           },
         };
         ws.send(JSON.stringify(setup));
       };
 
-      ws.onmessage = (event) => {
+      ws.onmessage = async (event) => {
         try {
-          const msg = JSON.parse(event.data);
+          // Server may send Blob or string
+          const raw = typeof event.data === "string"
+            ? event.data
+            : await (event.data as Blob).text();
+          const msg = JSON.parse(raw);
 
           // Setup complete
           if (msg.setupComplete) {
             setConnected(true);
             setConnecting(false);
 
-            // Start sending audio from worklet
+            // Start sending audio from worklet using realtimeInput.audio (current API)
             workletNode.port.onmessage = (e) => {
               if (wsRef.current?.readyState === WebSocket.OPEN && !muted) {
                 const audioMsg = {
                   realtimeInput: {
-                    mediaChunks: [{
+                    audio: {
                       mimeType: "audio/pcm;rate=16000",
                       data: e.data.pcmBase64,
-                    }],
+                    },
                   },
                 };
                 wsRef.current.send(JSON.stringify(audioMsg));
               }
             };
 
-            // Send initial greeting request
+            // Ask Miriam to start the dialogue
             const greetMsg = {
               clientContent: {
                 turns: [{
                   role: "user",
-                  parts: [{ text: "שלום! בואי נתחיל שיחה." }],
+                  parts: [{ text: "התחל את השיחה עכשיו. ברך אותי בקצרה בעברית ושאל שאלה אחת פתוחה." }],
                 }],
                 turnComplete: true,
               },
@@ -391,45 +398,41 @@ export default function VoiceDialogue() {
             return;
           }
 
-          // Server content (AI response)
+          // Server content
           if (msg.serverContent) {
+            // Audio chunks from model
             const parts = msg.serverContent.modelTurn?.parts || [];
             for (const part of parts) {
               if (part.inlineData?.data) {
                 enqueueAudio(part.inlineData.data);
               }
-              if (part.text) {
-                aiTextBufferRef.current += part.text;
-                setCurrentAiText(aiTextBufferRef.current);
-              }
             }
 
-            // If turn is complete, flush text
-            if (msg.serverContent.turnComplete) {
+            // Output transcription (Hebrew text of Miriam's speech)
+            const outText = msg.serverContent.outputTranscription?.text;
+            if (outText) {
+              aiTextBufferRef.current += outText;
+              setCurrentAiText(aiTextBufferRef.current);
+            }
+
+            // Input transcription (Hebrew text of user's speech)
+            const inText = msg.serverContent.inputTranscription?.text;
+            if (inText) {
+              userTextBufferRef.current += inText;
+              setCurrentUserText(userTextBufferRef.current);
+            }
+
+            // Turn complete — flush both buffers to transcript
+            if (msg.serverContent.turnComplete || msg.serverContent.generationComplete) {
+              flushUserText();
               flushAiText();
             }
 
-            // If server was interrupted
+            // Server signals interruption (barge-in)
             if (msg.serverContent.interrupted) {
               interruptPlayback();
               flushAiText();
             }
-          }
-
-          // Input transcription (what the user said)
-          if (msg.serverContent?.inputTranscription?.text) {
-            const text = msg.serverContent.inputTranscription.text;
-            userTextBufferRef.current += text;
-            setCurrentUserText(userTextBufferRef.current);
-          }
-          if (msg.serverContent?.inputTranscription?.finished) {
-            flushUserText();
-          }
-
-          // Output transcription (alternative to text parts)
-          if (msg.serverContent?.outputTranscription?.text) {
-            aiTextBufferRef.current += msg.serverContent.outputTranscription.text;
-            setCurrentAiText(aiTextBufferRef.current);
           }
 
         } catch (err) {
