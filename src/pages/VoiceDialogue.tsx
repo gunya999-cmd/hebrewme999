@@ -82,6 +82,27 @@ function decodeBase64Pcm(base64: string): Float32Array {
   return float32;
 }
 
+function getMicrophoneErrorMessage(err: unknown): string {
+  const error = err as { name?: string; message?: string };
+
+  switch (error?.name) {
+    case "NotAllowedError":
+    case "PermissionDeniedError":
+      return "Доступ к микрофону запрещён. Разрешите микрофон в браузере и попробуйте снова.";
+    case "NotFoundError":
+    case "DevicesNotFoundError":
+      return "Микрофон не найден. Подключите устройство и попробуйте снова.";
+    case "NotReadableError":
+    case "TrackStartError":
+      return "Микрофон сейчас занят другим приложением.";
+    case "OverconstrainedError":
+    case "ConstraintNotSatisfiedError":
+      return "Не удалось включить микрофон с нужными настройками.";
+    default:
+      return error?.message || "Не удалось включить микрофон.";
+  }
+}
+
 /* ── Translate helper ── */
 async function translateToRussian(text: string): Promise<string> {
   try {
@@ -104,7 +125,8 @@ async function translateToRussian(text: string): Promise<string> {
 export default function VoiceDialogue() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [level, setLevel] = useState<Level | null>(null);
+  const routeState = location.state as { level?: Level; autoStart?: boolean } | null;
+  const [level, setLevel] = useState<Level | null>(routeState?.level ?? null);
   const [connected, setConnected] = useState(false);
   const [connecting, setConnecting] = useState(false);
   const [muted, setMuted] = useState(false);
@@ -113,7 +135,6 @@ export default function VoiceDialogue() {
   const [error, setError] = useState<string | null>(null);
   const [currentAiText, setCurrentAiText] = useState("");
   const [currentUserText, setCurrentUserText] = useState("");
-  const autoStartedRef = useRef(false);
 
   const wsRef = useRef<WebSocket | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -126,10 +147,34 @@ export default function VoiceDialogue() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const aiTextBufferRef = useRef("");
   const userTextBufferRef = useRef("");
+  const currentPlaybackSourceRef = useRef<AudioBufferSourceNode | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const monitorFrameRef = useRef<number | null>(null);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [transcript, currentAiText, currentUserText]);
+
+  const stopPlaybackSource = useCallback(() => {
+    const currentSource = currentPlaybackSourceRef.current;
+    if (!currentSource) return;
+
+    currentPlaybackSourceRef.current = null;
+    currentSource.onended = null;
+    try {
+      currentSource.stop(0);
+    } catch {
+      // source might already be stopped
+    }
+    currentSource.disconnect();
+  }, []);
+
+  const stopVoiceActivityMonitor = useCallback(() => {
+    if (monitorFrameRef.current !== null) {
+      cancelAnimationFrame(monitorFrameRef.current);
+      monitorFrameRef.current = null;
+    }
+  }, []);
 
   /* ── Play queued audio chunks ── */
   const playNextChunk = useCallback(() => {
@@ -147,7 +192,13 @@ export default function VoiceDialogue() {
     const source = audioCtxRef.current.createBufferSource();
     source.buffer = buffer;
     source.connect(audioCtxRef.current.destination);
-    source.onended = () => playNextChunk();
+    currentPlaybackSourceRef.current = source;
+    source.onended = () => {
+      if (currentPlaybackSourceRef.current === source) {
+        currentPlaybackSourceRef.current = null;
+      }
+      playNextChunk();
+    };
     source.start();
   }, []);
 
@@ -161,8 +212,35 @@ export default function VoiceDialogue() {
   const interruptPlayback = useCallback(() => {
     playbackQueueRef.current = [];
     isPlayingRef.current = false;
+    stopPlaybackSource();
     setAiSpeaking(false);
-  }, []);
+  }, [stopPlaybackSource]);
+
+  const startVoiceActivityMonitor = useCallback(() => {
+    const analyser = analyserRef.current;
+    if (!analyser) return;
+
+    const samples = new Float32Array(analyser.fftSize);
+    stopVoiceActivityMonitor();
+
+    const tick = () => {
+      analyser.getFloatTimeDomainData(samples);
+
+      let energy = 0;
+      for (let i = 0; i < samples.length; i++) {
+        energy += samples[i] * samples[i];
+      }
+
+      const rms = Math.sqrt(energy / samples.length);
+      if (rms > 0.035 && isPlayingRef.current && !muted) {
+        interruptPlayback();
+      }
+
+      monitorFrameRef.current = requestAnimationFrame(tick);
+    };
+
+    monitorFrameRef.current = requestAnimationFrame(tick);
+  }, [interruptPlayback, muted, stopVoiceActivityMonitor]);
 
   /* ── Flush AI text buffer to transcript ── */
   const flushAiText = useCallback(async () => {
@@ -188,12 +266,25 @@ export default function VoiceDialogue() {
 
   /* ── Connect to Gemini Live ── */
   const startSession = useCallback(async (selectedLevel: Level) => {
+    if (connecting || connected) return;
+
     setLevel(selectedLevel);
     setConnecting(true);
     setError(null);
 
     try {
-      // Get API key
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          sampleRate: 16000,
+          channelCount: 1,
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        },
+      });
+      streamRef.current = stream;
+
+      // Get API key after mic permission to preserve user gesture chain
       const configResp = await fetch(CONFIG_URL, {
         method: "POST",
         headers: {
@@ -208,10 +299,7 @@ export default function VoiceDialogue() {
       // Create audio context
       const audioCtx = new AudioContext({ sampleRate: 16000 });
       audioCtxRef.current = audioCtx;
-
-      // Get mic stream
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: { sampleRate: 16000, channelCount: 1, echoCancellation: true, noiseSuppression: true } });
-      streamRef.current = stream;
+      await audioCtx.resume();
 
       // Setup AudioWorklet
       const workletUrl = createWorkletBlobUrl();
@@ -222,8 +310,18 @@ export default function VoiceDialogue() {
 
       const source = audioCtx.createMediaStreamSource(stream);
       sourceRef.current = source;
+      const analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 2048;
+      analyser.smoothingTimeConstant = 0.15;
+      analyserRef.current = analyser;
+      source.connect(analyser);
       source.connect(workletNode);
-      workletNode.connect(audioCtx.destination); // needed for worklet to process
+
+      const silentGain = audioCtx.createGain();
+      silentGain.gain.value = 0;
+      workletNode.connect(silentGain);
+      silentGain.connect(audioCtx.destination);
+      startVoiceActivityMonitor();
 
       // Connect WebSocket to Gemini
       const model = "gemini-2.5-flash-preview-native-audio-dialog";
@@ -356,25 +454,46 @@ export default function VoiceDialogue() {
 
     } catch (err: any) {
       console.error("startSession error:", err);
-      setError(err.message || "Ошибка запуска");
+      interruptPlayback();
+      stopVoiceActivityMonitor();
+      wsRef.current?.close(1000);
+      wsRef.current = null;
+      workletNodeRef.current?.disconnect();
+      workletNodeRef.current = null;
+      sourceRef.current?.disconnect();
+      sourceRef.current = null;
+      streamRef.current?.getTracks().forEach(t => t.stop());
+      streamRef.current = null;
+      audioCtxRef.current?.close();
+      audioCtxRef.current = null;
+      analyserRef.current = null;
+      setConnected(false);
+      setError(getMicrophoneErrorMessage(err));
       setConnecting(false);
     }
-  }, [enqueueAudio, flushAiText, flushUserText, interruptPlayback, muted]);
+  }, [connected, connecting, enqueueAudio, flushAiText, flushUserText, interruptPlayback, muted, startVoiceActivityMonitor, stopVoiceActivityMonitor]);
 
   /* ── Disconnect ── */
   const endSession = useCallback(() => {
+    stopVoiceActivityMonitor();
+    interruptPlayback();
     wsRef.current?.close(1000);
     wsRef.current = null;
     workletNodeRef.current?.disconnect();
+    workletNodeRef.current = null;
     sourceRef.current?.disconnect();
+    sourceRef.current = null;
     streamRef.current?.getTracks().forEach(t => t.stop());
+    streamRef.current = null;
     audioCtxRef.current?.close();
     audioCtxRef.current = null;
+    analyserRef.current = null;
     playbackQueueRef.current = [];
     isPlayingRef.current = false;
     setConnected(false);
     setAiSpeaking(false);
-  }, []);
+    setConnecting(false);
+  }, [interruptPlayback, stopVoiceActivityMonitor]);
 
   /* ── Toggle mute ── */
   const toggleMute = useCallback(() => {
@@ -385,21 +504,15 @@ export default function VoiceDialogue() {
     });
   }, []);
 
-  /* ── Auto-start when navigated with preselected level ── */
-  useEffect(() => {
-    const state = location.state as { level?: Level; autoStart?: boolean } | null;
-    if (state?.autoStart && state.level && !autoStartedRef.current && !connected && !connecting) {
-      autoStartedRef.current = true;
-      startSession(state.level);
-    }
-  }, [location.state, connected, connecting, startSession]);
   useEffect(() => {
     return () => {
+      stopVoiceActivityMonitor();
+      stopPlaybackSource();
       wsRef.current?.close(1000);
       streamRef.current?.getTracks().forEach(t => t.stop());
       audioCtxRef.current?.close();
     };
-  }, []);
+  }, [stopPlaybackSource, stopVoiceActivityMonitor]);
 
   /* ── Level selection screen ── */
   if (!level) {
