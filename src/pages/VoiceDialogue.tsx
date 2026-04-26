@@ -343,7 +343,6 @@ export default function VoiceDialogue() {
                     voiceName: "Aoede",
                   },
                 },
-                languageCode: "he-IL",
               },
             },
             systemInstruction: {
