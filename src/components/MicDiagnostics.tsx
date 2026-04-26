@@ -216,7 +216,7 @@ export function MicDiagnostics({ open, onOpenChange, selectedDeviceId, onDeviceC
     }
     if (permission === "granted") {
       return (
-        <div className="flex items-center gap-2 text-green-600 dark:text-green-500">
+        <div className="flex items-center gap-2 text-success">
           <CheckCircle2 className="w-4 h-4" />
           <span className="text-sm font-medium">Доступ разрешён</span>
         </div>
