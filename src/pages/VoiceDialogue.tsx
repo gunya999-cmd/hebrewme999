@@ -592,7 +592,21 @@ export default function VoiceDialogue() {
               </motion.button>
             ))}
           </div>
+          <button
+            type="button"
+            onClick={() => setDiagOpen(true)}
+            className="text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground transition-colors flex items-center gap-1.5"
+          >
+            <Settings2 className="w-3.5 h-3.5" />
+            Проверить микрофон
+          </button>
         </div>
+        <MicDiagnostics
+          open={diagOpen}
+          onOpenChange={setDiagOpen}
+          selectedDeviceId={micDeviceId}
+          onDeviceChange={setMicDeviceId}
+        />
       </div>
     );
   }
