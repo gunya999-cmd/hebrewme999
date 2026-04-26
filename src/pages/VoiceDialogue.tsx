@@ -184,6 +184,15 @@ export default function VoiceDialogue() {
     }
   }, []);
 
+  const sendRealtimeInput = useCallback((input: Record<string, unknown>) => {
+    if (wsRef.current?.readyState !== WebSocket.OPEN) return;
+    wsRef.current.send(JSON.stringify({ realtimeInput: input }));
+  }, []);
+
+  const sendAudioStreamEnd = useCallback(() => {
+    sendRealtimeInput({ audioStreamEnd: true });
+  }, [sendRealtimeInput]);
+
   /* ── Play queued audio chunks ── */
   const playNextChunk = useCallback(() => {
     if (!audioCtxRef.current || playbackQueueRef.current.length === 0) {
@@ -305,7 +314,7 @@ export default function VoiceDialogue() {
       const { apiKey } = await configResp.json();
 
       // Create audio context
-      const audioCtx = new AudioContext({ sampleRate: 16000 });
+      const audioCtx = createRealtimeAudioContext();
       audioCtxRef.current = audioCtx;
       await audioCtx.resume();
 
@@ -352,6 +361,16 @@ export default function VoiceDialogue() {
                   },
                 },
               },
+            },
+            realtimeInputConfig: {
+              automaticActivityDetection: {
+                startOfSpeechSensitivity: "START_SENSITIVITY_HIGH",
+                endOfSpeechSensitivity: "END_SENSITIVITY_HIGH",
+                prefixPaddingMs: 300,
+                silenceDurationMs: 700,
+              },
+              activityHandling: "START_OF_ACTIVITY_INTERRUPTS",
+              turnCoverage: "TURN_INCLUDES_ONLY_ACTIVITY",
             },
             systemInstruction: {
               parts: [{ text: LEVEL_INSTRUCTIONS[selectedLevel] }],
