@@ -148,6 +148,7 @@ export default function VoiceDialogue() {
   const audioCtxRef = useRef<AudioContext | null>(null);
   const workletNodeRef = useRef<AudioWorkletNode | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const mutedRef = useRef(false);
   const sourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
   const playbackQueueRef = useRef<Float32Array[]>([]);
   const isPlayingRef = useRef(false);
@@ -397,17 +398,13 @@ export default function VoiceDialogue() {
 
             // Start sending audio from worklet using realtimeInput.audio (current API)
             workletNode.port.onmessage = (e) => {
-              if (wsRef.current?.readyState === WebSocket.OPEN && !muted) {
-                const audioMsg = {
-                  realtimeInput: {
-                    audio: {
-                      mimeType: "audio/pcm;rate=16000",
-                      data: e.data.pcmBase64,
-                    },
-                  },
-                };
-                wsRef.current.send(JSON.stringify(audioMsg));
-              }
+              if (mutedRef.current || !e.data?.pcmBase64) return;
+              sendRealtimeInput({
+                audio: {
+                  mimeType: "audio/pcm;rate=16000",
+                  data: e.data.pcmBase64,
+                },
+              });
             };
 
             // Ask Miriam to start the dialogue
@@ -517,8 +514,10 @@ export default function VoiceDialogue() {
     audioCtxRef.current?.close();
     audioCtxRef.current = null;
     analyserRef.current = null;
+    mutedRef.current = false;
     playbackQueueRef.current = [];
     isPlayingRef.current = false;
+    setMuted(false);
     setConnected(false);
     setAiSpeaking(false);
     setConnecting(false);
@@ -528,10 +527,12 @@ export default function VoiceDialogue() {
   const toggleMute = useCallback(() => {
     setMuted(prev => {
       const newVal = !prev;
+      mutedRef.current = newVal;
       streamRef.current?.getAudioTracks().forEach(t => { t.enabled = !newVal; });
+      if (newVal) sendAudioStreamEnd();
       return newVal;
     });
-  }, []);
+  }, [sendAudioStreamEnd]);
 
   useEffect(() => {
     return () => {
