@@ -320,6 +320,7 @@ export default function VoiceDialogue() {
       const audioCtx = createRealtimeAudioContext();
       audioCtxRef.current = audioCtx;
       await audioCtx.resume();
+      const inputSampleRate = Math.round(audioCtx.sampleRate);
 
       // Setup AudioWorklet
       const workletUrl = createWorkletBlobUrl();
@@ -403,7 +404,7 @@ export default function VoiceDialogue() {
               if (mutedRef.current || !e.data?.pcmBase64) return;
               sendRealtimeInput({
                 audio: {
-                  mimeType: "audio/pcm;rate=16000",
+                  mimeType: `audio/pcm;rate=${inputSampleRate}`,
                   data: e.data.pcmBase64,
                 },
               });
@@ -499,7 +500,7 @@ export default function VoiceDialogue() {
       setError(getMicrophoneErrorMessage(err));
       setConnecting(false);
     }
-  }, [connected, connecting, enqueueAudio, flushAiText, flushUserText, interruptPlayback, muted, startVoiceActivityMonitor, stopVoiceActivityMonitor]);
+  }, [connected, connecting, enqueueAudio, flushAiText, flushUserText, interruptPlayback, sendRealtimeInput, startVoiceActivityMonitor, stopVoiceActivityMonitor]);
 
   /* ── Disconnect ── */
   const endSession = useCallback(() => {
