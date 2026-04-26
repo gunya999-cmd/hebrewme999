@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate, useLocation } from "react-router-dom";
 import tutorAvatar from "@/assets/tutor-avatar.png";
+import { MicDiagnostics } from "@/components/MicDiagnostics";
 
 /* ── Types ── */
 type Level = "beginner" | "intermediate" | "advanced";
@@ -143,6 +144,8 @@ export default function VoiceDialogue() {
   const [error, setError] = useState<string | null>(null);
   const [currentAiText, setCurrentAiText] = useState("");
   const [currentUserText, setCurrentUserText] = useState("");
+  const [diagOpen, setDiagOpen] = useState(false);
+  const [micDeviceId, setMicDeviceId] = useState<string | undefined>(undefined);
 
   const wsRef = useRef<WebSocket | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -295,6 +298,7 @@ export default function VoiceDialogue() {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
+          ...(micDeviceId ? { deviceId: { exact: micDeviceId } } : {}),
           sampleRate: 16000,
           channelCount: 1,
           echoCancellation: true,
@@ -500,7 +504,7 @@ export default function VoiceDialogue() {
       setError(getMicrophoneErrorMessage(err));
       setConnecting(false);
     }
-  }, [connected, connecting, enqueueAudio, flushAiText, flushUserText, interruptPlayback, sendRealtimeInput, startVoiceActivityMonitor, stopVoiceActivityMonitor]);
+  }, [connected, connecting, micDeviceId, enqueueAudio, flushAiText, flushUserText, interruptPlayback, sendRealtimeInput, startVoiceActivityMonitor, stopVoiceActivityMonitor]);
 
   /* ── Disconnect ── */
   const endSession = useCallback(() => {
@@ -588,7 +592,21 @@ export default function VoiceDialogue() {
               </motion.button>
             ))}
           </div>
+          <button
+            type="button"
+            onClick={() => setDiagOpen(true)}
+            className="text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground transition-colors flex items-center gap-1.5"
+          >
+            <Settings2 className="w-3.5 h-3.5" />
+            Проверить микрофон
+          </button>
         </div>
+        <MicDiagnostics
+          open={diagOpen}
+          onOpenChange={setDiagOpen}
+          selectedDeviceId={micDeviceId}
+          onDeviceChange={setMicDeviceId}
+        />
       </div>
     );
   }
@@ -618,7 +636,22 @@ export default function VoiceDialogue() {
             </p>
           </div>
         </div>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setDiagOpen(true)}
+          aria-label="Проверить микрофон"
+          title="Проверить микрофон"
+        >
+          <Settings2 className="w-5 h-5" />
+        </Button>
       </div>
+      <MicDiagnostics
+        open={diagOpen}
+        onOpenChange={setDiagOpen}
+        selectedDeviceId={micDeviceId}
+        onDeviceChange={setMicDeviceId}
+      />
 
       {/* Error */}
       {error && (
