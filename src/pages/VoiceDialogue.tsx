@@ -298,6 +298,7 @@ export default function VoiceDialogue() {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
+          ...(micDeviceId ? { deviceId: { exact: micDeviceId } } : {}),
           sampleRate: 16000,
           channelCount: 1,
           echoCancellation: true,
