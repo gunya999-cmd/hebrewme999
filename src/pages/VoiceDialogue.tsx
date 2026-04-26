@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate, useLocation } from "react-router-dom";
 import tutorAvatar from "@/assets/tutor-avatar.png";
+import { MicDiagnostics } from "@/components/MicDiagnostics";
 
 /* ── Types ── */
 type Level = "beginner" | "intermediate" | "advanced";
