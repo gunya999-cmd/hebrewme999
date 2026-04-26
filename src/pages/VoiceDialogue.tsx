@@ -29,6 +29,14 @@ const LEVEL_INSTRUCTIONS: Record<Level, string> = {
 const CONFIG_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/gemini-voice-config`;
 const TRANSLATE_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-dialogue`;
 
+type AudioWindow = Window & typeof globalThis & { webkitAudioContext?: typeof AudioContext };
+
+function createRealtimeAudioContext(): AudioContext {
+  const AudioContextCtor = window.AudioContext || (window as AudioWindow).webkitAudioContext;
+  if (!AudioContextCtor) throw new Error("Ваш браузер не поддерживает живой аудио-диалог.");
+  return new AudioContextCtor({ sampleRate: 16000 });
+}
+
 /* ── AudioWorklet processor as inline blob ── */
 function createWorkletBlobUrl() {
   const code = `
@@ -36,7 +44,7 @@ class PcmRecorderProcessor extends AudioWorkletProcessor {
   constructor() {
     super();
     this._buffer = [];
-    this._bufferSize = 2048;
+    this._bufferSize = 512;
   }
   process(inputs) {
     const input = inputs[0];
