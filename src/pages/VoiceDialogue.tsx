@@ -250,7 +250,7 @@ export default function VoiceDialogue() {
       }
 
       const rms = Math.sqrt(energy / samples.length);
-      if (rms > 0.035 && isPlayingRef.current && !muted) {
+      if (rms > 0.035 && isPlayingRef.current && !mutedRef.current) {
         interruptPlayback();
       }
 
@@ -258,7 +258,7 @@ export default function VoiceDialogue() {
     };
 
     monitorFrameRef.current = requestAnimationFrame(tick);
-  }, [interruptPlayback, muted, stopVoiceActivityMonitor]);
+  }, [interruptPlayback, stopVoiceActivityMonitor]);
 
   /* ── Flush AI text buffer to transcript ── */
   const flushAiText = useCallback(async () => {
@@ -287,6 +287,8 @@ export default function VoiceDialogue() {
     if (connecting || connected) return;
 
     setLevel(selectedLevel);
+    mutedRef.current = false;
+    setMuted(false);
     setConnecting(true);
     setError(null);
 
@@ -503,6 +505,7 @@ export default function VoiceDialogue() {
   const endSession = useCallback(() => {
     stopVoiceActivityMonitor();
     interruptPlayback();
+    sendAudioStreamEnd();
     wsRef.current?.close(1000);
     wsRef.current = null;
     workletNodeRef.current?.disconnect();
@@ -521,7 +524,7 @@ export default function VoiceDialogue() {
     setConnected(false);
     setAiSpeaking(false);
     setConnecting(false);
-  }, [interruptPlayback, stopVoiceActivityMonitor]);
+  }, [interruptPlayback, sendAudioStreamEnd, stopVoiceActivityMonitor]);
 
   /* ── Toggle mute ── */
   const toggleMute = useCallback(() => {
