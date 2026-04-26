@@ -504,7 +504,7 @@ export default function VoiceDialogue() {
       setError(getMicrophoneErrorMessage(err));
       setConnecting(false);
     }
-  }, [connected, connecting, enqueueAudio, flushAiText, flushUserText, interruptPlayback, sendRealtimeInput, startVoiceActivityMonitor, stopVoiceActivityMonitor]);
+  }, [connected, connecting, micDeviceId, enqueueAudio, flushAiText, flushUserText, interruptPlayback, sendRealtimeInput, startVoiceActivityMonitor, stopVoiceActivityMonitor]);
 
   /* ── Disconnect ── */
   const endSession = useCallback(() => {
