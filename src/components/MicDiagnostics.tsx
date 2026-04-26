@@ -313,7 +313,7 @@ export function MicDiagnostics({ open, onOpenChange, selectedDeviceId, onDeviceC
                   <motion.div
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
-                    className="flex items-center gap-2 text-green-600 dark:text-green-500"
+                    className="flex items-center gap-2 text-success"
                   >
                     <CheckCircle2 className="w-4 h-4" />
                     <span className="text-sm font-medium">Микрофон вас слышит ✓</span>
