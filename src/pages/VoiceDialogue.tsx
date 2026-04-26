@@ -144,6 +144,8 @@ export default function VoiceDialogue() {
   const [error, setError] = useState<string | null>(null);
   const [currentAiText, setCurrentAiText] = useState("");
   const [currentUserText, setCurrentUserText] = useState("");
+  const [diagOpen, setDiagOpen] = useState(false);
+  const [micDeviceId, setMicDeviceId] = useState<string | undefined>(undefined);
 
   const wsRef = useRef<WebSocket | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
