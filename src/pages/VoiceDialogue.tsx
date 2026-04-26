@@ -636,7 +636,22 @@ export default function VoiceDialogue() {
             </p>
           </div>
         </div>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setDiagOpen(true)}
+          aria-label="Проверить микрофон"
+          title="Проверить микрофон"
+        >
+          <Settings2 className="w-5 h-5" />
+        </Button>
       </div>
+      <MicDiagnostics
+        open={diagOpen}
+        onOpenChange={setDiagOpen}
+        selectedDeviceId={micDeviceId}
+        onDeviceChange={setMicDeviceId}
+      />
 
       {/* Error */}
       {error && (
