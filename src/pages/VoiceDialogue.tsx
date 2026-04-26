@@ -29,6 +29,14 @@ const LEVEL_INSTRUCTIONS: Record<Level, string> = {
 const CONFIG_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/gemini-voice-config`;
 const TRANSLATE_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-dialogue`;
 
+type AudioWindow = Window & typeof globalThis & { webkitAudioContext?: typeof AudioContext };
+
+function createRealtimeAudioContext(): AudioContext {
+  const AudioContextCtor = window.AudioContext || (window as AudioWindow).webkitAudioContext;
+  if (!AudioContextCtor) throw new Error("Ваш браузер не поддерживает живой аудио-диалог.");
+  return new AudioContextCtor({ sampleRate: 16000 });
+}
+
 /* ── AudioWorklet processor as inline blob ── */
 function createWorkletBlobUrl() {
   const code = `
@@ -36,7 +44,7 @@ class PcmRecorderProcessor extends AudioWorkletProcessor {
   constructor() {
     super();
     this._buffer = [];
-    this._bufferSize = 2048;
+    this._bufferSize = 512;
   }
   process(inputs) {
     const input = inputs[0];
@@ -140,6 +148,7 @@ export default function VoiceDialogue() {
   const audioCtxRef = useRef<AudioContext | null>(null);
   const workletNodeRef = useRef<AudioWorkletNode | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const mutedRef = useRef(false);
   const sourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
   const playbackQueueRef = useRef<Float32Array[]>([]);
   const isPlayingRef = useRef(false);
@@ -175,6 +184,15 @@ export default function VoiceDialogue() {
       monitorFrameRef.current = null;
     }
   }, []);
+
+  const sendRealtimeInput = useCallback((input: Record<string, unknown>) => {
+    if (wsRef.current?.readyState !== WebSocket.OPEN) return;
+    wsRef.current.send(JSON.stringify({ realtimeInput: input }));
+  }, []);
+
+  const sendAudioStreamEnd = useCallback(() => {
+    sendRealtimeInput({ audioStreamEnd: true });
+  }, [sendRealtimeInput]);
 
   /* ── Play queued audio chunks ── */
   const playNextChunk = useCallback(() => {
@@ -232,7 +250,7 @@ export default function VoiceDialogue() {
       }
 
       const rms = Math.sqrt(energy / samples.length);
-      if (rms > 0.035 && isPlayingRef.current && !muted) {
+      if (rms > 0.035 && isPlayingRef.current && !mutedRef.current) {
         interruptPlayback();
       }
 
@@ -240,7 +258,7 @@ export default function VoiceDialogue() {
     };
 
     monitorFrameRef.current = requestAnimationFrame(tick);
-  }, [interruptPlayback, muted, stopVoiceActivityMonitor]);
+  }, [interruptPlayback, stopVoiceActivityMonitor]);
 
   /* ── Flush AI text buffer to transcript ── */
   const flushAiText = useCallback(async () => {
@@ -269,6 +287,8 @@ export default function VoiceDialogue() {
     if (connecting || connected) return;
 
     setLevel(selectedLevel);
+    mutedRef.current = false;
+    setMuted(false);
     setConnecting(true);
     setError(null);
 
@@ -297,9 +317,10 @@ export default function VoiceDialogue() {
       const { apiKey } = await configResp.json();
 
       // Create audio context
-      const audioCtx = new AudioContext({ sampleRate: 16000 });
+      const audioCtx = createRealtimeAudioContext();
       audioCtxRef.current = audioCtx;
       await audioCtx.resume();
+      const inputSampleRate = Math.round(audioCtx.sampleRate);
 
       // Setup AudioWorklet
       const workletUrl = createWorkletBlobUrl();
@@ -345,6 +366,16 @@ export default function VoiceDialogue() {
                 },
               },
             },
+            realtimeInputConfig: {
+              automaticActivityDetection: {
+                startOfSpeechSensitivity: "START_SENSITIVITY_HIGH",
+                endOfSpeechSensitivity: "END_SENSITIVITY_HIGH",
+                prefixPaddingMs: 300,
+                silenceDurationMs: 700,
+              },
+              activityHandling: "START_OF_ACTIVITY_INTERRUPTS",
+              turnCoverage: "TURN_INCLUDES_ONLY_ACTIVITY",
+            },
             systemInstruction: {
               parts: [{ text: LEVEL_INSTRUCTIONS[selectedLevel] }],
             },
@@ -370,17 +401,13 @@ export default function VoiceDialogue() {
 
             // Start sending audio from worklet using realtimeInput.audio (current API)
             workletNode.port.onmessage = (e) => {
-              if (wsRef.current?.readyState === WebSocket.OPEN && !muted) {
-                const audioMsg = {
-                  realtimeInput: {
-                    audio: {
-                      mimeType: "audio/pcm;rate=16000",
-                      data: e.data.pcmBase64,
-                    },
-                  },
-                };
-                wsRef.current.send(JSON.stringify(audioMsg));
-              }
+              if (mutedRef.current || !e.data?.pcmBase64) return;
+              sendRealtimeInput({
+                audio: {
+                  mimeType: `audio/pcm;rate=${inputSampleRate}`,
+                  data: e.data.pcmBase64,
+                },
+              });
             };
 
             // Ask Miriam to start the dialogue
@@ -473,12 +500,13 @@ export default function VoiceDialogue() {
       setError(getMicrophoneErrorMessage(err));
       setConnecting(false);
     }
-  }, [connected, connecting, enqueueAudio, flushAiText, flushUserText, interruptPlayback, muted, startVoiceActivityMonitor, stopVoiceActivityMonitor]);
+  }, [connected, connecting, enqueueAudio, flushAiText, flushUserText, interruptPlayback, sendRealtimeInput, startVoiceActivityMonitor, stopVoiceActivityMonitor]);
 
   /* ── Disconnect ── */
   const endSession = useCallback(() => {
     stopVoiceActivityMonitor();
     interruptPlayback();
+    sendAudioStreamEnd();
     wsRef.current?.close(1000);
     wsRef.current = null;
     workletNodeRef.current?.disconnect();
@@ -490,21 +518,25 @@ export default function VoiceDialogue() {
     audioCtxRef.current?.close();
     audioCtxRef.current = null;
     analyserRef.current = null;
+    mutedRef.current = false;
     playbackQueueRef.current = [];
     isPlayingRef.current = false;
+    setMuted(false);
     setConnected(false);
     setAiSpeaking(false);
     setConnecting(false);
-  }, [interruptPlayback, stopVoiceActivityMonitor]);
+  }, [interruptPlayback, sendAudioStreamEnd, stopVoiceActivityMonitor]);
 
   /* ── Toggle mute ── */
   const toggleMute = useCallback(() => {
     setMuted(prev => {
       const newVal = !prev;
+      mutedRef.current = newVal;
       streamRef.current?.getAudioTracks().forEach(t => { t.enabled = !newVal; });
+      if (newVal) sendAudioStreamEnd();
       return newVal;
     });
-  }, []);
+  }, [sendAudioStreamEnd]);
 
   useEffect(() => {
     return () => {
