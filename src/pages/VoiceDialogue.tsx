@@ -31,6 +31,23 @@ const CONFIG_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/gemini-voi
 const TRANSLATE_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-dialogue`;
 
 type AudioWindow = Window & typeof globalThis & { webkitAudioContext?: typeof AudioContext };
+type SpeechRecognitionLike = {
+  lang: string;
+  continuous: boolean;
+  interimResults: boolean;
+  maxAlternatives: number;
+  onstart: (() => void) | null;
+  onresult: ((event: any) => void) | null;
+  onerror: ((event: any) => void) | null;
+  onend: (() => void) | null;
+  start: () => void;
+  stop: () => void;
+  abort?: () => void;
+};
+type SpeechWindow = AudioWindow & {
+  SpeechRecognition?: new () => SpeechRecognitionLike;
+  webkitSpeechRecognition?: new () => SpeechRecognitionLike;
+};
 
 function createRealtimeAudioContext(): AudioContext {
   const AudioContextCtor = window.AudioContext || (window as AudioWindow).webkitAudioContext;
@@ -146,6 +163,8 @@ export default function VoiceDialogue() {
   const [currentUserText, setCurrentUserText] = useState("");
   const [diagOpen, setDiagOpen] = useState(false);
   const [micDeviceId, setMicDeviceId] = useState<string | undefined>(undefined);
+  const [micLevel, setMicLevel] = useState(0);
+  const [speechStatus, setSpeechStatus] = useState<"off" | "listening" | "hearing" | "unsupported" | "error">("off");
 
   const wsRef = useRef<WebSocket | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -162,6 +181,14 @@ export default function VoiceDialogue() {
   const currentPlaybackSourceRef = useRef<AudioBufferSourceNode | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const monitorFrameRef = useRef<number | null>(null);
+  const micLevelRef = useRef(0);
+  const speechRecognitionRef = useRef<SpeechRecognitionLike | null>(null);
+  const speechTextModeRef = useRef(false);
+  const recognitionShouldRunRef = useRef(false);
+  const recognitionRunningRef = useRef(false);
+  const recognitionRestartTimerRef = useRef<number | null>(null);
+  const lastRecognizedTextRef = useRef("");
+  const lastRecognizedAtRef = useRef(0);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -186,11 +213,48 @@ export default function VoiceDialogue() {
       cancelAnimationFrame(monitorFrameRef.current);
       monitorFrameRef.current = null;
     }
+    micLevelRef.current = 0;
+    setMicLevel(0);
+  }, []);
+
+  const stopSpeechRecognition = useCallback(() => {
+    recognitionShouldRunRef.current = false;
+    if (recognitionRestartTimerRef.current !== null) {
+      window.clearTimeout(recognitionRestartTimerRef.current);
+      recognitionRestartTimerRef.current = null;
+    }
+    const recognition = speechRecognitionRef.current;
+    speechRecognitionRef.current = null;
+    speechTextModeRef.current = false;
+    recognitionRunningRef.current = false;
+    if (recognition) {
+      recognition.onstart = null;
+      recognition.onresult = null;
+      recognition.onerror = null;
+      recognition.onend = null;
+      try {
+        recognition.stop();
+      } catch {
+        recognition.abort?.();
+      }
+    }
+    setSpeechStatus("off");
   }, []);
 
   const sendRealtimeInput = useCallback((input: Record<string, unknown>) => {
     if (wsRef.current?.readyState !== WebSocket.OPEN) return;
     wsRef.current.send(JSON.stringify({ realtimeInput: input }));
+  }, []);
+
+  const sendUserTextTurn = useCallback((text: string) => {
+    const cleanText = text.trim();
+    if (!cleanText || wsRef.current?.readyState !== WebSocket.OPEN) return;
+    wsRef.current.send(JSON.stringify({
+      clientContent: {
+        turns: [{ role: "user", parts: [{ text: cleanText }] }],
+        turnComplete: true,
+      },
+    }));
   }, []);
 
   const sendAudioStreamEnd = useCallback(() => {
@@ -255,6 +319,12 @@ export default function VoiceDialogue() {
       }
 
       const rms = Math.sqrt(energy / samples.length);
+      const nextLevel = Math.min(100, Math.round(rms * 450));
+      if (Math.abs(nextLevel - micLevelRef.current) >= 2) {
+        micLevelRef.current = nextLevel;
+        setMicLevel(nextLevel);
+      }
+
       // Higher threshold so Miriam's own playback (echo leak) doesn't interrupt her.
       // Real user speech easily exceeds 0.08 RMS on a near-field laptop mic.
       if (rms > 0.08 && isPlayingRef.current && !mutedRef.current) {
@@ -288,6 +358,99 @@ export default function VoiceDialogue() {
     const id = nextLineIdRef.current++;
     setTranscript(prev => [...prev, { id, speaker: "user", hebrew: text, russian }]);
   }, []);
+
+  const startSpeechRecognition = useCallback(() => {
+    const SpeechRecognitionCtor =
+      (window as SpeechWindow).SpeechRecognition || (window as SpeechWindow).webkitSpeechRecognition;
+
+    if (!SpeechRecognitionCtor) {
+      speechTextModeRef.current = false;
+      setSpeechStatus("unsupported");
+      return false;
+    }
+
+    stopSpeechRecognition();
+    speechTextModeRef.current = true;
+    recognitionShouldRunRef.current = true;
+
+    const recognition = new SpeechRecognitionCtor();
+    speechRecognitionRef.current = recognition;
+    recognition.lang = "he-IL";
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = () => {
+      recognitionRunningRef.current = true;
+      if (!mutedRef.current) setSpeechStatus("listening");
+    };
+
+    recognition.onresult = (event: any) => {
+      if (mutedRef.current) return;
+
+      let interim = "";
+      let finalText = "";
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const text = event.results[i]?.[0]?.transcript?.trim() || "";
+        if (!text) continue;
+        if (event.results[i].isFinal) finalText += `${text} `;
+        else interim += `${text} `;
+      }
+
+      const visibleText = (finalText || interim).trim();
+      if (visibleText) {
+        setSpeechStatus("hearing");
+        userTextBufferRef.current = visibleText;
+        setCurrentUserText(visibleText);
+      }
+
+      const cleanFinal = finalText.trim();
+      if (!cleanFinal) return;
+
+      const now = Date.now();
+      if (cleanFinal === lastRecognizedTextRef.current && now - lastRecognizedAtRef.current < 2500) return;
+      lastRecognizedTextRef.current = cleanFinal;
+      lastRecognizedAtRef.current = now;
+
+      if (isPlayingRef.current) interruptPlayback();
+      userTextBufferRef.current = cleanFinal;
+      setCurrentUserText(cleanFinal);
+      sendUserTextTurn(cleanFinal);
+      void flushUserText();
+    };
+
+    recognition.onerror = (event: any) => {
+      if (event?.error === "no-speech" || event?.error === "aborted") return;
+      console.warn("[SpeechRecognition] error:", event?.error || event);
+      speechTextModeRef.current = false;
+      recognitionShouldRunRef.current = false;
+      setSpeechStatus("error");
+    };
+
+    recognition.onend = () => {
+      recognitionRunningRef.current = false;
+      if (!recognitionShouldRunRef.current) return;
+      recognitionRestartTimerRef.current = window.setTimeout(() => {
+        recognitionRestartTimerRef.current = null;
+        if (!recognitionShouldRunRef.current || mutedRef.current) return;
+        try {
+          recognition.start();
+        } catch {
+          // Recognition may already be starting; the next onend will retry.
+        }
+      }, 250);
+    };
+
+    try {
+      recognition.start();
+      return true;
+    } catch (err) {
+      console.warn("[SpeechRecognition] start failed:", err);
+      speechTextModeRef.current = false;
+      setSpeechStatus("error");
+      return false;
+    }
+  }, [flushUserText, interruptPlayback, sendUserTextTurn, stopSpeechRecognition]);
 
   /* ── Connect to Gemini Live ── */
   const startSession = useCallback(async (selectedLevel: Level) => {
@@ -406,10 +569,11 @@ export default function VoiceDialogue() {
           if (msg.setupComplete) {
             setConnected(true);
             setConnecting(false);
+            setSpeechStatus("listening");
 
             // Start sending audio from worklet using realtimeInput.audio (current API)
             workletNode.port.onmessage = (e) => {
-              if (mutedRef.current || !e.data?.pcmBase64) return;
+              if (mutedRef.current || speechTextModeRef.current || !e.data?.pcmBase64) return;
               sendRealtimeInput({
                 audio: {
                   mimeType: `audio/pcm;rate=${inputSampleRate}`,
@@ -417,6 +581,7 @@ export default function VoiceDialogue() {
                 },
               });
             };
+            startSpeechRecognition();
 
             // Ask Miriam to start the dialogue
             const greetMsg = {
@@ -482,6 +647,7 @@ export default function VoiceDialogue() {
 
       ws.onclose = (e) => {
         console.log("[Gemini] WebSocket closed:", e.code, e.reason || "(no reason)");
+        stopSpeechRecognition();
         setConnected(false);
         setConnecting(false);
         if (e.code !== 1000) {
@@ -497,6 +663,7 @@ export default function VoiceDialogue() {
       console.error("startSession error:", err);
       interruptPlayback();
       stopVoiceActivityMonitor();
+      stopSpeechRecognition();
       wsRef.current?.close(1000);
       wsRef.current = null;
       workletNodeRef.current?.disconnect();
@@ -512,11 +679,12 @@ export default function VoiceDialogue() {
       setError(getMicrophoneErrorMessage(err));
       setConnecting(false);
     }
-  }, [connected, connecting, micDeviceId, enqueueAudio, flushAiText, flushUserText, interruptPlayback, sendRealtimeInput, startVoiceActivityMonitor, stopVoiceActivityMonitor]);
+  }, [connected, connecting, micDeviceId, enqueueAudio, flushAiText, flushUserText, interruptPlayback, sendRealtimeInput, startSpeechRecognition, startVoiceActivityMonitor, stopVoiceActivityMonitor]);
 
   /* ── Disconnect ── */
   const endSession = useCallback(() => {
     stopVoiceActivityMonitor();
+    stopSpeechRecognition();
     interruptPlayback();
     sendAudioStreamEnd();
     wsRef.current?.close(1000);
@@ -537,7 +705,7 @@ export default function VoiceDialogue() {
     setConnected(false);
     setAiSpeaking(false);
     setConnecting(false);
-  }, [interruptPlayback, sendAudioStreamEnd, stopVoiceActivityMonitor]);
+  }, [interruptPlayback, sendAudioStreamEnd, stopSpeechRecognition, stopVoiceActivityMonitor]);
 
   /* ── Toggle mute ── */
   const toggleMute = useCallback(() => {
@@ -545,6 +713,19 @@ export default function VoiceDialogue() {
       const newVal = !prev;
       mutedRef.current = newVal;
       streamRef.current?.getAudioTracks().forEach(t => { t.enabled = !newVal; });
+        if (speechTextModeRef.current) {
+          if (newVal) {
+            recognitionShouldRunRef.current = false;
+            try { speechRecognitionRef.current?.stop(); } catch {}
+            setSpeechStatus("off");
+          } else {
+            recognitionShouldRunRef.current = true;
+            try {
+              if (!recognitionRunningRef.current) speechRecognitionRef.current?.start();
+            } catch {}
+            setSpeechStatus("listening");
+          }
+        }
       // NOTE: do NOT send audioStreamEnd here — that permanently closes the input
       // audio stream on the server. We just stop sending PCM frames while muted.
       return newVal;
@@ -554,12 +735,13 @@ export default function VoiceDialogue() {
   useEffect(() => {
     return () => {
       stopVoiceActivityMonitor();
+      stopSpeechRecognition();
       stopPlaybackSource();
       wsRef.current?.close(1000);
       streamRef.current?.getTracks().forEach(t => t.stop());
       audioCtxRef.current?.close();
     };
-  }, [stopPlaybackSource, stopVoiceActivityMonitor]);
+  }, [stopPlaybackSource, stopSpeechRecognition, stopVoiceActivityMonitor]);
 
   /* ── Level selection screen ── */
   if (!level) {
@@ -641,7 +823,7 @@ export default function VoiceDialogue() {
               Мирьям — {LEVELS.find(l => l.id === level)?.label}
             </h1>
             <p className="text-xs text-muted-foreground">
-              {connecting ? "Подключение..." : connected ? (aiSpeaking ? "🗣 Говорит..." : "🎧 Слушает...") : "Отключено"}
+              {connecting ? "Подключение..." : connected ? (aiSpeaking ? "🗣 Говорит..." : speechStatus === "hearing" ? "🎙 Слышу вас..." : "🎧 Слушает...") : "Отключено"}
             </p>
           </div>
         </div>
@@ -768,13 +950,21 @@ export default function VoiceDialogue() {
           ) : null}
         </div>
         {connected && !muted && (
-          <motion.p
-            className="text-xs text-center text-muted-foreground mt-3"
-            animate={{ opacity: [0.5, 1, 0.5] }}
-            transition={{ duration: 2, repeat: Infinity }}
-          >
-            🎙 Говорите на иврите...
-          </motion.p>
+          <div className="mt-3 flex flex-col items-center gap-2">
+            <motion.p
+              className="text-xs text-center text-muted-foreground"
+              animate={{ opacity: [0.5, 1, 0.5] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              🎙 Говорите на иврите{speechStatus === "unsupported" ? " — включён аудиорежим" : ""}...
+            </motion.p>
+            <div className="h-1.5 w-36 rounded-full bg-muted overflow-hidden" aria-hidden="true">
+              <div
+                className="h-full rounded-full bg-primary transition-all duration-100"
+                style={{ width: `${Math.min(100, micLevel)}%` }}
+              />
+            </div>
+          </div>
         )}
         {connected && muted && (
           <p className="text-xs text-center text-destructive mt-3">Микрофон выключен</p>
