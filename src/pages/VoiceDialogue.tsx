@@ -658,6 +658,7 @@ export default function VoiceDialogue() {
       console.error("startSession error:", err);
       interruptPlayback();
       stopVoiceActivityMonitor();
+      stopSpeechRecognition();
       wsRef.current?.close(1000);
       wsRef.current = null;
       workletNodeRef.current?.disconnect();
@@ -678,6 +679,7 @@ export default function VoiceDialogue() {
   /* ── Disconnect ── */
   const endSession = useCallback(() => {
     stopVoiceActivityMonitor();
+    stopSpeechRecognition();
     interruptPlayback();
     sendAudioStreamEnd();
     wsRef.current?.close(1000);
@@ -698,7 +700,7 @@ export default function VoiceDialogue() {
     setConnected(false);
     setAiSpeaking(false);
     setConnecting(false);
-  }, [interruptPlayback, sendAudioStreamEnd, stopVoiceActivityMonitor]);
+  }, [interruptPlayback, sendAudioStreamEnd, stopSpeechRecognition, stopVoiceActivityMonitor]);
 
   /* ── Toggle mute ── */
   const toggleMute = useCallback(() => {
@@ -715,12 +717,13 @@ export default function VoiceDialogue() {
   useEffect(() => {
     return () => {
       stopVoiceActivityMonitor();
+      stopSpeechRecognition();
       stopPlaybackSource();
       wsRef.current?.close(1000);
       streamRef.current?.getTracks().forEach(t => t.stop());
       audioCtxRef.current?.close();
     };
-  }, [stopPlaybackSource, stopVoiceActivityMonitor]);
+  }, [stopPlaybackSource, stopSpeechRecognition, stopVoiceActivityMonitor]);
 
   /* ── Level selection screen ── */
   if (!level) {
