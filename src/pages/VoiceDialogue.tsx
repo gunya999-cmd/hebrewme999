@@ -565,6 +565,7 @@ export default function VoiceDialogue() {
           if (msg.setupComplete) {
             setConnected(true);
             setConnecting(false);
+            setSpeechStatus("listening");
 
             // Start sending audio from worklet using realtimeInput.audio (current API)
             workletNode.port.onmessage = (e) => {
@@ -576,6 +577,7 @@ export default function VoiceDialogue() {
                 },
               });
             };
+            startSpeechRecognition();
 
             // Ask Miriam to start the dialogue
             const greetMsg = {
