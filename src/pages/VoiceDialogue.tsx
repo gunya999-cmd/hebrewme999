@@ -194,8 +194,10 @@ export default function VoiceDialogue() {
   }, []);
 
   const sendAudioStreamEnd = useCallback(() => {
-    sendRealtimeInput({ audioStreamEnd: true });
-  }, [sendRealtimeInput]);
+    if (wsRef.current?.readyState !== WebSocket.OPEN) return;
+    // Correct shape: realtimeInput.audioStreamEnd is a top-level boolean field
+    wsRef.current.send(JSON.stringify({ realtimeInput: { audioStreamEnd: true } }));
+  }, []);
 
   /* ── Play queued audio chunks ── */
   const playNextChunk = useCallback(() => {
@@ -253,7 +255,9 @@ export default function VoiceDialogue() {
       }
 
       const rms = Math.sqrt(energy / samples.length);
-      if (rms > 0.035 && isPlayingRef.current && !mutedRef.current) {
+      // Higher threshold so Miriam's own playback (echo leak) doesn't interrupt her.
+      // Real user speech easily exceeds 0.08 RMS on a near-field laptop mic.
+      if (rms > 0.08 && isPlayingRef.current && !mutedRef.current) {
         interruptPlayback();
       }
 
@@ -373,12 +377,11 @@ export default function VoiceDialogue() {
             realtimeInputConfig: {
               automaticActivityDetection: {
                 startOfSpeechSensitivity: "START_SENSITIVITY_HIGH",
-                endOfSpeechSensitivity: "END_SENSITIVITY_HIGH",
-                prefixPaddingMs: 300,
-                silenceDurationMs: 700,
+                endOfSpeechSensitivity: "END_SENSITIVITY_LOW",
+                prefixPaddingMs: 200,
+                silenceDurationMs: 800,
               },
               activityHandling: "START_OF_ACTIVITY_INTERRUPTS",
-              turnCoverage: "TURN_INCLUDES_ONLY_ACTIVITY",
             },
             systemInstruction: {
               parts: [{ text: LEVEL_INSTRUCTIONS[selectedLevel] }],
@@ -387,6 +390,7 @@ export default function VoiceDialogue() {
             outputAudioTranscription: {},
           },
         };
+        console.log("[Gemini] sending setup");
         ws.send(JSON.stringify(setup));
       };
 
@@ -471,17 +475,21 @@ export default function VoiceDialogue() {
       };
 
       ws.onerror = (e) => {
-        console.error("WebSocket error:", e);
+        console.error("[Gemini] WebSocket error:", e);
         setError("Ошибка подключения к голосовому сервису");
         setConnecting(false);
       };
 
       ws.onclose = (e) => {
-        console.log("WebSocket closed:", e.code, e.reason);
+        console.log("[Gemini] WebSocket closed:", e.code, e.reason || "(no reason)");
         setConnected(false);
         setConnecting(false);
         if (e.code !== 1000) {
-          setError(`Соединение закрыто (${e.code})`);
+          setError(
+            e.code === 1006
+              ? "Соединение разорвано. Проверьте интернет и попробуйте снова."
+              : `Соединение закрыто (${e.code}${e.reason ? `: ${e.reason}` : ""})`
+          );
         }
       };
 
@@ -537,10 +545,11 @@ export default function VoiceDialogue() {
       const newVal = !prev;
       mutedRef.current = newVal;
       streamRef.current?.getAudioTracks().forEach(t => { t.enabled = !newVal; });
-      if (newVal) sendAudioStreamEnd();
+      // NOTE: do NOT send audioStreamEnd here — that permanently closes the input
+      // audio stream on the server. We just stop sending PCM frames while muted.
       return newVal;
     });
-  }, [sendAudioStreamEnd]);
+  }, []);
 
   useEffect(() => {
     return () => {
