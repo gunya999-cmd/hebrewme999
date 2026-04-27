@@ -411,6 +411,7 @@ export default function VoiceDialogue() {
       lastRecognizedTextRef.current = cleanFinal;
       lastRecognizedAtRef.current = now;
 
+      if (isPlayingRef.current) interruptPlayback();
       userTextBufferRef.current = cleanFinal;
       setCurrentUserText(cleanFinal);
       sendUserTextTurn(cleanFinal);
@@ -445,7 +446,7 @@ export default function VoiceDialogue() {
       setSpeechStatus("error");
       return false;
     }
-  }, [flushUserText, sendUserTextTurn, stopSpeechRecognition]);
+  }, [flushUserText, interruptPlayback, sendUserTextTurn, stopSpeechRecognition]);
 
   /* ── Connect to Gemini Live ── */
   const startSession = useCallback(async (selectedLevel: Level) => {
