@@ -220,6 +220,17 @@ export default function VoiceDialogue() {
     wsRef.current.send(JSON.stringify({ realtimeInput: input }));
   }, []);
 
+  const sendUserTextTurn = useCallback((text: string) => {
+    const cleanText = text.trim();
+    if (!cleanText || wsRef.current?.readyState !== WebSocket.OPEN) return;
+    wsRef.current.send(JSON.stringify({
+      clientContent: {
+        turns: [{ role: "user", parts: [{ text: cleanText }] }],
+        turnComplete: true,
+      },
+    }));
+  }, []);
+
   const sendAudioStreamEnd = useCallback(() => {
     if (wsRef.current?.readyState !== WebSocket.OPEN) return;
     // Correct shape: realtimeInput.audioStreamEnd is a top-level boolean field
