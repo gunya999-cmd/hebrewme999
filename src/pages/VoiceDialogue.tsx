@@ -194,8 +194,10 @@ export default function VoiceDialogue() {
   }, []);
 
   const sendAudioStreamEnd = useCallback(() => {
-    sendRealtimeInput({ audioStreamEnd: true });
-  }, [sendRealtimeInput]);
+    if (wsRef.current?.readyState !== WebSocket.OPEN) return;
+    // Correct shape: realtimeInput.audioStreamEnd is a top-level boolean field
+    wsRef.current.send(JSON.stringify({ realtimeInput: { audioStreamEnd: true } }));
+  }, []);
 
   /* ── Play queued audio chunks ── */
   const playNextChunk = useCallback(() => {
