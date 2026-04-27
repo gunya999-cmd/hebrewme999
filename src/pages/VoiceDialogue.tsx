@@ -626,6 +626,7 @@ export default function VoiceDialogue() {
             const parts = msg.serverContent.modelTurn?.parts || [];
             for (const part of parts) {
               if (part.inlineData?.data) {
+                markModelActivity();
                 enqueueAudio(part.inlineData.data);
               }
             }
@@ -633,6 +634,7 @@ export default function VoiceDialogue() {
             // Output transcription (Hebrew text of Miriam's speech)
             const outText = msg.serverContent.outputTranscription?.text;
             if (outText) {
+              markModelActivity();
               aiTextBufferRef.current += outText;
               setCurrentAiText(aiTextBufferRef.current);
             }
@@ -670,6 +672,7 @@ export default function VoiceDialogue() {
 
       ws.onclose = (e) => {
         console.log("[Gemini] WebSocket closed:", e.code, e.reason || "(no reason)");
+        clearPendingTextFallback();
         stopSpeechRecognition();
         setConnected(false);
         setConnecting(false);
@@ -684,6 +687,7 @@ export default function VoiceDialogue() {
 
     } catch (err: any) {
       console.error("startSession error:", err);
+      clearPendingTextFallback();
       interruptPlayback();
       stopVoiceActivityMonitor();
       stopSpeechRecognition();
@@ -702,7 +706,7 @@ export default function VoiceDialogue() {
       setError(getMicrophoneErrorMessage(err));
       setConnecting(false);
     }
-  }, [connected, connecting, micDeviceId, enqueueAudio, flushAiText, flushUserText, interruptPlayback, sendRealtimeInput, startSpeechRecognition, startVoiceActivityMonitor, stopVoiceActivityMonitor]);
+  }, [clearPendingTextFallback, connected, connecting, micDeviceId, enqueueAudio, flushAiText, flushUserText, interruptPlayback, markModelActivity, sendRealtimeInput, startSpeechRecognition, startVoiceActivityMonitor, stopSpeechRecognition, stopVoiceActivityMonitor]);
 
   /* ── Disconnect ── */
   const endSession = useCallback(() => {
