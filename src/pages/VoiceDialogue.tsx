@@ -429,6 +429,7 @@ export default function VoiceDialogue() {
       recognitionRunningRef.current = false;
       if (!recognitionShouldRunRef.current) return;
       recognitionRestartTimerRef.current = window.setTimeout(() => {
+        recognitionRestartTimerRef.current = null;
         if (!recognitionShouldRunRef.current || mutedRef.current) return;
         try {
           recognition.start();
@@ -820,7 +821,7 @@ export default function VoiceDialogue() {
               Мирьям — {LEVELS.find(l => l.id === level)?.label}
             </h1>
             <p className="text-xs text-muted-foreground">
-              {connecting ? "Подключение..." : connected ? (aiSpeaking ? "🗣 Говорит..." : "🎧 Слушает...") : "Отключено"}
+              {connecting ? "Подключение..." : connected ? (aiSpeaking ? "🗣 Говорит..." : speechStatus === "hearing" ? "🎙 Слышу вас..." : "🎧 Слушает...") : "Отключено"}
             </p>
           </div>
         </div>
@@ -947,13 +948,21 @@ export default function VoiceDialogue() {
           ) : null}
         </div>
         {connected && !muted && (
-          <motion.p
-            className="text-xs text-center text-muted-foreground mt-3"
-            animate={{ opacity: [0.5, 1, 0.5] }}
-            transition={{ duration: 2, repeat: Infinity }}
-          >
-            🎙 Говорите на иврите...
-          </motion.p>
+          <div className="mt-3 flex flex-col items-center gap-2">
+            <motion.p
+              className="text-xs text-center text-muted-foreground"
+              animate={{ opacity: [0.5, 1, 0.5] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              🎙 Говорите на иврите{speechStatus === "unsupported" ? " — включён аудиорежим" : ""}...
+            </motion.p>
+            <div className="h-1.5 w-36 rounded-full bg-muted overflow-hidden" aria-hidden="true">
+              <div
+                className="h-full rounded-full bg-primary transition-all duration-100"
+                style={{ width: `${Math.min(100, micLevel)}%` }}
+              />
+            </div>
+          </div>
         )}
         {connected && muted && (
           <p className="text-xs text-center text-destructive mt-3">Микрофон выключен</p>
