@@ -438,13 +438,11 @@ export default function VoiceDialogue() {
       userTextBufferRef.current = cleanFinal;
       setCurrentUserText(cleanFinal);
       clearPendingTextFallback();
-      const sentAt = Date.now();
       pendingTextFallbackTimerRef.current = window.setTimeout(() => {
         pendingTextFallbackTimerRef.current = null;
         if (Date.now() - lastModelActivityAtRef.current < 1800) return;
         sendUserTextTurn(cleanFinal);
-      }, 1200);
-      sendUserTextTurn(cleanFinal);
+      }, 1600);
       void flushUserText();
     };
 
@@ -602,7 +600,7 @@ export default function VoiceDialogue() {
 
             // Start sending audio from worklet using realtimeInput.audio (current API)
             workletNode.port.onmessage = (e) => {
-              if (mutedRef.current || speechTextModeRef.current || !e.data?.pcmBase64) return;
+              if (mutedRef.current || !e.data?.pcmBase64) return;
               sendRealtimeInput({
                 audio: {
                   mimeType: `audio/pcm;rate=${inputSampleRate}`,
@@ -614,12 +612,8 @@ export default function VoiceDialogue() {
 
             // Ask Miriam to start the dialogue
             const greetMsg = {
-              clientContent: {
-                turns: [{
-                  role: "user",
-                  parts: [{ text: "התחל את השיחה עכשיו. ברך אותי בקצרה בעברית ושאל שאלה אחת פתוחה." }],
-                }],
-                turnComplete: true,
+              realtimeInput: {
+                text: "התחל את השיחה עכשיו. ברך אותי בקצרה בעברית ושאל שאלה אחת פתוחה.",
               },
             };
             ws.send(JSON.stringify(greetMsg));
