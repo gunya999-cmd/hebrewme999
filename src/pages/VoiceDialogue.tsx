@@ -225,6 +225,7 @@ export default function VoiceDialogue() {
     }
     const recognition = speechRecognitionRef.current;
     speechRecognitionRef.current = null;
+    speechTextModeRef.current = false;
     recognitionRunningRef.current = false;
     if (recognition) {
       recognition.onstart = null;
@@ -569,7 +570,7 @@ export default function VoiceDialogue() {
 
             // Start sending audio from worklet using realtimeInput.audio (current API)
             workletNode.port.onmessage = (e) => {
-              if (mutedRef.current || !e.data?.pcmBase64) return;
+              if (mutedRef.current || speechTextModeRef.current || !e.data?.pcmBase64) return;
               sendRealtimeInput({
                 audio: {
                   mimeType: `audio/pcm;rate=${inputSampleRate}`,
