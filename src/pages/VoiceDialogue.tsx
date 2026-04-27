@@ -377,12 +377,11 @@ export default function VoiceDialogue() {
             realtimeInputConfig: {
               automaticActivityDetection: {
                 startOfSpeechSensitivity: "START_SENSITIVITY_HIGH",
-                endOfSpeechSensitivity: "END_SENSITIVITY_HIGH",
-                prefixPaddingMs: 300,
-                silenceDurationMs: 700,
+                endOfSpeechSensitivity: "END_SENSITIVITY_LOW",
+                prefixPaddingMs: 200,
+                silenceDurationMs: 800,
               },
               activityHandling: "START_OF_ACTIVITY_INTERRUPTS",
-              turnCoverage: "TURN_INCLUDES_ONLY_ACTIVITY",
             },
             systemInstruction: {
               parts: [{ text: LEVEL_INSTRUCTIONS[selectedLevel] }],
@@ -391,6 +390,7 @@ export default function VoiceDialogue() {
             outputAudioTranscription: {},
           },
         };
+        console.log("[Gemini] sending setup");
         ws.send(JSON.stringify(setup));
       };
 
