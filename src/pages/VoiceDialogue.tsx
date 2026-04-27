@@ -545,10 +545,11 @@ export default function VoiceDialogue() {
       const newVal = !prev;
       mutedRef.current = newVal;
       streamRef.current?.getAudioTracks().forEach(t => { t.enabled = !newVal; });
-      if (newVal) sendAudioStreamEnd();
+      // NOTE: do NOT send audioStreamEnd here — that permanently closes the input
+      // audio stream on the server. We just stop sending PCM frames while muted.
       return newVal;
     });
-  }, [sendAudioStreamEnd]);
+  }, []);
 
   useEffect(() => {
     return () => {
