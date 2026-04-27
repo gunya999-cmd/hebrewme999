@@ -31,6 +31,23 @@ const CONFIG_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/gemini-voi
 const TRANSLATE_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-dialogue`;
 
 type AudioWindow = Window & typeof globalThis & { webkitAudioContext?: typeof AudioContext };
+type SpeechRecognitionLike = {
+  lang: string;
+  continuous: boolean;
+  interimResults: boolean;
+  maxAlternatives: number;
+  onstart: (() => void) | null;
+  onresult: ((event: any) => void) | null;
+  onerror: ((event: any) => void) | null;
+  onend: (() => void) | null;
+  start: () => void;
+  stop: () => void;
+  abort?: () => void;
+};
+type SpeechWindow = AudioWindow & {
+  SpeechRecognition?: new () => SpeechRecognitionLike;
+  webkitSpeechRecognition?: new () => SpeechRecognitionLike;
+};
 
 function createRealtimeAudioContext(): AudioContext {
   const AudioContextCtor = window.AudioContext || (window as AudioWindow).webkitAudioContext;
@@ -146,6 +163,8 @@ export default function VoiceDialogue() {
   const [currentUserText, setCurrentUserText] = useState("");
   const [diagOpen, setDiagOpen] = useState(false);
   const [micDeviceId, setMicDeviceId] = useState<string | undefined>(undefined);
+  const [micLevel, setMicLevel] = useState(0);
+  const [speechStatus, setSpeechStatus] = useState<"off" | "listening" | "hearing" | "unsupported" | "error">("off");
 
   const wsRef = useRef<WebSocket | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -162,6 +181,14 @@ export default function VoiceDialogue() {
   const currentPlaybackSourceRef = useRef<AudioBufferSourceNode | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const monitorFrameRef = useRef<number | null>(null);
+  const micLevelRef = useRef(0);
+  const speechRecognitionRef = useRef<SpeechRecognitionLike | null>(null);
+  const speechTextModeRef = useRef(false);
+  const recognitionShouldRunRef = useRef(false);
+  const recognitionRunningRef = useRef(false);
+  const recognitionRestartTimerRef = useRef<number | null>(null);
+  const lastRecognizedTextRef = useRef("");
+  const lastRecognizedAtRef = useRef(0);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
