@@ -358,6 +358,95 @@ export default function VoiceDialogue() {
     setTranscript(prev => [...prev, { id, speaker: "user", hebrew: text, russian }]);
   }, []);
 
+  const startSpeechRecognition = useCallback(() => {
+    const SpeechRecognitionCtor =
+      (window as SpeechWindow).SpeechRecognition || (window as SpeechWindow).webkitSpeechRecognition;
+
+    if (!SpeechRecognitionCtor) {
+      speechTextModeRef.current = false;
+      setSpeechStatus("unsupported");
+      return false;
+    }
+
+    stopSpeechRecognition();
+    speechTextModeRef.current = true;
+    recognitionShouldRunRef.current = true;
+
+    const recognition = new SpeechRecognitionCtor();
+    speechRecognitionRef.current = recognition;
+    recognition.lang = "he-IL";
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = () => {
+      recognitionRunningRef.current = true;
+      if (!mutedRef.current) setSpeechStatus("listening");
+    };
+
+    recognition.onresult = (event: any) => {
+      if (mutedRef.current) return;
+
+      let interim = "";
+      let finalText = "";
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const text = event.results[i]?.[0]?.transcript?.trim() || "";
+        if (!text) continue;
+        if (event.results[i].isFinal) finalText += `${text} `;
+        else interim += `${text} `;
+      }
+
+      const visibleText = (finalText || interim).trim();
+      if (visibleText) {
+        setSpeechStatus("hearing");
+        userTextBufferRef.current = visibleText;
+        setCurrentUserText(visibleText);
+      }
+
+      const cleanFinal = finalText.trim();
+      if (!cleanFinal) return;
+
+      const now = Date.now();
+      if (cleanFinal === lastRecognizedTextRef.current && now - lastRecognizedAtRef.current < 2500) return;
+      lastRecognizedTextRef.current = cleanFinal;
+      lastRecognizedAtRef.current = now;
+
+      userTextBufferRef.current = cleanFinal;
+      setCurrentUserText(cleanFinal);
+      sendUserTextTurn(cleanFinal);
+      void flushUserText();
+    };
+
+    recognition.onerror = (event: any) => {
+      if (event?.error === "no-speech" || event?.error === "aborted") return;
+      console.warn("[SpeechRecognition] error:", event?.error || event);
+      setSpeechStatus("error");
+    };
+
+    recognition.onend = () => {
+      recognitionRunningRef.current = false;
+      if (!recognitionShouldRunRef.current) return;
+      recognitionRestartTimerRef.current = window.setTimeout(() => {
+        if (!recognitionShouldRunRef.current || mutedRef.current) return;
+        try {
+          recognition.start();
+        } catch {
+          // Recognition may already be starting; the next onend will retry.
+        }
+      }, 250);
+    };
+
+    try {
+      recognition.start();
+      return true;
+    } catch (err) {
+      console.warn("[SpeechRecognition] start failed:", err);
+      speechTextModeRef.current = false;
+      setSpeechStatus("error");
+      return false;
+    }
+  }, [flushUserText, sendUserTextTurn, stopSpeechRecognition]);
+
   /* ── Connect to Gemini Live ── */
   const startSession = useCallback(async (selectedLevel: Level) => {
     if (connecting || connected) return;
