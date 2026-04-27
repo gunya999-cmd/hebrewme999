@@ -643,6 +643,7 @@ export default function VoiceDialogue() {
 
       ws.onclose = (e) => {
         console.log("[Gemini] WebSocket closed:", e.code, e.reason || "(no reason)");
+        stopSpeechRecognition();
         setConnected(false);
         setConnecting(false);
         if (e.code !== 1000) {
@@ -708,6 +709,19 @@ export default function VoiceDialogue() {
       const newVal = !prev;
       mutedRef.current = newVal;
       streamRef.current?.getAudioTracks().forEach(t => { t.enabled = !newVal; });
+        if (speechTextModeRef.current) {
+          if (newVal) {
+            recognitionShouldRunRef.current = false;
+            try { speechRecognitionRef.current?.stop(); } catch {}
+            setSpeechStatus("off");
+          } else {
+            recognitionShouldRunRef.current = true;
+            try {
+              if (!recognitionRunningRef.current) speechRecognitionRef.current?.start();
+            } catch {}
+            setSpeechStatus("listening");
+          }
+        }
       // NOTE: do NOT send audioStreamEnd here — that permanently closes the input
       // audio stream on the server. We just stop sending PCM frames while muted.
       return newVal;
