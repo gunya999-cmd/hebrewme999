@@ -318,6 +318,12 @@ export default function VoiceDialogue() {
       }
 
       const rms = Math.sqrt(energy / samples.length);
+      const nextLevel = Math.min(100, Math.round(rms * 450));
+      if (Math.abs(nextLevel - micLevelRef.current) >= 2) {
+        micLevelRef.current = nextLevel;
+        setMicLevel(nextLevel);
+      }
+
       // Higher threshold so Miriam's own playback (echo leak) doesn't interrupt her.
       // Real user speech easily exceeds 0.08 RMS on a near-field laptop mic.
       if (rms > 0.08 && isPlayingRef.current && !mutedRef.current) {
