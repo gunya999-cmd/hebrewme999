@@ -438,9 +438,10 @@ export default function VoiceDialogue() {
       userTextBufferRef.current = cleanFinal;
       setCurrentUserText(cleanFinal);
       clearPendingTextFallback();
+      const modelActivityBeforeFallback = lastModelActivityAtRef.current;
       pendingTextFallbackTimerRef.current = window.setTimeout(() => {
         pendingTextFallbackTimerRef.current = null;
-        if (Date.now() - lastModelActivityAtRef.current < 1800) return;
+        if (lastModelActivityAtRef.current !== modelActivityBeforeFallback) return;
         sendUserTextTurn(cleanFinal);
       }, 1600);
       void flushUserText();
@@ -710,6 +711,7 @@ export default function VoiceDialogue() {
 
   /* ── Disconnect ── */
   const endSession = useCallback(() => {
+    clearPendingTextFallback();
     stopVoiceActivityMonitor();
     stopSpeechRecognition();
     interruptPlayback();
@@ -732,7 +734,7 @@ export default function VoiceDialogue() {
     setConnected(false);
     setAiSpeaking(false);
     setConnecting(false);
-  }, [interruptPlayback, sendAudioStreamEnd, stopSpeechRecognition, stopVoiceActivityMonitor]);
+  }, [clearPendingTextFallback, interruptPlayback, sendAudioStreamEnd, stopSpeechRecognition, stopVoiceActivityMonitor]);
 
   /* ── Toggle mute ── */
   const toggleMute = useCallback(() => {
@@ -761,6 +763,7 @@ export default function VoiceDialogue() {
 
   useEffect(() => {
     return () => {
+      clearPendingTextFallback();
       stopVoiceActivityMonitor();
       stopSpeechRecognition();
       stopPlaybackSource();
@@ -768,7 +771,7 @@ export default function VoiceDialogue() {
       streamRef.current?.getTracks().forEach(t => t.stop());
       audioCtxRef.current?.close();
     };
-  }, [stopPlaybackSource, stopSpeechRecognition, stopVoiceActivityMonitor]);
+  }, [clearPendingTextFallback, stopPlaybackSource, stopSpeechRecognition, stopVoiceActivityMonitor]);
 
   /* ── Level selection screen ── */
   if (!level) {
