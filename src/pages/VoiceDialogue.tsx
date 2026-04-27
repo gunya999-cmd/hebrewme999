@@ -366,6 +366,14 @@ export default function VoiceDialogue() {
   const flushUserText = useCallback(async () => {
     const text = userTextBufferRef.current.trim();
     if (!text) return;
+    const now = Date.now();
+    if (text === lastFlushedUserTextRef.current && now - lastFlushedUserAtRef.current < 3000) {
+      userTextBufferRef.current = "";
+      setCurrentUserText("");
+      return;
+    }
+    lastFlushedUserTextRef.current = text;
+    lastFlushedUserAtRef.current = now;
     userTextBufferRef.current = "";
     setCurrentUserText("");
     const russian = await translateToRussian(text);
@@ -429,6 +437,13 @@ export default function VoiceDialogue() {
       if (isPlayingRef.current) interruptPlayback();
       userTextBufferRef.current = cleanFinal;
       setCurrentUserText(cleanFinal);
+      clearPendingTextFallback();
+      const sentAt = Date.now();
+      pendingTextFallbackTimerRef.current = window.setTimeout(() => {
+        pendingTextFallbackTimerRef.current = null;
+        if (Date.now() - lastModelActivityAtRef.current < 1800) return;
+        sendUserTextTurn(cleanFinal);
+      }, 1200);
       sendUserTextTurn(cleanFinal);
       void flushUserText();
     };
@@ -464,7 +479,7 @@ export default function VoiceDialogue() {
       setSpeechStatus("error");
       return false;
     }
-  }, [flushUserText, interruptPlayback, sendUserTextTurn, stopSpeechRecognition]);
+  }, [clearPendingTextFallback, flushUserText, interruptPlayback, sendUserTextTurn, stopSpeechRecognition]);
 
   /* ── Connect to Gemini Live ── */
   const startSession = useCallback(async (selectedLevel: Level) => {
