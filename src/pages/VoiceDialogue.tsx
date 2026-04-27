@@ -422,6 +422,8 @@ export default function VoiceDialogue() {
     recognition.onerror = (event: any) => {
       if (event?.error === "no-speech" || event?.error === "aborted") return;
       console.warn("[SpeechRecognition] error:", event?.error || event);
+      speechTextModeRef.current = false;
+      recognitionShouldRunRef.current = false;
       setSpeechStatus("error");
     };
 
