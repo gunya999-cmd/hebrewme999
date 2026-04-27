@@ -213,6 +213,31 @@ export default function VoiceDialogue() {
       cancelAnimationFrame(monitorFrameRef.current);
       monitorFrameRef.current = null;
     }
+    micLevelRef.current = 0;
+    setMicLevel(0);
+  }, []);
+
+  const stopSpeechRecognition = useCallback(() => {
+    recognitionShouldRunRef.current = false;
+    if (recognitionRestartTimerRef.current !== null) {
+      window.clearTimeout(recognitionRestartTimerRef.current);
+      recognitionRestartTimerRef.current = null;
+    }
+    const recognition = speechRecognitionRef.current;
+    speechRecognitionRef.current = null;
+    recognitionRunningRef.current = false;
+    if (recognition) {
+      recognition.onstart = null;
+      recognition.onresult = null;
+      recognition.onerror = null;
+      recognition.onend = null;
+      try {
+        recognition.stop();
+      } catch {
+        recognition.abort?.();
+      }
+    }
+    setSpeechStatus("off");
   }, []);
 
   const sendRealtimeInput = useCallback((input: Record<string, unknown>) => {
