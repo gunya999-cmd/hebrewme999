@@ -475,17 +475,21 @@ export default function VoiceDialogue() {
       };
 
       ws.onerror = (e) => {
-        console.error("WebSocket error:", e);
+        console.error("[Gemini] WebSocket error:", e);
         setError("Ошибка подключения к голосовому сервису");
         setConnecting(false);
       };
 
       ws.onclose = (e) => {
-        console.log("WebSocket closed:", e.code, e.reason);
+        console.log("[Gemini] WebSocket closed:", e.code, e.reason || "(no reason)");
         setConnected(false);
         setConnecting(false);
         if (e.code !== 1000) {
-          setError(`Соединение закрыто (${e.code})`);
+          setError(
+            e.code === 1006
+              ? "Соединение разорвано. Проверьте интернет и попробуйте снова."
+              : `Соединение закрыто (${e.code}${e.reason ? `: ${e.reason}` : ""})`
+          );
         }
       };
 
