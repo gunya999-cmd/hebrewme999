@@ -187,12 +187,28 @@ export default function VoiceDialogue() {
   const recognitionShouldRunRef = useRef(false);
   const recognitionRunningRef = useRef(false);
   const recognitionRestartTimerRef = useRef<number | null>(null);
+  const pendingTextFallbackTimerRef = useRef<number | null>(null);
+  const lastModelActivityAtRef = useRef(0);
   const lastRecognizedTextRef = useRef("");
   const lastRecognizedAtRef = useRef(0);
+  const lastFlushedUserTextRef = useRef("");
+  const lastFlushedUserAtRef = useRef(0);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [transcript, currentAiText, currentUserText]);
+
+  const clearPendingTextFallback = useCallback(() => {
+    if (pendingTextFallbackTimerRef.current !== null) {
+      window.clearTimeout(pendingTextFallbackTimerRef.current);
+      pendingTextFallbackTimerRef.current = null;
+    }
+  }, []);
+
+  const markModelActivity = useCallback(() => {
+    lastModelActivityAtRef.current = Date.now();
+    clearPendingTextFallback();
+  }, [clearPendingTextFallback]);
 
   const stopPlaybackSource = useCallback(() => {
     const currentSource = currentPlaybackSourceRef.current;
@@ -219,6 +235,7 @@ export default function VoiceDialogue() {
 
   const stopSpeechRecognition = useCallback(() => {
     recognitionShouldRunRef.current = false;
+    clearPendingTextFallback();
     if (recognitionRestartTimerRef.current !== null) {
       window.clearTimeout(recognitionRestartTimerRef.current);
       recognitionRestartTimerRef.current = null;
@@ -239,7 +256,7 @@ export default function VoiceDialogue() {
       }
     }
     setSpeechStatus("off");
-  }, []);
+  }, [clearPendingTextFallback]);
 
   const sendRealtimeInput = useCallback((input: Record<string, unknown>) => {
     if (wsRef.current?.readyState !== WebSocket.OPEN) return;
@@ -250,10 +267,7 @@ export default function VoiceDialogue() {
     const cleanText = text.trim();
     if (!cleanText || wsRef.current?.readyState !== WebSocket.OPEN) return;
     wsRef.current.send(JSON.stringify({
-      clientContent: {
-        turns: [{ role: "user", parts: [{ text: cleanText }] }],
-        turnComplete: true,
-      },
+      realtimeInput: { text: cleanText },
     }));
   }, []);
 
