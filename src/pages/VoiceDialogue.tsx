@@ -349,7 +349,8 @@ export default function VoiceDialogue() {
 
   /* ── Play queued audio chunks ── */
   const playNextChunk = useCallback(() => {
-    if (!audioCtxRef.current || playbackQueueRef.current.length === 0) {
+    const ctx = audioCtxRef.current;
+    if (!ctx || playbackQueueRef.current.length === 0) {
       isPlayingRef.current = false;
       setAiSpeaking(false);
       return;
@@ -357,12 +358,21 @@ export default function VoiceDialogue() {
     isPlayingRef.current = true;
     setAiSpeaking(true);
 
+    // iOS Safari requires the context to be running. Re-resume defensively.
+    if (ctx.state === "suspended") {
+      ctx.resume().catch(() => { /* ignore */ });
+    }
+
     const chunk = playbackQueueRef.current.shift()!;
-    const buffer = audioCtxRef.current.createBuffer(1, chunk.length, 24000);
-    buffer.getChannelData(0).set(chunk);
-    const source = audioCtxRef.current.createBufferSource();
+    // Gemini sends 24kHz PCM. Resample to the AudioContext's actual sampleRate
+    // so iOS Safari plays it correctly (it does not auto-resample mismatched buffers).
+    const targetRate = ctx.sampleRate;
+    const resampled = resampleLinear(chunk, 24000, targetRate);
+    const buffer = ctx.createBuffer(1, resampled.length, targetRate);
+    buffer.getChannelData(0).set(resampled);
+    const source = ctx.createBufferSource();
     source.buffer = buffer;
-    source.connect(audioCtxRef.current.destination);
+    source.connect(ctx.destination);
     currentPlaybackSourceRef.current = source;
     source.onended = () => {
       if (currentPlaybackSourceRef.current === source) {
