@@ -52,7 +52,25 @@ type SpeechWindow = AudioWindow & {
 function createRealtimeAudioContext(): AudioContext {
   const AudioContextCtor = window.AudioContext || (window as AudioWindow).webkitAudioContext;
   if (!AudioContextCtor) throw new Error("Ваш браузер не поддерживает живой аудио-диалог.");
-  return new AudioContextCtor({ sampleRate: 16000 });
+  // IMPORTANT: do NOT force sampleRate on iOS — Safari/iOS only allows the device's
+  // native sampleRate (usually 48000). Forcing 16000 silently breaks playback.
+  return new AudioContextCtor();
+}
+
+/* ── Linear resample Float32 PCM from one rate to another ── */
+function resampleLinear(input: Float32Array, fromRate: number, toRate: number): Float32Array {
+  if (fromRate === toRate) return input;
+  const ratio = fromRate / toRate;
+  const outLen = Math.round(input.length / ratio);
+  const out = new Float32Array(outLen);
+  for (let i = 0; i < outLen; i++) {
+    const srcIdx = i * ratio;
+    const i0 = Math.floor(srcIdx);
+    const i1 = Math.min(i0 + 1, input.length - 1);
+    const t = srcIdx - i0;
+    out[i] = input[i0] * (1 - t) + input[i1] * t;
+  }
+  return out;
 }
 
 /* ── AudioWorklet processor as inline blob ── */
@@ -62,7 +80,7 @@ class PcmRecorderProcessor extends AudioWorkletProcessor {
   constructor() {
     super();
     this._buffer = [];
-    this._bufferSize = 512;
+    this._bufferSize = 2048; // ~42ms @ 48kHz, ~128ms @ 16kHz
   }
   process(inputs) {
     const input = inputs[0];
@@ -73,17 +91,8 @@ class PcmRecorderProcessor extends AudioWorkletProcessor {
       }
       while (this._buffer.length >= this._bufferSize) {
         const chunk = this._buffer.splice(0, this._bufferSize);
-        const pcm16 = new Int16Array(chunk.length);
-        for (let i = 0; i < chunk.length; i++) {
-          const s = Math.max(-1, Math.min(1, chunk[i]));
-          pcm16[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
-        }
-        const bytes = new Uint8Array(pcm16.buffer);
-        let binary = '';
-        for (let i = 0; i < bytes.length; i++) {
-          binary += String.fromCharCode(bytes[i]);
-        }
-        this.port.postMessage({ pcmBase64: btoa(binary) });
+        // Send raw Float32 — main thread will resample to 16kHz and encode.
+        this.port.postMessage({ pcm: new Float32Array(chunk) });
       }
     }
     return true;
@@ -93,6 +102,22 @@ registerProcessor('pcm-recorder-processor', PcmRecorderProcessor);
 `;
   const blob = new Blob([code], { type: "application/javascript" });
   return URL.createObjectURL(blob);
+}
+
+/* ── Convert Float32 → 16-bit PCM base64 ── */
+function float32ToPcm16Base64(float32: Float32Array): string {
+  const pcm16 = new Int16Array(float32.length);
+  for (let i = 0; i < float32.length; i++) {
+    const s = Math.max(-1, Math.min(1, float32[i]));
+    pcm16[i] = s < 0 ? s * 0x8000 : s * 0x7fff;
+  }
+  const bytes = new Uint8Array(pcm16.buffer);
+  let binary = "";
+  const CHUNK = 0x8000;
+  for (let i = 0; i < bytes.length; i += CHUNK) {
+    binary += String.fromCharCode.apply(null, Array.from(bytes.subarray(i, i + CHUNK)));
+  }
+  return btoa(binary);
 }
 
 /* ── Base64 to Float32 PCM decoder (24kHz input) ── */
@@ -331,7 +356,8 @@ export default function VoiceDialogue() {
 
   /* ── Play queued audio chunks ── */
   const playNextChunk = useCallback(() => {
-    if (!audioCtxRef.current || playbackQueueRef.current.length === 0) {
+    const ctx = audioCtxRef.current;
+    if (!ctx || playbackQueueRef.current.length === 0) {
       isPlayingRef.current = false;
       setAiSpeaking(false);
       return;
@@ -339,12 +365,21 @@ export default function VoiceDialogue() {
     isPlayingRef.current = true;
     setAiSpeaking(true);
 
+    // iOS Safari requires the context to be running. Re-resume defensively.
+    if (ctx.state === "suspended") {
+      ctx.resume().catch(() => { /* ignore */ });
+    }
+
     const chunk = playbackQueueRef.current.shift()!;
-    const buffer = audioCtxRef.current.createBuffer(1, chunk.length, 24000);
-    buffer.getChannelData(0).set(chunk);
-    const source = audioCtxRef.current.createBufferSource();
+    // Gemini sends 24kHz PCM. Resample to the AudioContext's actual sampleRate
+    // so iOS Safari plays it correctly (it does not auto-resample mismatched buffers).
+    const targetRate = ctx.sampleRate;
+    const resampled = resampleLinear(chunk, 24000, targetRate);
+    const buffer = ctx.createBuffer(1, resampled.length, targetRate);
+    buffer.getChannelData(0).set(resampled);
+    const source = ctx.createBufferSource();
     source.buffer = buffer;
-    source.connect(audioCtxRef.current.destination);
+    source.connect(ctx.destination);
     currentPlaybackSourceRef.current = source;
     source.onended = () => {
       if (currentPlaybackSourceRef.current === source) {
@@ -637,13 +672,17 @@ export default function VoiceDialogue() {
             setConnecting(false);
             setSpeechStatus("listening");
 
-            // Start sending audio from worklet using realtimeInput.audio (current API)
+            // Start sending audio from worklet → resample to 16kHz (Gemini's preferred input rate).
+            const TARGET_INPUT_RATE = 16000;
             workletNode.port.onmessage = (e) => {
-              if (mutedRef.current || speechTextModeRef.current || !e.data?.pcmBase64) return;
+              if (mutedRef.current || speechTextModeRef.current || !e.data?.pcm) return;
+              const float32 = e.data.pcm as Float32Array;
+              const resampled = resampleLinear(float32, inputSampleRate, TARGET_INPUT_RATE);
+              const base64 = float32ToPcm16Base64(resampled);
               sendRealtimeInput({
                 audio: {
-                  mimeType: `audio/pcm;rate=${inputSampleRate}`,
-                  data: e.data.pcmBase64,
+                  mimeType: `audio/pcm;rate=${TARGET_INPUT_RATE}`,
+                  data: base64,
                 },
               });
             };
