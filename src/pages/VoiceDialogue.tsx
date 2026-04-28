@@ -746,10 +746,18 @@ export default function VoiceDialogue() {
               setCurrentAiText(aiTextBufferRef.current);
             }
 
-            // Input transcription (Hebrew text of user's speech) — server heard us,
-            // treat it as a fresh user turn so the watchdog will look for a reply.
+            // Input transcription (Hebrew text of user's speech) from Gemini —
+            // this is the AUTHORITATIVE source of the user's words. Web Speech is
+            // only a fallback / barge-in trigger and must not write to the transcript
+            // once Gemini transcription is active.
             const inText = msg.serverContent.inputTranscription?.text;
             if (inText) {
+              geminiTranscriptionSeenRef.current = true;
+              // New user turn → start a clean buffer (don't append to leftover SR text)
+              if (!userTurnActiveRef.current) {
+                userTextBufferRef.current = "";
+                userTurnActiveRef.current = true;
+              }
               userTextBufferRef.current += inText;
               setCurrentUserText(userTextBufferRef.current);
               lastUserTurnAtRef.current = Date.now();
