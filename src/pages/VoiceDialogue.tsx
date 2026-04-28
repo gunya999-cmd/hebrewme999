@@ -660,6 +660,11 @@ export default function VoiceDialogue() {
               },
             };
             ws.send(JSON.stringify(greetMsg));
+            // Watch for "model went silent" right after greeting too
+            lastUserTurnAtRef.current = Date.now();
+            awaitingModelReplyRef.current = true;
+            nudgeAttemptsRef.current = 0;
+            armSilenceWatchdog();
             return;
           }
 
@@ -669,6 +674,7 @@ export default function VoiceDialogue() {
             const parts = msg.serverContent.modelTurn?.parts || [];
             for (const part of parts) {
               if (part.inlineData?.data) {
+                markModelActivity();
                 enqueueAudio(part.inlineData.data);
               }
             }
@@ -676,25 +682,33 @@ export default function VoiceDialogue() {
             // Output transcription (Hebrew text of Miriam's speech)
             const outText = msg.serverContent.outputTranscription?.text;
             if (outText) {
+              markModelActivity();
               aiTextBufferRef.current += outText;
               setCurrentAiText(aiTextBufferRef.current);
             }
 
-            // Input transcription (Hebrew text of user's speech)
+            // Input transcription (Hebrew text of user's speech) — server heard us,
+            // treat it as a fresh user turn so the watchdog will look for a reply.
             const inText = msg.serverContent.inputTranscription?.text;
             if (inText) {
               userTextBufferRef.current += inText;
               setCurrentUserText(userTextBufferRef.current);
+              lastUserTurnAtRef.current = Date.now();
+              awaitingModelReplyRef.current = true;
+              if (silenceWatchdogRef.current === null) armSilenceWatchdog();
             }
 
-            // Turn complete — flush both buffers to transcript
+            // Turn complete — flush both buffers and stop watchdog
             if (msg.serverContent.turnComplete || msg.serverContent.generationComplete) {
+              markModelActivity();
+              markModelTurnComplete();
               flushUserText();
               flushAiText();
             }
 
             // Server signals interruption (barge-in)
             if (msg.serverContent.interrupted) {
+              markModelActivity();
               interruptPlayback();
               flushAiText();
             }
