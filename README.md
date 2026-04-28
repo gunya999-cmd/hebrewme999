@@ -1,73 +1,81 @@
-# Welcome to your Lovable project
+# 📖 HebrewMe — Учи иврит с нуля
 
-## Project info
+Мобильное приложение для изучения иврита на русском языке. Создано семьёй Гуревич.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## 🚀 Возможности
 
-## How can I edit this code?
+- **Словарь** — 300+ глаголов с транскрипцией и спряжениями по временам
+- **5 игровых режимов** для закрепления материала:
+  - 🧠 Угадай форму — выбери правильную форму глагола
+  - ✍️ Напиши форму — напечатай форму на иврите
+  - 🔍 Угадай корень — определи трёхбуквенный корень
+  - 📚 Угадай биньян — к какому биньяну относится глагол
+  - 📝 Вставь предлог — выбери правильный предлог в предложении
+- **Предлоги** — 20 предлогов с примерами и упражнениями
+- **AI Репетитор Мирьям** — уроки произношения и диалоги с ИИ
+- **Голосовой диалог** — живое общение на иврите через микрофон
+- **Система прогресса** — интервальное повторение (SRS), стрик, статистика
 
-There are several ways of editing your application.
+## 🛠 Стек технологий
 
-**Use Lovable**
+- **React 18 + TypeScript + Vite**
+- **Tailwind CSS + shadcn/ui** — UI компоненты
+- **Framer Motion** — анимации
+- **Supabase** — backend и Edge Functions (AI)
+- **React Router** — навигация
+- **React Query** — управление состоянием запросов
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+## ⚙️ Установка и запуск
 
-Changes made via Lovable will be committed automatically to this repo.
+### 1. Клонировать репозиторий
 
-**Use your preferred IDE**
+```bash
+git clone https://github.com/gunya999-cmd/hebrewme999.git
+cd hebrewme999
+```
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### 2. Установить зависимости
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+```bash
+npm install
+```
 
-Follow these steps:
+### 3. Настроить переменные окружения
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+```bash
+cp .env.example .env
+```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+Заполни `.env` своими данными из [Supabase Dashboard](https://supabase.com):
 
-# Step 3: Install the necessary dependencies.
-npm i
+```
+VITE_SUPABASE_PROJECT_ID=ваш-project-id
+VITE_SUPABASE_PUBLISHABLE_KEY=ваш-anon-key
+VITE_SUPABASE_URL=https://ваш-project-id.supabase.co
+```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+### 4. Запустить сервер разработки
+
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+Приложение откроется на `http://localhost:5173`
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## 📦 Сборка для продакшена
 
-**Use GitHub Codespaces**
+```bash
+npm run build
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 👨‍👩‍👧‍👦 Разработчики
 
-## What technologies are used for this project?
+Семья Гуревич:
+- Георгий Гуревич
+- Людмила Гуревич
+- Михаил Гуревич
+- Никита Гуревич
 
-This project is built with:
+---
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+נוצר באהבה — Создано с любовью ❤️
