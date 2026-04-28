@@ -672,13 +672,17 @@ export default function VoiceDialogue() {
             setConnecting(false);
             setSpeechStatus("listening");
 
-            // Start sending audio from worklet using realtimeInput.audio (current API)
+            // Start sending audio from worklet → resample to 16kHz (Gemini's preferred input rate).
+            const TARGET_INPUT_RATE = 16000;
             workletNode.port.onmessage = (e) => {
-              if (mutedRef.current || speechTextModeRef.current || !e.data?.pcmBase64) return;
+              if (mutedRef.current || speechTextModeRef.current || !e.data?.pcm) return;
+              const float32 = e.data.pcm as Float32Array;
+              const resampled = resampleLinear(float32, inputSampleRate, TARGET_INPUT_RATE);
+              const base64 = float32ToPcm16Base64(resampled);
               sendRealtimeInput({
                 audio: {
-                  mimeType: `audio/pcm;rate=${inputSampleRate}`,
-                  data: e.data.pcmBase64,
+                  mimeType: `audio/pcm;rate=${TARGET_INPUT_RATE}`,
+                  data: base64,
                 },
               });
             };
