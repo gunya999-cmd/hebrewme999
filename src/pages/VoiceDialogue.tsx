@@ -221,6 +221,13 @@ export default function VoiceDialogue() {
   const recognitionRestartTimerRef = useRef<number | null>(null);
   const lastRecognizedTextRef = useRef("");
   const lastRecognizedAtRef = useRef(0);
+  // True once Gemini's own inputTranscription has produced text in this session.
+  // When true, Web Speech Recognition stops writing into the user transcript to
+  // avoid duplicate / garbled lines (SR often mis-recognises Hebrew as Thai/Arabic).
+  const geminiTranscriptionSeenRef = useRef(false);
+  // Tracks whether we are currently accumulating a fresh user turn from Gemini.
+  // Reset on turnComplete so the next inputTranscription starts a clean buffer.
+  const userTurnActiveRef = useRef(false);
   // ── Silence-watchdog: detects when model went silent after a user turn
   const silenceWatchdogRef = useRef<number | null>(null);
   const lastModelActivityAtRef = useRef(0);
@@ -459,9 +466,15 @@ export default function VoiceDialogue() {
   /* ── Flush user text buffer to transcript ── */
   const flushUserText = useCallback(async () => {
     const text = userTextBufferRef.current.trim();
-    if (!text) return;
     userTextBufferRef.current = "";
     setCurrentUserText("");
+    userTurnActiveRef.current = false;
+    if (!text) return;
+    // Guard against duplicate flushes of the exact same final text within a short window.
+    const now = Date.now();
+    if (text === lastRecognizedTextRef.current && now - lastRecognizedAtRef.current < 3000) return;
+    lastRecognizedTextRef.current = text;
+    lastRecognizedAtRef.current = now;
     const russian = await translateToRussian(text);
     const id = nextLineIdRef.current++;
     setTranscript(prev => [...prev, { id, speaker: "user", hebrew: text, russian }]);
@@ -508,6 +521,16 @@ export default function VoiceDialogue() {
       const visibleText = (finalText || interim).trim();
       if (visibleText) {
         setSpeechStatus("hearing");
+      }
+
+      // If Gemini is producing its own (better) Hebrew transcription for this
+      // session, do NOT let Web Speech write into the user buffer — it routinely
+      // mis-recognises Hebrew speech as Thai/Arabic/romanised text and would
+      // either duplicate or corrupt the line. SR is still useful as a barge-in
+      // trigger and as a fallback when Gemini gives no inputTranscription.
+      const useSrAsSource = !geminiTranscriptionSeenRef.current;
+
+      if (useSrAsSource && visibleText) {
         userTextBufferRef.current = visibleText;
         setCurrentUserText(visibleText);
       }
@@ -515,12 +538,20 @@ export default function VoiceDialogue() {
       const cleanFinal = finalText.trim();
       if (!cleanFinal) return;
 
+      // Barge-in: any speech (even mis-recognised) interrupts Miriam's playback.
+      if (isPlayingRef.current) interruptPlayback();
+
+      if (!useSrAsSource) {
+        // Gemini owns the transcript; just nudge the model so it processes the turn.
+        // Don't send the (likely garbled) SR text — let Gemini's audio path handle it.
+        return;
+      }
+
       const now = Date.now();
       if (cleanFinal === lastRecognizedTextRef.current && now - lastRecognizedAtRef.current < 2500) return;
       lastRecognizedTextRef.current = cleanFinal;
       lastRecognizedAtRef.current = now;
 
-      if (isPlayingRef.current) interruptPlayback();
       userTextBufferRef.current = cleanFinal;
       setCurrentUserText(cleanFinal);
       sendUserTextTurn(cleanFinal);
@@ -678,6 +709,10 @@ export default function VoiceDialogue() {
             setConnected(true);
             setConnecting(false);
             setSpeechStatus("listening");
+            geminiTranscriptionSeenRef.current = false;
+            userTurnActiveRef.current = false;
+            userTextBufferRef.current = "";
+            lastRecognizedTextRef.current = "";
 
             // Start sending audio from worklet → resample to 16kHz (Gemini's preferred input rate).
             const TARGET_INPUT_RATE = 16000;
@@ -733,10 +768,18 @@ export default function VoiceDialogue() {
               setCurrentAiText(aiTextBufferRef.current);
             }
 
-            // Input transcription (Hebrew text of user's speech) — server heard us,
-            // treat it as a fresh user turn so the watchdog will look for a reply.
+            // Input transcription (Hebrew text of user's speech) from Gemini —
+            // this is the AUTHORITATIVE source of the user's words. Web Speech is
+            // only a fallback / barge-in trigger and must not write to the transcript
+            // once Gemini transcription is active.
             const inText = msg.serverContent.inputTranscription?.text;
             if (inText) {
+              geminiTranscriptionSeenRef.current = true;
+              // New user turn → start a clean buffer (don't append to leftover SR text)
+              if (!userTurnActiveRef.current) {
+                userTextBufferRef.current = "";
+                userTurnActiveRef.current = true;
+              }
               userTextBufferRef.current += inText;
               setCurrentUserText(userTextBufferRef.current);
               lastUserTurnAtRef.current = Date.now();
@@ -814,6 +857,10 @@ export default function VoiceDialogue() {
     clearSilenceWatchdog();
     awaitingModelReplyRef.current = false;
     nudgeAttemptsRef.current = 0;
+    geminiTranscriptionSeenRef.current = false;
+    userTurnActiveRef.current = false;
+    userTextBufferRef.current = "";
+    lastRecognizedTextRef.current = "";
     stopVoiceActivityMonitor();
     stopSpeechRecognition();
     interruptPlayback();
