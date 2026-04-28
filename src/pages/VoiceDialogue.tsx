@@ -189,6 +189,12 @@ export default function VoiceDialogue() {
   const recognitionRestartTimerRef = useRef<number | null>(null);
   const lastRecognizedTextRef = useRef("");
   const lastRecognizedAtRef = useRef(0);
+  // ── Silence-watchdog: detects when model went silent after a user turn
+  const silenceWatchdogRef = useRef<number | null>(null);
+  const lastModelActivityAtRef = useRef(0);
+  const awaitingModelReplyRef = useRef(false);
+  const nudgeAttemptsRef = useRef(0);
+  const lastUserTurnAtRef = useRef(0);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -246,6 +252,18 @@ export default function VoiceDialogue() {
     wsRef.current.send(JSON.stringify({ realtimeInput: input }));
   }, []);
 
+  /* ── Silence watchdog: detect "model went silent" and nudge it ── */
+  const SILENCE_TIMEOUT_MS = 3500;
+  const MAX_NUDGES = 2;
+  const NUDGE_TEXT_HE = "תמשיכי בבקשה. ענתה לי בעברית פשוטה."; // "Please continue. Reply in simple Hebrew."
+
+  const clearSilenceWatchdog = useCallback(() => {
+    if (silenceWatchdogRef.current !== null) {
+      window.clearTimeout(silenceWatchdogRef.current);
+      silenceWatchdogRef.current = null;
+    }
+  }, []);
+
   const sendUserTextTurn = useCallback((text: string) => {
     const cleanText = text.trim();
     if (!cleanText || wsRef.current?.readyState !== WebSocket.OPEN) return;
@@ -255,7 +273,55 @@ export default function VoiceDialogue() {
         turnComplete: true,
       },
     }));
+    lastUserTurnAtRef.current = Date.now();
+    awaitingModelReplyRef.current = true;
+    nudgeAttemptsRef.current = 0;
+    armSilenceWatchdog();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const sendNudge = useCallback(() => {
+    if (wsRef.current?.readyState !== WebSocket.OPEN) return;
+    console.warn("[SilenceWatchdog] model is silent → sending nudge", { attempt: nudgeAttemptsRef.current + 1 });
+    wsRef.current.send(JSON.stringify({
+      clientContent: {
+        turns: [{ role: "user", parts: [{ text: NUDGE_TEXT_HE }] }],
+        turnComplete: true,
+      },
+    }));
+    nudgeAttemptsRef.current += 1;
+    armSilenceWatchdog();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function armSilenceWatchdog() {
+    if (silenceWatchdogRef.current !== null) {
+      window.clearTimeout(silenceWatchdogRef.current);
+    }
+    silenceWatchdogRef.current = window.setTimeout(() => {
+      silenceWatchdogRef.current = null;
+      // Still awaiting reply and no model activity since user turn?
+      if (!awaitingModelReplyRef.current) return;
+      if (lastModelActivityAtRef.current >= lastUserTurnAtRef.current) return;
+      if (wsRef.current?.readyState !== WebSocket.OPEN) return;
+      if (nudgeAttemptsRef.current >= MAX_NUDGES) {
+        console.warn("[SilenceWatchdog] giving up after", nudgeAttemptsRef.current, "nudges");
+        awaitingModelReplyRef.current = false;
+        return;
+      }
+      sendNudge();
+    }, SILENCE_TIMEOUT_MS);
+  }
+
+  const markModelActivity = useCallback(() => {
+    lastModelActivityAtRef.current = Date.now();
+  }, []);
+
+  const markModelTurnComplete = useCallback(() => {
+    awaitingModelReplyRef.current = false;
+    nudgeAttemptsRef.current = 0;
+    clearSilenceWatchdog();
+  }, [clearSilenceWatchdog]);
 
   const sendAudioStreamEnd = useCallback(() => {
     if (wsRef.current?.readyState !== WebSocket.OPEN) return;
@@ -594,6 +660,11 @@ export default function VoiceDialogue() {
               },
             };
             ws.send(JSON.stringify(greetMsg));
+            // Watch for "model went silent" right after greeting too
+            lastUserTurnAtRef.current = Date.now();
+            awaitingModelReplyRef.current = true;
+            nudgeAttemptsRef.current = 0;
+            armSilenceWatchdog();
             return;
           }
 
@@ -603,6 +674,7 @@ export default function VoiceDialogue() {
             const parts = msg.serverContent.modelTurn?.parts || [];
             for (const part of parts) {
               if (part.inlineData?.data) {
+                markModelActivity();
                 enqueueAudio(part.inlineData.data);
               }
             }
@@ -610,25 +682,33 @@ export default function VoiceDialogue() {
             // Output transcription (Hebrew text of Miriam's speech)
             const outText = msg.serverContent.outputTranscription?.text;
             if (outText) {
+              markModelActivity();
               aiTextBufferRef.current += outText;
               setCurrentAiText(aiTextBufferRef.current);
             }
 
-            // Input transcription (Hebrew text of user's speech)
+            // Input transcription (Hebrew text of user's speech) — server heard us,
+            // treat it as a fresh user turn so the watchdog will look for a reply.
             const inText = msg.serverContent.inputTranscription?.text;
             if (inText) {
               userTextBufferRef.current += inText;
               setCurrentUserText(userTextBufferRef.current);
+              lastUserTurnAtRef.current = Date.now();
+              awaitingModelReplyRef.current = true;
+              if (silenceWatchdogRef.current === null) armSilenceWatchdog();
             }
 
-            // Turn complete — flush both buffers to transcript
+            // Turn complete — flush both buffers and stop watchdog
             if (msg.serverContent.turnComplete || msg.serverContent.generationComplete) {
+              markModelActivity();
+              markModelTurnComplete();
               flushUserText();
               flushAiText();
             }
 
             // Server signals interruption (barge-in)
             if (msg.serverContent.interrupted) {
+              markModelActivity();
               interruptPlayback();
               flushAiText();
             }
@@ -647,6 +727,8 @@ export default function VoiceDialogue() {
 
       ws.onclose = (e) => {
         console.log("[Gemini] WebSocket closed:", e.code, e.reason || "(no reason)");
+        clearSilenceWatchdog();
+        awaitingModelReplyRef.current = false;
         stopSpeechRecognition();
         setConnected(false);
         setConnecting(false);
@@ -683,6 +765,9 @@ export default function VoiceDialogue() {
 
   /* ── Disconnect ── */
   const endSession = useCallback(() => {
+    clearSilenceWatchdog();
+    awaitingModelReplyRef.current = false;
+    nudgeAttemptsRef.current = 0;
     stopVoiceActivityMonitor();
     stopSpeechRecognition();
     interruptPlayback();
@@ -705,7 +790,7 @@ export default function VoiceDialogue() {
     setConnected(false);
     setAiSpeaking(false);
     setConnecting(false);
-  }, [interruptPlayback, sendAudioStreamEnd, stopSpeechRecognition, stopVoiceActivityMonitor]);
+  }, [clearSilenceWatchdog, interruptPlayback, sendAudioStreamEnd, stopSpeechRecognition, stopVoiceActivityMonitor]);
 
   /* ── Toggle mute ── */
   const toggleMute = useCallback(() => {
