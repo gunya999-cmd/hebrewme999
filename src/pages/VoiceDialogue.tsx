@@ -765,6 +765,9 @@ export default function VoiceDialogue() {
 
   /* ── Disconnect ── */
   const endSession = useCallback(() => {
+    clearSilenceWatchdog();
+    awaitingModelReplyRef.current = false;
+    nudgeAttemptsRef.current = 0;
     stopVoiceActivityMonitor();
     stopSpeechRecognition();
     interruptPlayback();
@@ -787,7 +790,7 @@ export default function VoiceDialogue() {
     setConnected(false);
     setAiSpeaking(false);
     setConnecting(false);
-  }, [interruptPlayback, sendAudioStreamEnd, stopSpeechRecognition, stopVoiceActivityMonitor]);
+  }, [clearSilenceWatchdog, interruptPlayback, sendAudioStreamEnd, stopSpeechRecognition, stopVoiceActivityMonitor]);
 
   /* ── Toggle mute ── */
   const toggleMute = useCallback(() => {
