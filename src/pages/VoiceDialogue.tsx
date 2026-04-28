@@ -521,6 +521,16 @@ export default function VoiceDialogue() {
       const visibleText = (finalText || interim).trim();
       if (visibleText) {
         setSpeechStatus("hearing");
+      }
+
+      // If Gemini is producing its own (better) Hebrew transcription for this
+      // session, do NOT let Web Speech write into the user buffer — it routinely
+      // mis-recognises Hebrew speech as Thai/Arabic/romanised text and would
+      // either duplicate or corrupt the line. SR is still useful as a barge-in
+      // trigger and as a fallback when Gemini gives no inputTranscription.
+      const useSrAsSource = !geminiTranscriptionSeenRef.current;
+
+      if (useSrAsSource && visibleText) {
         userTextBufferRef.current = visibleText;
         setCurrentUserText(visibleText);
       }
@@ -528,12 +538,20 @@ export default function VoiceDialogue() {
       const cleanFinal = finalText.trim();
       if (!cleanFinal) return;
 
+      // Barge-in: any speech (even mis-recognised) interrupts Miriam's playback.
+      if (isPlayingRef.current) interruptPlayback();
+
+      if (!useSrAsSource) {
+        // Gemini owns the transcript; just nudge the model so it processes the turn.
+        // Don't send the (likely garbled) SR text — let Gemini's audio path handle it.
+        return;
+      }
+
       const now = Date.now();
       if (cleanFinal === lastRecognizedTextRef.current && now - lastRecognizedAtRef.current < 2500) return;
       lastRecognizedTextRef.current = cleanFinal;
       lastRecognizedAtRef.current = now;
 
-      if (isPlayingRef.current) interruptPlayback();
       userTextBufferRef.current = cleanFinal;
       setCurrentUserText(cleanFinal);
       sendUserTextTurn(cleanFinal);
