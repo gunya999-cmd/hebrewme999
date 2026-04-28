@@ -80,7 +80,7 @@ class PcmRecorderProcessor extends AudioWorkletProcessor {
   constructor() {
     super();
     this._buffer = [];
-    this._bufferSize = 512;
+    this._bufferSize = 2048; // ~42ms @ 48kHz, ~128ms @ 16kHz
   }
   process(inputs) {
     const input = inputs[0];
@@ -91,17 +91,8 @@ class PcmRecorderProcessor extends AudioWorkletProcessor {
       }
       while (this._buffer.length >= this._bufferSize) {
         const chunk = this._buffer.splice(0, this._bufferSize);
-        const pcm16 = new Int16Array(chunk.length);
-        for (let i = 0; i < chunk.length; i++) {
-          const s = Math.max(-1, Math.min(1, chunk[i]));
-          pcm16[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
-        }
-        const bytes = new Uint8Array(pcm16.buffer);
-        let binary = '';
-        for (let i = 0; i < bytes.length; i++) {
-          binary += String.fromCharCode(bytes[i]);
-        }
-        this.port.postMessage({ pcmBase64: btoa(binary) });
+        // Send raw Float32 — main thread will resample to 16kHz and encode.
+        this.port.postMessage({ pcm: new Float32Array(chunk) });
       }
     }
     return true;
@@ -111,6 +102,22 @@ registerProcessor('pcm-recorder-processor', PcmRecorderProcessor);
 `;
   const blob = new Blob([code], { type: "application/javascript" });
   return URL.createObjectURL(blob);
+}
+
+/* ── Convert Float32 → 16-bit PCM base64 ── */
+function float32ToPcm16Base64(float32: Float32Array): string {
+  const pcm16 = new Int16Array(float32.length);
+  for (let i = 0; i < float32.length; i++) {
+    const s = Math.max(-1, Math.min(1, float32[i]));
+    pcm16[i] = s < 0 ? s * 0x8000 : s * 0x7fff;
+  }
+  const bytes = new Uint8Array(pcm16.buffer);
+  let binary = "";
+  const CHUNK = 0x8000;
+  for (let i = 0; i < bytes.length; i += CHUNK) {
+    binary += String.fromCharCode.apply(null, Array.from(bytes.subarray(i, i + CHUNK)));
+  }
+  return btoa(binary);
 }
 
 /* ── Base64 to Float32 PCM decoder (24kHz input) ── */
