@@ -709,6 +709,10 @@ export default function VoiceDialogue() {
             setConnected(true);
             setConnecting(false);
             setSpeechStatus("listening");
+            geminiTranscriptionSeenRef.current = false;
+            userTurnActiveRef.current = false;
+            userTextBufferRef.current = "";
+            lastRecognizedTextRef.current = "";
 
             // Start sending audio from worklet → resample to 16kHz (Gemini's preferred input rate).
             const TARGET_INPUT_RATE = 16000;
