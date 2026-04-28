@@ -727,6 +727,8 @@ export default function VoiceDialogue() {
 
       ws.onclose = (e) => {
         console.log("[Gemini] WebSocket closed:", e.code, e.reason || "(no reason)");
+        clearSilenceWatchdog();
+        awaitingModelReplyRef.current = false;
         stopSpeechRecognition();
         setConnected(false);
         setConnecting(false);
