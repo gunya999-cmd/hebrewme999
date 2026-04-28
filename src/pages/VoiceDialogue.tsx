@@ -221,6 +221,13 @@ export default function VoiceDialogue() {
   const recognitionRestartTimerRef = useRef<number | null>(null);
   const lastRecognizedTextRef = useRef("");
   const lastRecognizedAtRef = useRef(0);
+  // True once Gemini's own inputTranscription has produced text in this session.
+  // When true, Web Speech Recognition stops writing into the user transcript to
+  // avoid duplicate / garbled lines (SR often mis-recognises Hebrew as Thai/Arabic).
+  const geminiTranscriptionSeenRef = useRef(false);
+  // Tracks whether we are currently accumulating a fresh user turn from Gemini.
+  // Reset on turnComplete so the next inputTranscription starts a clean buffer.
+  const userTurnActiveRef = useRef(false);
   // ── Silence-watchdog: detects when model went silent after a user turn
   const silenceWatchdogRef = useRef<number | null>(null);
   const lastModelActivityAtRef = useRef(0);
