@@ -857,6 +857,10 @@ export default function VoiceDialogue() {
     clearSilenceWatchdog();
     awaitingModelReplyRef.current = false;
     nudgeAttemptsRef.current = 0;
+    geminiTranscriptionSeenRef.current = false;
+    userTurnActiveRef.current = false;
+    userTextBufferRef.current = "";
+    lastRecognizedTextRef.current = "";
     stopVoiceActivityMonitor();
     stopSpeechRecognition();
     interruptPlayback();
