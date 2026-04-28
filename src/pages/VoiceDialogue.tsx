@@ -52,7 +52,25 @@ type SpeechWindow = AudioWindow & {
 function createRealtimeAudioContext(): AudioContext {
   const AudioContextCtor = window.AudioContext || (window as AudioWindow).webkitAudioContext;
   if (!AudioContextCtor) throw new Error("Ваш браузер не поддерживает живой аудио-диалог.");
-  return new AudioContextCtor({ sampleRate: 16000 });
+  // IMPORTANT: do NOT force sampleRate on iOS — Safari/iOS only allows the device's
+  // native sampleRate (usually 48000). Forcing 16000 silently breaks playback.
+  return new AudioContextCtor();
+}
+
+/* ── Linear resample Float32 PCM from one rate to another ── */
+function resampleLinear(input: Float32Array, fromRate: number, toRate: number): Float32Array {
+  if (fromRate === toRate) return input;
+  const ratio = fromRate / toRate;
+  const outLen = Math.round(input.length / ratio);
+  const out = new Float32Array(outLen);
+  for (let i = 0; i < outLen; i++) {
+    const srcIdx = i * ratio;
+    const i0 = Math.floor(srcIdx);
+    const i1 = Math.min(i0 + 1, input.length - 1);
+    const t = srcIdx - i0;
+    out[i] = input[i0] * (1 - t) + input[i1] * t;
+  }
+  return out;
 }
 
 /* ── AudioWorklet processor as inline blob ── */
