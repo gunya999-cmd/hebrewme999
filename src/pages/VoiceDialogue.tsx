@@ -252,6 +252,18 @@ export default function VoiceDialogue() {
     wsRef.current.send(JSON.stringify({ realtimeInput: input }));
   }, []);
 
+  /* ── Silence watchdog: detect "model went silent" and nudge it ── */
+  const SILENCE_TIMEOUT_MS = 3500;
+  const MAX_NUDGES = 2;
+  const NUDGE_TEXT_HE = "תמשיכי בבקשה. ענתה לי בעברית פשוטה."; // "Please continue. Reply in simple Hebrew."
+
+  const clearSilenceWatchdog = useCallback(() => {
+    if (silenceWatchdogRef.current !== null) {
+      window.clearTimeout(silenceWatchdogRef.current);
+      silenceWatchdogRef.current = null;
+    }
+  }, []);
+
   const sendUserTextTurn = useCallback((text: string) => {
     const cleanText = text.trim();
     if (!cleanText || wsRef.current?.readyState !== WebSocket.OPEN) return;
@@ -261,7 +273,55 @@ export default function VoiceDialogue() {
         turnComplete: true,
       },
     }));
+    lastUserTurnAtRef.current = Date.now();
+    awaitingModelReplyRef.current = true;
+    nudgeAttemptsRef.current = 0;
+    armSilenceWatchdog();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const sendNudge = useCallback(() => {
+    if (wsRef.current?.readyState !== WebSocket.OPEN) return;
+    console.warn("[SilenceWatchdog] model is silent → sending nudge", { attempt: nudgeAttemptsRef.current + 1 });
+    wsRef.current.send(JSON.stringify({
+      clientContent: {
+        turns: [{ role: "user", parts: [{ text: NUDGE_TEXT_HE }] }],
+        turnComplete: true,
+      },
+    }));
+    nudgeAttemptsRef.current += 1;
+    armSilenceWatchdog();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function armSilenceWatchdog() {
+    if (silenceWatchdogRef.current !== null) {
+      window.clearTimeout(silenceWatchdogRef.current);
+    }
+    silenceWatchdogRef.current = window.setTimeout(() => {
+      silenceWatchdogRef.current = null;
+      // Still awaiting reply and no model activity since user turn?
+      if (!awaitingModelReplyRef.current) return;
+      if (lastModelActivityAtRef.current >= lastUserTurnAtRef.current) return;
+      if (wsRef.current?.readyState !== WebSocket.OPEN) return;
+      if (nudgeAttemptsRef.current >= MAX_NUDGES) {
+        console.warn("[SilenceWatchdog] giving up after", nudgeAttemptsRef.current, "nudges");
+        awaitingModelReplyRef.current = false;
+        return;
+      }
+      sendNudge();
+    }, SILENCE_TIMEOUT_MS);
+  }
+
+  const markModelActivity = useCallback(() => {
+    lastModelActivityAtRef.current = Date.now();
+  }, []);
+
+  const markModelTurnComplete = useCallback(() => {
+    awaitingModelReplyRef.current = false;
+    nudgeAttemptsRef.current = 0;
+    clearSilenceWatchdog();
+  }, [clearSilenceWatchdog]);
 
   const sendAudioStreamEnd = useCallback(() => {
     if (wsRef.current?.readyState !== WebSocket.OPEN) return;
