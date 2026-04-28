@@ -466,9 +466,15 @@ export default function VoiceDialogue() {
   /* ── Flush user text buffer to transcript ── */
   const flushUserText = useCallback(async () => {
     const text = userTextBufferRef.current.trim();
-    if (!text) return;
     userTextBufferRef.current = "";
     setCurrentUserText("");
+    userTurnActiveRef.current = false;
+    if (!text) return;
+    // Guard against duplicate flushes of the exact same final text within a short window.
+    const now = Date.now();
+    if (text === lastRecognizedTextRef.current && now - lastRecognizedAtRef.current < 3000) return;
+    lastRecognizedTextRef.current = text;
+    lastRecognizedAtRef.current = now;
     const russian = await translateToRussian(text);
     const id = nextLineIdRef.current++;
     setTranscript(prev => [...prev, { id, speaker: "user", hebrew: text, russian }]);
