@@ -28,11 +28,11 @@ function loadStats(): DailyStats {
         date: today,
         newLearned: 0,
         reviewed: 0,
-        streak: stats.date === yesterday ? stats.streak + 1 : 1,
+        streak: stats.date === yesterday ? stats.streak + 1 : 0,
       };
     }
   } catch {}
-  return { date: new Date().toISOString().split("T")[0], newLearned: 0, reviewed: 0, streak: 1 };
+  return { date: new Date().toISOString().split("T")[0], newLearned: 0, reviewed: 0, streak: 0 };
 }
 
 function saveStats(stats: DailyStats) {

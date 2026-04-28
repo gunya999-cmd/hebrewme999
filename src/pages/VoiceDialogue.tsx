@@ -187,28 +187,12 @@ export default function VoiceDialogue() {
   const recognitionShouldRunRef = useRef(false);
   const recognitionRunningRef = useRef(false);
   const recognitionRestartTimerRef = useRef<number | null>(null);
-  const pendingTextFallbackTimerRef = useRef<number | null>(null);
-  const lastModelActivityAtRef = useRef(0);
   const lastRecognizedTextRef = useRef("");
   const lastRecognizedAtRef = useRef(0);
-  const lastFlushedUserTextRef = useRef("");
-  const lastFlushedUserAtRef = useRef(0);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [transcript, currentAiText, currentUserText]);
-
-  const clearPendingTextFallback = useCallback(() => {
-    if (pendingTextFallbackTimerRef.current !== null) {
-      window.clearTimeout(pendingTextFallbackTimerRef.current);
-      pendingTextFallbackTimerRef.current = null;
-    }
-  }, []);
-
-  const markModelActivity = useCallback(() => {
-    lastModelActivityAtRef.current = Date.now();
-    clearPendingTextFallback();
-  }, [clearPendingTextFallback]);
 
   const stopPlaybackSource = useCallback(() => {
     const currentSource = currentPlaybackSourceRef.current;
@@ -235,7 +219,6 @@ export default function VoiceDialogue() {
 
   const stopSpeechRecognition = useCallback(() => {
     recognitionShouldRunRef.current = false;
-    clearPendingTextFallback();
     if (recognitionRestartTimerRef.current !== null) {
       window.clearTimeout(recognitionRestartTimerRef.current);
       recognitionRestartTimerRef.current = null;
@@ -256,7 +239,7 @@ export default function VoiceDialogue() {
       }
     }
     setSpeechStatus("off");
-  }, [clearPendingTextFallback]);
+  }, []);
 
   const sendRealtimeInput = useCallback((input: Record<string, unknown>) => {
     if (wsRef.current?.readyState !== WebSocket.OPEN) return;
@@ -267,7 +250,10 @@ export default function VoiceDialogue() {
     const cleanText = text.trim();
     if (!cleanText || wsRef.current?.readyState !== WebSocket.OPEN) return;
     wsRef.current.send(JSON.stringify({
-      realtimeInput: { text: cleanText },
+      clientContent: {
+        turns: [{ role: "user", parts: [{ text: cleanText }] }],
+        turnComplete: true,
+      },
     }));
   }, []);
 
@@ -366,14 +352,6 @@ export default function VoiceDialogue() {
   const flushUserText = useCallback(async () => {
     const text = userTextBufferRef.current.trim();
     if (!text) return;
-    const now = Date.now();
-    if (text === lastFlushedUserTextRef.current && now - lastFlushedUserAtRef.current < 3000) {
-      userTextBufferRef.current = "";
-      setCurrentUserText("");
-      return;
-    }
-    lastFlushedUserTextRef.current = text;
-    lastFlushedUserAtRef.current = now;
     userTextBufferRef.current = "";
     setCurrentUserText("");
     const russian = await translateToRussian(text);
@@ -437,13 +415,7 @@ export default function VoiceDialogue() {
       if (isPlayingRef.current) interruptPlayback();
       userTextBufferRef.current = cleanFinal;
       setCurrentUserText(cleanFinal);
-      clearPendingTextFallback();
-      const modelActivityBeforeFallback = lastModelActivityAtRef.current;
-      pendingTextFallbackTimerRef.current = window.setTimeout(() => {
-        pendingTextFallbackTimerRef.current = null;
-        if (lastModelActivityAtRef.current !== modelActivityBeforeFallback) return;
-        sendUserTextTurn(cleanFinal);
-      }, 1600);
+      sendUserTextTurn(cleanFinal);
       void flushUserText();
     };
 
@@ -478,7 +450,7 @@ export default function VoiceDialogue() {
       setSpeechStatus("error");
       return false;
     }
-  }, [clearPendingTextFallback, flushUserText, interruptPlayback, sendUserTextTurn, stopSpeechRecognition]);
+  }, [flushUserText, interruptPlayback, sendUserTextTurn, stopSpeechRecognition]);
 
   /* ── Connect to Gemini Live ── */
   const startSession = useCallback(async (selectedLevel: Level) => {
@@ -601,7 +573,7 @@ export default function VoiceDialogue() {
 
             // Start sending audio from worklet using realtimeInput.audio (current API)
             workletNode.port.onmessage = (e) => {
-              if (mutedRef.current || !e.data?.pcmBase64) return;
+              if (mutedRef.current || speechTextModeRef.current || !e.data?.pcmBase64) return;
               sendRealtimeInput({
                 audio: {
                   mimeType: `audio/pcm;rate=${inputSampleRate}`,
@@ -613,8 +585,12 @@ export default function VoiceDialogue() {
 
             // Ask Miriam to start the dialogue
             const greetMsg = {
-              realtimeInput: {
-                text: "התחל את השיחה עכשיו. ברך אותי בקצרה בעברית ושאל שאלה אחת פתוחה.",
+              clientContent: {
+                turns: [{
+                  role: "user",
+                  parts: [{ text: "התחל את השיחה עכשיו. ברך אותי בקצרה בעברית ושאל שאלה אחת פתוחה." }],
+                }],
+                turnComplete: true,
               },
             };
             ws.send(JSON.stringify(greetMsg));
@@ -627,7 +603,6 @@ export default function VoiceDialogue() {
             const parts = msg.serverContent.modelTurn?.parts || [];
             for (const part of parts) {
               if (part.inlineData?.data) {
-                markModelActivity();
                 enqueueAudio(part.inlineData.data);
               }
             }
@@ -635,7 +610,6 @@ export default function VoiceDialogue() {
             // Output transcription (Hebrew text of Miriam's speech)
             const outText = msg.serverContent.outputTranscription?.text;
             if (outText) {
-              markModelActivity();
               aiTextBufferRef.current += outText;
               setCurrentAiText(aiTextBufferRef.current);
             }
@@ -673,7 +647,6 @@ export default function VoiceDialogue() {
 
       ws.onclose = (e) => {
         console.log("[Gemini] WebSocket closed:", e.code, e.reason || "(no reason)");
-        clearPendingTextFallback();
         stopSpeechRecognition();
         setConnected(false);
         setConnecting(false);
@@ -688,7 +661,6 @@ export default function VoiceDialogue() {
 
     } catch (err: any) {
       console.error("startSession error:", err);
-      clearPendingTextFallback();
       interruptPlayback();
       stopVoiceActivityMonitor();
       stopSpeechRecognition();
@@ -707,11 +679,10 @@ export default function VoiceDialogue() {
       setError(getMicrophoneErrorMessage(err));
       setConnecting(false);
     }
-  }, [clearPendingTextFallback, connected, connecting, micDeviceId, enqueueAudio, flushAiText, flushUserText, interruptPlayback, markModelActivity, sendRealtimeInput, startSpeechRecognition, startVoiceActivityMonitor, stopSpeechRecognition, stopVoiceActivityMonitor]);
+  }, [connected, connecting, micDeviceId, enqueueAudio, flushAiText, flushUserText, interruptPlayback, sendRealtimeInput, startSpeechRecognition, startVoiceActivityMonitor, stopVoiceActivityMonitor]);
 
   /* ── Disconnect ── */
   const endSession = useCallback(() => {
-    clearPendingTextFallback();
     stopVoiceActivityMonitor();
     stopSpeechRecognition();
     interruptPlayback();
@@ -734,7 +705,7 @@ export default function VoiceDialogue() {
     setConnected(false);
     setAiSpeaking(false);
     setConnecting(false);
-  }, [clearPendingTextFallback, interruptPlayback, sendAudioStreamEnd, stopSpeechRecognition, stopVoiceActivityMonitor]);
+  }, [interruptPlayback, sendAudioStreamEnd, stopSpeechRecognition, stopVoiceActivityMonitor]);
 
   /* ── Toggle mute ── */
   const toggleMute = useCallback(() => {
@@ -763,7 +734,6 @@ export default function VoiceDialogue() {
 
   useEffect(() => {
     return () => {
-      clearPendingTextFallback();
       stopVoiceActivityMonitor();
       stopSpeechRecognition();
       stopPlaybackSource();
@@ -771,7 +741,7 @@ export default function VoiceDialogue() {
       streamRef.current?.getTracks().forEach(t => t.stop());
       audioCtxRef.current?.close();
     };
-  }, [clearPendingTextFallback, stopPlaybackSource, stopSpeechRecognition, stopVoiceActivityMonitor]);
+  }, [stopPlaybackSource, stopSpeechRecognition, stopVoiceActivityMonitor]);
 
   /* ── Level selection screen ── */
   if (!level) {

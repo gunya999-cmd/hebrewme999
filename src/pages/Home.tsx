@@ -92,7 +92,7 @@ export default function Home() {
         >
           <Sparkles className="w-6 h-6 text-streak mb-2" />
           <p className="font-bold text-foreground text-sm">Игры</p>
-          <p className="text-xs text-muted-foreground">4 режима</p>
+          <p className="text-xs text-muted-foreground">5 режимов</p>
         </motion.button>
         <motion.button
           whileTap={{ scale: 0.95 }}
@@ -111,6 +111,15 @@ export default function Home() {
           <Mic className="w-6 h-6 text-primary mb-2" />
           <p className="font-bold text-foreground text-sm">AI Репетитор</p>
           <p className="text-xs text-muted-foreground">Мирьям — диалоги</p>
+        </motion.button>
+        <motion.button
+          whileTap={{ scale: 0.95 }}
+          onClick={() => navigate("/voice-dialogue")}
+          className="bg-card rounded-2xl p-4 shadow-sm text-left border border-border"
+        >
+          <MessageCircle className="w-6 h-6 text-success mb-2" />
+          <p className="font-bold text-foreground text-sm">Голосовой диалог</p>
+          <p className="text-xs text-muted-foreground">Живое общение</p>
         </motion.button>
         <motion.button
           whileTap={{ scale: 0.95 }}
