@@ -189,6 +189,12 @@ export default function VoiceDialogue() {
   const recognitionRestartTimerRef = useRef<number | null>(null);
   const lastRecognizedTextRef = useRef("");
   const lastRecognizedAtRef = useRef(0);
+  // ── Silence-watchdog: detects when model went silent after a user turn
+  const silenceWatchdogRef = useRef<number | null>(null);
+  const lastModelActivityAtRef = useRef(0);
+  const awaitingModelReplyRef = useRef(false);
+  const nudgeAttemptsRef = useRef(0);
+  const lastUserTurnAtRef = useRef(0);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
