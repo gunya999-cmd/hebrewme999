@@ -1018,7 +1018,7 @@ export default function VoiceDialogue() {
           </div>
           <div>
             <h1 className="text-sm font-bold text-foreground">
-              Мирьям — {LEVELS.find(l => l.id === level)?.label}
+              {customTitle || `Мирьям — ${LEVELS.find(l => l.id === level)?.label}`}
             </h1>
             <p className="text-xs text-muted-foreground">
               {connecting ? "Подключение..." : connected ? (aiSpeaking ? "🗣 Говорит..." : speechStatus === "hearing" ? "🎙 Слышу вас..." : "🎧 Слушает...") : "Отключено"}
