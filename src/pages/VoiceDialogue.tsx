@@ -1063,12 +1063,23 @@ export default function VoiceDialogue() {
                 {line.speaker === "miriam" && (
                   <span className="text-xs text-muted-foreground font-medium ml-1">Мирьям</span>
                 )}
-                <div className={`rounded-2xl px-4 py-2.5 text-sm ${
+                <div className={`rounded-2xl px-4 py-2.5 text-sm space-y-1 ${
                   line.speaker === "user"
                     ? "bg-primary text-primary-foreground rounded-br-md"
                     : "bg-card border border-border text-foreground rounded-bl-md"
                 }`}>
-                  <p>{line.russian || line.hebrew}</p>
+                  {line.hebrew && (
+                    <p dir="rtl" lang="he" className="font-hebrew text-base leading-snug text-right">
+                      {line.hebrew}
+                    </p>
+                  )}
+                  {line.russian && (
+                    <p className={`text-xs leading-snug ${
+                      line.speaker === "user" ? "opacity-80" : "text-muted-foreground"
+                    }`}>
+                      {line.russian}
+                    </p>
+                  )}
                 </div>
               </div>
             </motion.div>
