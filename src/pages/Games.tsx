@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Brain, PenLine, Puzzle, Layers, BookOpen } from "lucide-react";
+import { Brain, PenLine, Puzzle, Layers, BookOpen, Mic } from "lucide-react";
 
 const games = [
   {
@@ -42,6 +42,14 @@ const games = [
     icon: BookOpen,
     color: "bg-accent/20 text-accent-foreground",
     path: "/games/prep-fill",
+  },
+  {
+    id: "conjugation-voice",
+    title: "Спряжение голосом",
+    desc: "Голосовой тренажёр: назови инфинитив и измени предложение",
+    icon: Mic,
+    color: "bg-primary/10 text-primary",
+    path: "/games/conjugation-voice",
   },
 ];
 
