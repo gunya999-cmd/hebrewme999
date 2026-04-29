@@ -744,7 +744,7 @@ export default function VoiceDialogue() {
               clientContent: {
                 turns: [{
                   role: "user",
-                  parts: [{ text: "התחל את השיחה עכשיו. ברך אותי בקצרה בעברית ושאל שאלה אחת פתוחה." }],
+                  parts: [{ text: customGreetRef.current || "התחל את השיחה עכשיו. ברך אותי בקצרה בעברית ושאל שאלה אחת פתוחה." }],
                 }],
                 turnComplete: true,
               },
