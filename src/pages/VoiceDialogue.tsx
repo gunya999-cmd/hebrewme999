@@ -183,8 +183,17 @@ async function translateToRussian(text: string): Promise<string> {
 export default function VoiceDialogue() {
   const navigate = useNavigate();
   const location = useLocation();
-  const routeState = location.state as { level?: Level; autoStart?: boolean } | null;
+  const routeState = location.state as {
+    level?: Level;
+    autoStart?: boolean;
+    customInstruction?: string;
+    customGreet?: string;
+    customTitle?: string;
+  } | null;
   const [level, setLevel] = useState<Level | null>(routeState?.level ?? null);
+  const customInstructionRef = useRef<string | undefined>(routeState?.customInstruction);
+  const customGreetRef = useRef<string | undefined>(routeState?.customGreet);
+  const customTitle = routeState?.customTitle;
   const [connected, setConnected] = useState(false);
   const [connecting, setConnecting] = useState(false);
   const [muted, setMuted] = useState(false);
@@ -686,7 +695,7 @@ export default function VoiceDialogue() {
               activityHandling: "START_OF_ACTIVITY_INTERRUPTS",
             },
             systemInstruction: {
-              parts: [{ text: LEVEL_INSTRUCTIONS[selectedLevel] }],
+              parts: [{ text: customInstructionRef.current || LEVEL_INSTRUCTIONS[selectedLevel] }],
             },
             inputAudioTranscription: {},
             outputAudioTranscription: {},
@@ -735,7 +744,7 @@ export default function VoiceDialogue() {
               clientContent: {
                 turns: [{
                   role: "user",
-                  parts: [{ text: "התחל את השיחה עכשיו. ברך אותי בקצרה בעברית ושאל שאלה אחת פתוחה." }],
+                  parts: [{ text: customGreetRef.current || "התחל את השיחה עכשיו. ברך אותי בקצרה בעברית ושאל שאלה אחת פתוחה." }],
                 }],
                 turnComplete: true,
               },
@@ -921,6 +930,17 @@ export default function VoiceDialogue() {
     };
   }, [stopPlaybackSource, stopSpeechRecognition, stopVoiceActivityMonitor]);
 
+  // Auto-start when navigating with autoStart=true (e.g. from custom game pages)
+  const autoStartTriedRef = useRef(false);
+  useEffect(() => {
+    if (autoStartTriedRef.current) return;
+    if (routeState?.autoStart && level && !connected && !connecting) {
+      autoStartTriedRef.current = true;
+      startSession(level);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [level]);
+
   /* ── Level selection screen ── */
   if (!level) {
     return (
@@ -998,7 +1018,7 @@ export default function VoiceDialogue() {
           </div>
           <div>
             <h1 className="text-sm font-bold text-foreground">
-              Мирьям — {LEVELS.find(l => l.id === level)?.label}
+              {customTitle || `Мирьям — ${LEVELS.find(l => l.id === level)?.label}`}
             </h1>
             <p className="text-xs text-muted-foreground">
               {connecting ? "Подключение..." : connected ? (aiSpeaking ? "🗣 Говорит..." : speechStatus === "hearing" ? "🎙 Слышу вас..." : "🎧 Слушает...") : "Отключено"}

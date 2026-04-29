@@ -13,6 +13,7 @@ import WriteFormGame from "@/pages/WriteFormGame";
 import GuessRootGame from "@/pages/GuessRootGame";
 import GuessBinyanGame from "@/pages/GuessBinyanGame";
 import PrepFillGame from "@/pages/PrepFillGame";
+import ConjugationVoice from "@/pages/ConjugationVoice";
 import AITutor from "@/pages/AITutor";
 import VoiceDialogue from "@/pages/VoiceDialogue";
 import Prepositions from "@/pages/Prepositions";
@@ -39,6 +40,7 @@ const App = () => (
             <Route path="/games/guess-root" element={<GuessRootGame />} />
             <Route path="/games/guess-binyan" element={<GuessBinyanGame />} />
             <Route path="/games/prep-fill" element={<PrepFillGame />} />
+            <Route path="/games/conjugation-voice" element={<ConjugationVoice />} />
             <Route path="/ai-tutor" element={<AITutor />} />
             <Route path="/voice-dialogue" element={<VoiceDialogue />} />
             <Route path="/prepositions" element={<Prepositions />} />
