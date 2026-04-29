@@ -695,7 +695,7 @@ export default function VoiceDialogue() {
               activityHandling: "START_OF_ACTIVITY_INTERRUPTS",
             },
             systemInstruction: {
-              parts: [{ text: LEVEL_INSTRUCTIONS[selectedLevel] }],
+              parts: [{ text: customInstructionRef.current || LEVEL_INSTRUCTIONS[selectedLevel] }],
             },
             inputAudioTranscription: {},
             outputAudioTranscription: {},
