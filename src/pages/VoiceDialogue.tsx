@@ -1115,16 +1115,6 @@ export default function VoiceDialogue() {
           </motion.div>
         )}
 
-        {/* Live user text — show "translating" placeholder */}
-        {currentUserText && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex justify-end">
-            <div className="max-w-[85%]">
-              <div className="rounded-2xl rounded-br-md px-4 py-2.5 text-sm bg-primary/80 text-primary-foreground">
-                <p className="text-xs italic opacity-70">переводится...</p>
-              </div>
-            </div>
-          </motion.div>
-        )}
 
         {/* Connecting state */}
         {connecting && (
