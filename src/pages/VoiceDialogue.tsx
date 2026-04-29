@@ -1063,40 +1063,58 @@ export default function VoiceDialogue() {
                 {line.speaker === "miriam" && (
                   <span className="text-xs text-muted-foreground font-medium ml-1">Мирьям</span>
                 )}
-                <div className={`rounded-2xl px-4 py-2.5 text-sm ${
+                <div className={`rounded-2xl px-4 py-2.5 text-sm space-y-1 ${
                   line.speaker === "user"
                     ? "bg-primary text-primary-foreground rounded-br-md"
                     : "bg-card border border-border text-foreground rounded-bl-md"
                 }`}>
-                  <p>{line.russian || line.hebrew}</p>
+                  {line.hebrew && (
+                    <p dir="rtl" lang="he" className="font-hebrew text-base leading-snug text-right">
+                      {line.hebrew}
+                    </p>
+                  )}
+                  {line.russian && (
+                    <p className={`text-xs leading-snug ${
+                      line.speaker === "user" ? "opacity-80" : "text-muted-foreground"
+                    }`}>
+                      {line.russian}
+                    </p>
+                  )}
                 </div>
               </div>
             </motion.div>
           ))}
         </AnimatePresence>
 
-        {/* Live AI text — show "translating" placeholder */}
+        {/* Live AI text — Hebrew + translating placeholder */}
         {currentAiText && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex justify-start">
             <div className="max-w-[85%] flex flex-col gap-0.5">
               <span className="text-xs text-muted-foreground font-medium ml-1">Мирьям</span>
-              <div className="rounded-2xl rounded-bl-md px-4 py-2.5 text-sm bg-card border border-border text-foreground">
+              <div className="rounded-2xl rounded-bl-md px-4 py-2.5 text-sm bg-card border border-border text-foreground space-y-1">
+                <p dir="rtl" lang="he" className="font-hebrew text-base leading-snug text-right">
+                  {currentAiText}
+                </p>
                 <p className="text-xs text-muted-foreground italic">переводится...</p>
               </div>
             </div>
           </motion.div>
         )}
 
-        {/* Live user text — show "translating" placeholder */}
+        {/* Live user text — Hebrew + translating placeholder */}
         {currentUserText && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex justify-end">
             <div className="max-w-[85%]">
-              <div className="rounded-2xl rounded-br-md px-4 py-2.5 text-sm bg-primary/80 text-primary-foreground">
+              <div className="rounded-2xl rounded-br-md px-4 py-2.5 text-sm bg-primary/80 text-primary-foreground space-y-1">
+                <p dir="rtl" lang="he" className="font-hebrew text-base leading-snug text-right">
+                  {currentUserText}
+                </p>
                 <p className="text-xs italic opacity-70">переводится...</p>
               </div>
             </div>
           </motion.div>
         )}
+
 
         {/* Connecting state */}
         {connecting && (
