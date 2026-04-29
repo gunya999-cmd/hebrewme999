@@ -183,8 +183,17 @@ async function translateToRussian(text: string): Promise<string> {
 export default function VoiceDialogue() {
   const navigate = useNavigate();
   const location = useLocation();
-  const routeState = location.state as { level?: Level; autoStart?: boolean } | null;
+  const routeState = location.state as {
+    level?: Level;
+    autoStart?: boolean;
+    customInstruction?: string;
+    customGreet?: string;
+    customTitle?: string;
+  } | null;
   const [level, setLevel] = useState<Level | null>(routeState?.level ?? null);
+  const customInstructionRef = useRef<string | undefined>(routeState?.customInstruction);
+  const customGreetRef = useRef<string | undefined>(routeState?.customGreet);
+  const customTitle = routeState?.customTitle;
   const [connected, setConnected] = useState(false);
   const [connecting, setConnecting] = useState(false);
   const [muted, setMuted] = useState(false);
