@@ -930,6 +930,17 @@ export default function VoiceDialogue() {
     };
   }, [stopPlaybackSource, stopSpeechRecognition, stopVoiceActivityMonitor]);
 
+  // Auto-start when navigating with autoStart=true (e.g. from custom game pages)
+  const autoStartTriedRef = useRef(false);
+  useEffect(() => {
+    if (autoStartTriedRef.current) return;
+    if (routeState?.autoStart && level && !connected && !connecting) {
+      autoStartTriedRef.current = true;
+      startSession(level);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [level]);
+
   /* ── Level selection screen ── */
   if (!level) {
     return (
