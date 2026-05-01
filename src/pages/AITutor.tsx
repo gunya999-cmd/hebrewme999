@@ -410,24 +410,21 @@ export default function AITutor() {
     if (currentPhrase) speakText(currentPhrase.hebrew);
   };
 
-  const recordPronunciation = useCallback(() => {
-    if (!SpeechRecognitionAPI) { alert("Браузер не поддерживает распознавание речи"); return; }
-    if (listening) { recognitionRef.current?.stop(); setListening(false); return; }
-    const recognition = new SpeechRecognitionAPI();
-    recognition.lang = "he-IL";
-    recognition.interimResults = false;
-    recognition.continuous = false;
-    recognition.onresult = async (event: any) => {
-      const transcript = event.results[0][0].transcript;
-      setListening(false);
+  const recordPronunciation = useCallback(async () => {
+    // Toggle: if already recording, stop and let the recorder resolve with the transcript.
+    if (recorder.recording) {
+      recorder.stop();
+      return;
+    }
+    if (recorder.transcribing) return;
+    try {
+      const transcript = await recorder.start({ expectedText: currentPhrase?.hebrew });
       await analyzePronunciation(transcript);
-    };
-    recognition.onerror = () => setListening(false);
-    recognition.onend = () => setListening(false);
-    recognitionRef.current = recognition;
-    recognition.start();
-    setListening(true);
-  }, [listening, currentPhrase, level]);
+    } catch (err) {
+      console.warn("[recordPronunciation] failed:", err);
+      alert("Не удалось записать звук. Проверьте доступ к микрофону.");
+    }
+  }, [recorder, currentPhrase, level]);
 
   const analyzePronunciation = async (userText: string) => {
     if (!currentPhrase) return;
