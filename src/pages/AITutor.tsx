@@ -9,6 +9,7 @@ import { Progress } from "@/components/ui/progress";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import miriamAvatar from "@/assets/miriam-avatar.png";
+import { useHebrewRecorder } from "@/hooks/useHebrewRecorder";
 
 /* ── Types ── */
 type Msg = { role: "user" | "assistant"; content: string; hebrew?: string };
