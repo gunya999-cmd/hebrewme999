@@ -568,28 +568,24 @@ export default function AITutor() {
     }
   };
 
-  const toggleChatMic = useCallback(() => {
-    if (!SpeechRecognitionAPI) { alert("Браузер не поддерживает распознавание речи"); return; }
-    if (listening) { recognitionRef.current?.stop(); setListening(false); return; }
-    const recognition = new SpeechRecognitionAPI();
-    recognition.lang = "he-IL";
-    recognition.interimResults = true;
-    recognition.continuous = false;
-    recognition.onresult = (event: any) => {
-      let tr = "";
-      for (let i = 0; i < event.results.length; i++) tr += event.results[i][0].transcript;
-      setInput(tr);
-      if (event.results[0]?.isFinal) {
-        setListening(false);
-        setTimeout(() => { if (tr.trim()) send(tr.trim()); }, 300);
-      }
-    };
-    recognition.onerror = () => setListening(false);
-    recognition.onend = () => setListening(false);
-    recognitionRef.current = recognition;
-    recognition.start();
-    setListening(true);
-  }, [listening, level, messages]);
+  const toggleChatMic = useCallback(async () => {
+    if (recorder.recording) {
+      recorder.stop();
+      return;
+    }
+    if (recorder.transcribing) return;
+    try {
+      setInput("🎙 …");
+      const transcript = await recorder.start();
+      const clean = (transcript || "").trim();
+      setInput(clean);
+      if (clean) setTimeout(() => send(clean), 200);
+    } catch (err) {
+      console.warn("[toggleChatMic] failed:", err);
+      setInput("");
+      alert("Не удалось записать звук. Проверьте доступ к микрофону.");
+    }
+  }, [recorder, send]);
 
   const handleSpeak = (text: string, idx: number) => {
     if (speakingIdx === idx) { window.speechSynthesis.cancel(); setSpeakingIdx(null); return; }
