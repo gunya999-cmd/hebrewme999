@@ -1143,14 +1143,19 @@ export default function AITutor() {
 
       <div className="px-4 pb-20 pt-3 border-t border-border bg-background">
         <div className="flex gap-2 items-end">
-          <Button size="icon" variant={listening ? "default" : "outline"} onClick={toggleChatMic}
-            className={`rounded-full shrink-0 h-11 w-11 ${listening ? "animate-pulse bg-destructive hover:bg-destructive/90 border-destructive" : ""}`}>
-            {listening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+          <Button size="icon" variant={isListening ? "default" : "outline"} onClick={toggleChatMic}
+            disabled={recorder.transcribing}
+            className={`rounded-full shrink-0 h-11 w-11 ${recorder.recording ? "animate-pulse bg-destructive hover:bg-destructive/90 border-destructive" : ""}`}>
+            {recorder.transcribing
+              ? <Loader2 className="w-5 h-5 animate-spin" />
+              : recorder.recording
+                ? <MicOff className="w-5 h-5" />
+                : <Mic className="w-5 h-5" />}
           </Button>
           <div className="flex-1">
             <textarea value={input} onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(input); } }}
-              placeholder={listening ? "Говорите..." : "Напишите на иврите или по-русски..."}
+              placeholder={recorder.recording ? "Говорите..." : recorder.transcribing ? "Распознаём..." : "Напишите на иврите или по-русски..."}
               rows={1}
               className="w-full resize-none rounded-full border border-input bg-card px-5 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all" />
           </div>
@@ -1159,11 +1164,14 @@ export default function AITutor() {
             <Send className="w-5 h-5" />
           </Button>
         </div>
-        {listening && (
+        {recorder.recording && (
           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }}
             className="text-xs text-destructive mt-2 text-center animate-pulse">
-            🎙 Слушаю... говорите на иврите
+            🎙 Слушаю... говорите на иврите. Нажмите ещё раз, чтобы остановить.
           </motion.p>
+        )}
+        {recorder.transcribing && (
+          <p className="text-xs text-muted-foreground mt-2 text-center">⏳ Распознаём речь через Gemini…</p>
         )}
       </div>
     </div>
