@@ -575,7 +575,7 @@ export default function VoiceDialogue() {
       setSpeechStatus("error");
       return false;
     }
-  }, [flushUserText, interruptPlayback, sendUserTextTurn, stopSpeechRecognition]);
+  }, [interruptPlayback, stopSpeechRecognition]);
 
   /* ── Connect to Gemini Live ── */
   const startSession = useCallback(async (selectedLevel: Level) => {
