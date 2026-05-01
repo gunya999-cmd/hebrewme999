@@ -369,6 +369,9 @@ export default function AITutor() {
   const [lessonScores, setLessonScores] = useState<number[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
+  // Gemini-based Hebrew STT (replaces unreliable browser SpeechRecognition for he-IL)
+  const recorder = useHebrewRecorder();
+  const isListening = listening || recorder.recording || recorder.transcribing;
   const progress = getStoredProgress();
   const streak = getStreak();
 
