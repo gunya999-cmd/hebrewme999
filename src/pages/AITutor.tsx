@@ -9,6 +9,7 @@ import { Progress } from "@/components/ui/progress";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import miriamAvatar from "@/assets/miriam-avatar.png";
+import { useHebrewRecorder } from "@/hooks/useHebrewRecorder";
 
 /* ── Types ── */
 type Msg = { role: "user" | "assistant"; content: string; hebrew?: string };
@@ -368,6 +369,9 @@ export default function AITutor() {
   const [lessonScores, setLessonScores] = useState<number[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
+  // Gemini-based Hebrew STT (replaces unreliable browser SpeechRecognition for he-IL)
+  const recorder = useHebrewRecorder();
+  const isListening = listening || recorder.recording || recorder.transcribing;
   const progress = getStoredProgress();
   const streak = getStreak();
 
@@ -406,24 +410,21 @@ export default function AITutor() {
     if (currentPhrase) speakText(currentPhrase.hebrew);
   };
 
-  const recordPronunciation = useCallback(() => {
-    if (!SpeechRecognitionAPI) { alert("Браузер не поддерживает распознавание речи"); return; }
-    if (listening) { recognitionRef.current?.stop(); setListening(false); return; }
-    const recognition = new SpeechRecognitionAPI();
-    recognition.lang = "he-IL";
-    recognition.interimResults = false;
-    recognition.continuous = false;
-    recognition.onresult = async (event: any) => {
-      const transcript = event.results[0][0].transcript;
-      setListening(false);
+  const recordPronunciation = useCallback(async () => {
+    // Toggle: if already recording, stop and let the recorder resolve with the transcript.
+    if (recorder.recording) {
+      recorder.stop();
+      return;
+    }
+    if (recorder.transcribing) return;
+    try {
+      const transcript = await recorder.start({ expectedText: currentPhrase?.hebrew });
       await analyzePronunciation(transcript);
-    };
-    recognition.onerror = () => setListening(false);
-    recognition.onend = () => setListening(false);
-    recognitionRef.current = recognition;
-    recognition.start();
-    setListening(true);
-  }, [listening, currentPhrase, level]);
+    } catch (err) {
+      console.warn("[recordPronunciation] failed:", err);
+      alert("Не удалось записать звук. Проверьте доступ к микрофону.");
+    }
+  }, [recorder, currentPhrase, level]);
 
   const analyzePronunciation = async (userText: string) => {
     if (!currentPhrase) return;
@@ -567,28 +568,24 @@ export default function AITutor() {
     }
   };
 
-  const toggleChatMic = useCallback(() => {
-    if (!SpeechRecognitionAPI) { alert("Браузер не поддерживает распознавание речи"); return; }
-    if (listening) { recognitionRef.current?.stop(); setListening(false); return; }
-    const recognition = new SpeechRecognitionAPI();
-    recognition.lang = "he-IL";
-    recognition.interimResults = true;
-    recognition.continuous = false;
-    recognition.onresult = (event: any) => {
-      let tr = "";
-      for (let i = 0; i < event.results.length; i++) tr += event.results[i][0].transcript;
-      setInput(tr);
-      if (event.results[0]?.isFinal) {
-        setListening(false);
-        setTimeout(() => { if (tr.trim()) send(tr.trim()); }, 300);
-      }
-    };
-    recognition.onerror = () => setListening(false);
-    recognition.onend = () => setListening(false);
-    recognitionRef.current = recognition;
-    recognition.start();
-    setListening(true);
-  }, [listening, level, messages]);
+  const toggleChatMic = useCallback(async () => {
+    if (recorder.recording) {
+      recorder.stop();
+      return;
+    }
+    if (recorder.transcribing) return;
+    try {
+      setInput("🎙 …");
+      const transcript = await recorder.start();
+      const clean = (transcript || "").trim();
+      setInput(clean);
+      if (clean) setTimeout(() => send(clean), 200);
+    } catch (err) {
+      console.warn("[toggleChatMic] failed:", err);
+      setInput("");
+      alert("Не удалось записать звук. Проверьте доступ к микрофону.");
+    }
+  }, [recorder, send]);
 
   const handleSpeak = (text: string, idx: number) => {
     if (speakingIdx === idx) { window.speechSynthesis.cancel(); setSpeakingIdx(null); return; }
@@ -908,24 +905,32 @@ export default function AITutor() {
             {!pronResult && !pronLoading && (
               <motion.div initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
                 className="flex flex-col items-center gap-3">
-                <p className="text-sm text-muted-foreground">Нажмите и произнесите фразу</p>
+                <p className="text-sm text-muted-foreground">
+                  {recorder.transcribing ? "Распознаём речь..." : "Нажмите и произнесите фразу"}
+                </p>
                 <motion.button
                   whileTap={{ scale: 0.9 }}
                   onClick={recordPronunciation}
+                  disabled={recorder.transcribing}
                   className={`w-20 h-20 rounded-full flex items-center justify-center shadow-lg transition-all ${
-                    listening
+                    isListening
                       ? "bg-destructive animate-pulse shadow-destructive/30"
                       : "bg-primary shadow-primary/30 hover:shadow-primary/50"
-                  }`}>
-                  {listening
-                    ? <MicOff className="w-8 h-8 text-white" />
-                    : <Mic className="w-8 h-8 text-primary-foreground" />}
+                  } ${recorder.transcribing ? "opacity-70" : ""}`}>
+                  {recorder.transcribing
+                    ? <Loader2 className="w-8 h-8 text-white animate-spin" />
+                    : isListening
+                      ? <MicOff className="w-8 h-8 text-white" />
+                      : <Mic className="w-8 h-8 text-primary-foreground" />}
                 </motion.button>
-                {listening && (
+                {recorder.recording && (
                   <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                     className="text-xs text-destructive animate-pulse">
-                    🎙 Слушаю... говорите на иврите
+                    🎙 Слушаю... говорите на иврите. Нажмите ещё раз, чтобы остановить.
                   </motion.p>
+                )}
+                {recorder.transcribing && (
+                  <p className="text-xs text-muted-foreground">⏳ Анализ произношения...</p>
                 )}
               </motion.div>
             )}
@@ -1138,14 +1143,19 @@ export default function AITutor() {
 
       <div className="px-4 pb-20 pt-3 border-t border-border bg-background">
         <div className="flex gap-2 items-end">
-          <Button size="icon" variant={listening ? "default" : "outline"} onClick={toggleChatMic}
-            className={`rounded-full shrink-0 h-11 w-11 ${listening ? "animate-pulse bg-destructive hover:bg-destructive/90 border-destructive" : ""}`}>
-            {listening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+          <Button size="icon" variant={isListening ? "default" : "outline"} onClick={toggleChatMic}
+            disabled={recorder.transcribing}
+            className={`rounded-full shrink-0 h-11 w-11 ${recorder.recording ? "animate-pulse bg-destructive hover:bg-destructive/90 border-destructive" : ""}`}>
+            {recorder.transcribing
+              ? <Loader2 className="w-5 h-5 animate-spin" />
+              : recorder.recording
+                ? <MicOff className="w-5 h-5" />
+                : <Mic className="w-5 h-5" />}
           </Button>
           <div className="flex-1">
             <textarea value={input} onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(input); } }}
-              placeholder={listening ? "Говорите..." : "Напишите на иврите или по-русски..."}
+              placeholder={recorder.recording ? "Говорите..." : recorder.transcribing ? "Распознаём..." : "Напишите на иврите или по-русски..."}
               rows={1}
               className="w-full resize-none rounded-full border border-input bg-card px-5 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all" />
           </div>
@@ -1154,11 +1164,14 @@ export default function AITutor() {
             <Send className="w-5 h-5" />
           </Button>
         </div>
-        {listening && (
+        {recorder.recording && (
           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }}
             className="text-xs text-destructive mt-2 text-center animate-pulse">
-            🎙 Слушаю... говорите на иврите
+            🎙 Слушаю... говорите на иврите. Нажмите ещё раз, чтобы остановить.
           </motion.p>
+        )}
+        {recorder.transcribing && (
+          <p className="text-xs text-muted-foreground mt-2 text-center">⏳ Распознаём речь через Gemini…</p>
         )}
       </div>
     </div>

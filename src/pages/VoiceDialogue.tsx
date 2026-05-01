@@ -528,43 +528,20 @@ export default function VoiceDialogue() {
       }
 
       const visibleText = (finalText || interim).trim();
-      if (visibleText) {
-        setSpeechStatus("hearing");
-      }
+      if (visibleText) setSpeechStatus("hearing");
 
-      // If Gemini is producing its own (better) Hebrew transcription for this
-      // session, do NOT let Web Speech write into the user buffer — it routinely
-      // mis-recognises Hebrew speech as Thai/Arabic/romanised text and would
-      // either duplicate or corrupt the line. SR is still useful as a barge-in
-      // trigger and as a fallback when Gemini gives no inputTranscription.
-      const useSrAsSource = !geminiTranscriptionSeenRef.current;
+      // Barge-in: any detected speech interrupts Miriam's playback.
+      if (visibleText && isPlayingRef.current) interruptPlayback();
 
-      if (useSrAsSource && visibleText) {
-        userTextBufferRef.current = visibleText;
-        setCurrentUserText(visibleText);
-      }
-
-      const cleanFinal = finalText.trim();
-      if (!cleanFinal) return;
-
-      // Barge-in: any speech (even mis-recognised) interrupts Miriam's playback.
-      if (isPlayingRef.current) interruptPlayback();
-
-      if (!useSrAsSource) {
-        // Gemini owns the transcript; just nudge the model so it processes the turn.
-        // Don't send the (likely garbled) SR text — let Gemini's audio path handle it.
-        return;
-      }
-
-      const now = Date.now();
-      if (cleanFinal === lastRecognizedTextRef.current && now - lastRecognizedAtRef.current < 2500) return;
-      lastRecognizedTextRef.current = cleanFinal;
-      lastRecognizedAtRef.current = now;
-
-      userTextBufferRef.current = cleanFinal;
-      setCurrentUserText(cleanFinal);
-      sendUserTextTurn(cleanFinal);
-      void flushUserText();
+      // Web SpeechRecognition is unreliable for Hebrew on most browsers
+      // (it mis-recognises he-IL as Thai/Arabic/romanised). Since we now
+      // ALWAYS stream the user's audio to Gemini, the model's
+      // inputTranscription is the authoritative source of the user's words.
+      // We therefore never write SR text into the transcript, and never
+      // forward SR text to Gemini as a fake user turn — it would corrupt
+      // the conversation.
+      // SR is kept enabled purely for barge-in detection and to drive the
+      // "слушаю / слышу" indicator in the UI.
     };
 
     recognition.onerror = (event: any) => {
@@ -598,7 +575,7 @@ export default function VoiceDialogue() {
       setSpeechStatus("error");
       return false;
     }
-  }, [flushUserText, interruptPlayback, sendUserTextTurn, stopSpeechRecognition]);
+  }, [interruptPlayback, stopSpeechRecognition]);
 
   /* ── Connect to Gemini Live ── */
   const startSession = useCallback(async (selectedLevel: Level) => {
@@ -726,7 +703,11 @@ export default function VoiceDialogue() {
             // Start sending audio from worklet → resample to 16kHz (Gemini's preferred input rate).
             const TARGET_INPUT_RATE = 16000;
             workletNode.port.onmessage = (e) => {
-              if (mutedRef.current || speechTextModeRef.current || !e.data?.pcm) return;
+              // Only stop streaming when explicitly muted. Web SpeechRecognition
+              // is just a barge-in helper / fallback — Gemini's own
+              // inputTranscription is the authoritative source for Hebrew text,
+              // so the user's audio MUST keep flowing to Gemini at all times.
+              if (mutedRef.current || !e.data?.pcm) return;
               const float32 = e.data.pcm as Float32Array;
               const resampled = resampleLinear(float32, inputSampleRate, TARGET_INPUT_RATE);
               const base64 = float32ToPcm16Base64(resampled);
