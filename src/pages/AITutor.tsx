@@ -905,24 +905,32 @@ export default function AITutor() {
             {!pronResult && !pronLoading && (
               <motion.div initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
                 className="flex flex-col items-center gap-3">
-                <p className="text-sm text-muted-foreground">Нажмите и произнесите фразу</p>
+                <p className="text-sm text-muted-foreground">
+                  {recorder.transcribing ? "Распознаём речь..." : "Нажмите и произнесите фразу"}
+                </p>
                 <motion.button
                   whileTap={{ scale: 0.9 }}
                   onClick={recordPronunciation}
+                  disabled={recorder.transcribing}
                   className={`w-20 h-20 rounded-full flex items-center justify-center shadow-lg transition-all ${
-                    listening
+                    isListening
                       ? "bg-destructive animate-pulse shadow-destructive/30"
                       : "bg-primary shadow-primary/30 hover:shadow-primary/50"
-                  }`}>
-                  {listening
-                    ? <MicOff className="w-8 h-8 text-white" />
-                    : <Mic className="w-8 h-8 text-primary-foreground" />}
+                  } ${recorder.transcribing ? "opacity-70" : ""}`}>
+                  {recorder.transcribing
+                    ? <Loader2 className="w-8 h-8 text-white animate-spin" />
+                    : isListening
+                      ? <MicOff className="w-8 h-8 text-white" />
+                      : <Mic className="w-8 h-8 text-primary-foreground" />}
                 </motion.button>
-                {listening && (
+                {recorder.recording && (
                   <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                     className="text-xs text-destructive animate-pulse">
-                    🎙 Слушаю... говорите на иврите
+                    🎙 Слушаю... говорите на иврите. Нажмите ещё раз, чтобы остановить.
                   </motion.p>
+                )}
+                {recorder.transcribing && (
+                  <p className="text-xs text-muted-foreground">⏳ Анализ произношения...</p>
                 )}
               </motion.div>
             )}
