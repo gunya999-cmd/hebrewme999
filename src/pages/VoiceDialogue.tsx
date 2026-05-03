@@ -897,7 +897,7 @@ export default function VoiceDialogue() {
       setError(getMicrophoneErrorMessage(err));
       setConnecting(false);
     }
-  }, [connected, connecting, micDeviceId, armSilenceWatchdog, enqueueAudio, flushAiText, flushUserText, interruptPlayback, sendRealtimeInput, startSpeechRecognition, startVoiceActivityMonitor, stopVoiceActivityMonitor, stopSpeechRecognition, clearSilenceWatchdog, formatCloseError, markModelActivity, markModelTurnComplete]);
+  }, [connected, connecting, micDeviceId, armSilenceWatchdog, enqueueAudio, flushAiText, flushUserText, interruptPlayback, sendRealtimeInput, startSpeechRecognition, startVoiceActivityMonitor, stopVoiceActivityMonitor, stopSpeechRecognition, clearSilenceWatchdog, formatCloseError]);
 
   /* ── Disconnect ── */
   const endSession = useCallback(() => {
