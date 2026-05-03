@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate, useLocation } from "react-router-dom";
 import tutorAvatar from "@/assets/tutor-avatar.png";
 import { MicDiagnostics } from "@/components/MicDiagnostics";
+import { getSpeechRate } from "@/hooks/useSpeechRate";
+import { SpeechRateSelector } from "@/components/SpeechRateSelector";
 
 /* ── Types ── */
 type Level = "beginner" | "intermediate" | "advanced";
@@ -433,6 +435,7 @@ export default function VoiceDialogue() {
     buffer.getChannelData(0).set(resampled);
     const source = ctx.createBufferSource();
     source.buffer = buffer;
+    try { source.playbackRate.value = getSpeechRate(); } catch { /* ignore */ }
     source.connect(ctx.destination);
     currentPlaybackSourceRef.current = source;
     source.onended = () => {
@@ -1078,6 +1081,7 @@ export default function VoiceDialogue() {
           <Settings2 className="w-5 h-5" />
         </Button>
       </div>
+      <div className="px-4 py-2 border-b border-border flex justify-end"><SpeechRateSelector variant="compact" /></div>
       <MicDiagnostics
         open={diagOpen}
         onOpenChange={setDiagOpen}

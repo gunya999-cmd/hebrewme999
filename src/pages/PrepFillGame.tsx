@@ -4,6 +4,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Check, X, Volume2, ArrowRight } from "lucide-react";
 import { prepositions } from "@/data/prepositions";
 import { useLearning } from "@/hooks/useLearning";
+import { getSpeechRate } from "@/hooks/useSpeechRate";
+import { SpeechRateSelector } from "@/components/SpeechRateSelector";
 
 /* ───── types ───── */
 interface SentenceData {
@@ -167,7 +169,8 @@ function speak(text: string) {
   if ('speechSynthesis' in window) {
     const u = new SpeechSynthesisUtterance(text);
     u.lang = 'he-IL';
-    u.rate = 0.8;
+    u.rate = getSpeechRate();
+    speechSynthesis.cancel();
     speechSynthesis.speak(u);
   }
 }
@@ -256,6 +259,8 @@ export default function PrepFillGame() {
           {score} ✓
         </div>
       </div>
+
+      <div className="flex justify-center mb-4"><SpeechRateSelector variant="compact" /></div>
 
       <div className="w-full h-2 bg-muted rounded-full mb-6 overflow-hidden">
         <motion.div className="h-full bg-primary rounded-full" initial={{ width: 0 }} animate={{ width: `${(currentIdx / GAME_SIZE) * 100}%` }} />
