@@ -13,8 +13,9 @@ function pickMimeType(): string {
   const candidates = [
     "audio/webm;codecs=opus",
     "audio/webm",
-    "audio/mp4",
     "audio/ogg;codecs=opus",
+    "audio/mp4;codecs=mp4a.40.2", // iOS Safari
+    "audio/mp4",
   ];
   for (const c of candidates) {
     if (typeof MediaRecorder !== "undefined" && MediaRecorder.isTypeSupported?.(c)) return c;
@@ -97,8 +98,10 @@ export function useHebrewRecorder() {
         try {
           const blob = new Blob(chunksRef.current, { type: mime });
           chunksRef.current = [];
-          // Skip transcription on suspiciously short clips (< 0.3s of webm).
-          if (blob.size < 1500) {
+          // Skip transcription on suspiciously short clips.
+          // mp4/aac has larger headers so threshold is higher.
+          const minSize = mime.includes("mp4") ? 4000 : 1500;
+          if (blob.size < minSize) {
             resolveRef.current?.("");
             return;
           }

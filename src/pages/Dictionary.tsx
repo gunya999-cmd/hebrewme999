@@ -67,16 +67,16 @@ export default function Dictionary() {
       {/* Verb list */}
       <div className="px-4 space-y-2">
         <AnimatePresence>
-          {filtered.map((verb, i) => {
+          {filtered.map((verb) => {
             const p = progress[verb.id];
             const level = p?.level || 0;
             return (
               <motion.button
                 key={verb.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                transition={{ delay: i * 0.02 }}
+                transition={{ duration: 0.15 }}
                 onClick={() => navigate(`/verb/${verb.id}`)}
                 className="w-full bg-card rounded-xl p-3.5 flex items-center gap-3 border border-border shadow-sm active:scale-[0.98] transition-transform text-left"
               >

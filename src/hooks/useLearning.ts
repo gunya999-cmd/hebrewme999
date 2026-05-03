@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { LearningProgress, DailyStats } from "@/types/verb";
 
 const STORAGE_KEY = "hebrew_learning_progress";
@@ -42,6 +42,20 @@ function saveStats(stats: DailyStats) {
 export function useLearning() {
   const [progress, setProgress] = useState<Record<string, LearningProgress>>(loadProgress);
   const [stats, setStats] = useState<DailyStats>(loadStats);
+
+  // Синхронизация между вкладками браузера
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === STORAGE_KEY) {
+        setProgress(loadProgress());
+      }
+      if (e.key === STATS_KEY) {
+        setStats(loadStats());
+      }
+    };
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
 
   const markCorrect = useCallback((verbId: string) => {
     setProgress((prev) => {

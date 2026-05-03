@@ -1,6 +1,6 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, CheckCircle2, XCircle } from "lucide-react";
+import { ArrowLeft, CheckCircle2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { SEED_VERBS } from "@/data/verbs";
 import { PERSON_LABELS, ConjugationForm } from "@/types/verb";
@@ -9,6 +9,7 @@ import { useLearning } from "@/hooks/useLearning";
 interface Question {
   verbId: string;
   verbTranslation: string;
+  verbTranscription: string;
   person: string;
   personLabel: string;
   tense: string;
@@ -25,9 +26,15 @@ function generateQuestions(count: number): Question[] {
   const verbsWithConj = SEED_VERBS.filter((v) => v.conjugations);
   const questions: Question[] = [];
   const tenses = ["present", "past", "future"] as const;
+  const usedIds = new Set<string>();
 
-  for (let i = 0; i < count; i++) {
+  let attempts = 0;
+  while (questions.length < count && attempts < count * 3) {
+    attempts++;
     const verb = verbsWithConj[Math.floor(Math.random() * verbsWithConj.length)];
+    if (usedIds.has(verb.id)) continue;
+    usedIds.add(verb.id);
+
     const tense = tenses[Math.floor(Math.random() * tenses.length)];
     const forms = (verb.conjugations as any)[tense] as Record<string, ConjugationForm>;
     const persons = Object.keys(forms);
@@ -37,6 +44,7 @@ function generateQuestions(count: number): Question[] {
     questions.push({
       verbId: verb.id,
       verbTranslation: verb.translation_ru,
+      verbTranscription: verb.transcription_ru,
       person,
       personLabel: PERSON_LABELS[person] || person,
       tense,
@@ -49,15 +57,23 @@ function generateQuestions(count: number): Question[] {
 export default function WriteFormGame() {
   const navigate = useNavigate();
   const { markCorrect, markWrong } = useLearning();
-  const [questions] = useState(() => generateQuestions(10));
+  const [allQuestions, setAllQuestions] = useState<Question[]>(() => generateQuestions(10));
   const [currentIndex, setCurrentIndex] = useState(0);
   const [input, setInput] = useState("");
   const [result, setResult] = useState<"correct" | "wrong" | null>(null);
   const [score, setScore] = useState(0);
   const [showHint, setShowHint] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const question = questions[currentIndex];
-  const isFinished = currentIndex >= questions.length;
+  // Очищаем таймер при анмаунте
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
+
+  const question = allQuestions[currentIndex];
+  const isFinished = currentIndex >= allQuestions.length;
 
   const handleSubmit = useCallback(() => {
     if (result || !input.trim()) return;
@@ -69,7 +85,7 @@ export default function WriteFormGame() {
     } else {
       markWrong(question.verbId);
     }
-    setTimeout(() => {
+    timerRef.current = setTimeout(() => {
       setResult(null);
       setInput("");
       setShowHint(false);
@@ -77,18 +93,36 @@ export default function WriteFormGame() {
     }, 2000);
   }, [result, input, question, markCorrect, markWrong]);
 
+  const handleRestart = useCallback(() => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    setAllQuestions(generateQuestions(10));
+    setCurrentIndex(0);
+    setScore(0);
+    setInput("");
+    setResult(null);
+    setShowHint(false);
+  }, []);
+
+  if (!question && !isFinished) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-muted-foreground">Нет доступных вопросов</p>
+      </div>
+    );
+  }
+
   if (isFinished) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6">
         <motion.div initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="text-center">
           <div className="text-6xl mb-4">{score >= 7 ? "🎉" : score >= 4 ? "👍" : "💪"}</div>
-          <h2 className="text-3xl font-black text-foreground mb-2">{score} из {questions.length}</h2>
+          <h2 className="text-3xl font-black text-foreground mb-2">{score} из {allQuestions.length}</h2>
           <p className="text-muted-foreground mb-8">
             {score >= 7 ? "Отлично!" : score >= 4 ? "Хорошо!" : "Нужно повторить!"}
           </p>
           <div className="flex gap-3">
             <button onClick={() => navigate("/games")} className="px-6 py-3 bg-muted text-foreground rounded-xl font-bold">К играм</button>
-            <button onClick={() => { setCurrentIndex(0); setScore(0); }} className="px-6 py-3 bg-primary text-primary-foreground rounded-xl font-bold">Ещё раз</button>
+            <button onClick={handleRestart} className="px-6 py-3 bg-primary text-primary-foreground rounded-xl font-bold">Ещё раз</button>
           </div>
         </motion.div>
       </div>
@@ -100,9 +134,9 @@ export default function WriteFormGame() {
       <div className="flex items-center gap-3 mb-6">
         <button onClick={() => navigate("/games")} className="text-muted-foreground"><ArrowLeft className="w-6 h-6" /></button>
         <div className="flex-1 bg-muted rounded-full h-2.5 overflow-hidden">
-          <motion.div className="h-full bg-success rounded-full" animate={{ width: `${(currentIndex / questions.length) * 100}%` }} />
+          <motion.div className="h-full bg-success rounded-full" animate={{ width: `${(currentIndex / allQuestions.length) * 100}%` }} />
         </div>
-        <span className="text-sm font-bold text-muted-foreground">{currentIndex + 1}/{questions.length}</span>
+        <span className="text-sm font-bold text-muted-foreground">{currentIndex + 1}/{allQuestions.length}</span>
       </div>
 
       <AnimatePresence mode="wait">
@@ -112,7 +146,7 @@ export default function WriteFormGame() {
               {TENSE_RU[question.tense]} время — {question.personLabel}
             </p>
             <h2 className="text-2xl font-black text-foreground mb-1">{question.verbTranslation}</h2>
-            <p className="text-sm text-muted-foreground">Напиши форму на иврите</p>
+            <p className="text-sm text-muted-foreground">{question.verbTranscription} — Напиши форму на иврите</p>
           </div>
 
           <div className="space-y-4">

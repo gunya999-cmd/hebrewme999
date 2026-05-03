@@ -233,7 +233,7 @@ export default function PrepFillGame() {
             <button onClick={() => navigate('/games')} className="px-6 py-3 rounded-xl bg-muted text-foreground font-bold">
               К играм
             </button>
-            <button onClick={() => window.location.reload()} className="px-6 py-3 rounded-xl bg-primary text-primary-foreground font-bold">
+            <button onClick={() => { setCurrentIdx(0); setScore(0); setTotal(0); setSelected(null); setShowResult(false); }} className="px-6 py-3 rounded-xl bg-primary text-primary-foreground font-bold">
               Ещё раз
             </button>
           </div>
@@ -310,6 +310,7 @@ export default function PrepFillGame() {
               whileTap={{ scale: 0.95 }}
               onClick={() => handleSelect(opt)}
               disabled={showResult}
+              aria-label={`Предлог: ${opt}`}
               className={`p-4 rounded-xl border-2 font-hebrew text-xl font-bold text-foreground flex items-center justify-center min-h-[56px] transition-colors ${bg}`}
               dir="rtl"
             >

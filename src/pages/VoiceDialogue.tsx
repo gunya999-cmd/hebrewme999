@@ -325,8 +325,7 @@ export default function VoiceDialogue() {
     awaitingModelReplyRef.current = true;
     nudgeAttemptsRef.current = 0;
     armSilenceWatchdog();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [armSilenceWatchdog]);
 
   const sendNudge = useCallback(() => {
     if (wsRef.current?.readyState !== WebSocket.OPEN) return;
@@ -339,16 +338,14 @@ export default function VoiceDialogue() {
     }));
     nudgeAttemptsRef.current += 1;
     armSilenceWatchdog();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [armSilenceWatchdog]);
 
-  function armSilenceWatchdog() {
+  const armSilenceWatchdog = useCallback(() => {
     if (silenceWatchdogRef.current !== null) {
       window.clearTimeout(silenceWatchdogRef.current);
     }
     silenceWatchdogRef.current = window.setTimeout(() => {
       silenceWatchdogRef.current = null;
-      // Still awaiting reply and no model activity since user turn?
       if (!awaitingModelReplyRef.current) return;
       if (lastModelActivityAtRef.current >= lastUserTurnAtRef.current) return;
       if (wsRef.current?.readyState !== WebSocket.OPEN) return;
@@ -359,7 +356,8 @@ export default function VoiceDialogue() {
       }
       sendNudge();
     }, SILENCE_TIMEOUT_MS);
-  }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sendNudge]);
 
   const markModelActivity = useCallback(() => {
     lastModelActivityAtRef.current = Date.now();
@@ -674,8 +672,8 @@ export default function VoiceDialogue() {
             systemInstruction: {
               parts: [{ text: customInstructionRef.current || LEVEL_INSTRUCTIONS[selectedLevel] }],
             },
-            inputAudioTranscription: {},
-            outputAudioTranscription: {},
+            inputAudioTranscription: { languageCode: "he-IL" },
+            outputAudioTranscription: { languageCode: "he-IL" },
           },
         };
         console.log("[Gemini] sending setup");
@@ -840,7 +838,7 @@ export default function VoiceDialogue() {
       setError(getMicrophoneErrorMessage(err));
       setConnecting(false);
     }
-  }, [connected, connecting, micDeviceId, enqueueAudio, flushAiText, flushUserText, interruptPlayback, sendRealtimeInput, startSpeechRecognition, startVoiceActivityMonitor, stopVoiceActivityMonitor]);
+  }, [connected, connecting, micDeviceId, armSilenceWatchdog, enqueueAudio, flushAiText, flushUserText, interruptPlayback, sendRealtimeInput, startSpeechRecognition, startVoiceActivityMonitor, stopVoiceActivityMonitor]);
 
   /* ── Disconnect ── */
   const endSession = useCallback(() => {

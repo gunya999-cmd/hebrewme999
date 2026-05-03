@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, CheckCircle2, XCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -18,20 +18,35 @@ interface Question {
   options: ConjugationForm[];
 }
 
+// Fisher-Yates shuffle — честная случайность
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 function generateQuestions(count: number): Question[] {
   const verbsWithConj = SEED_VERBS.filter((v) => v.conjugations);
   const questions: Question[] = [];
   const tenses = ["present", "past", "future"] as const;
+  const usedIds = new Set<string>();
 
-  for (let i = 0; i < count; i++) {
+  let attempts = 0;
+  while (questions.length < count && attempts < count * 3) {
+    attempts++;
     const verb = verbsWithConj[Math.floor(Math.random() * verbsWithConj.length)];
+    if (usedIds.has(verb.id)) continue;
+    usedIds.add(verb.id);
+
     const tense = tenses[Math.floor(Math.random() * tenses.length)];
     const forms = (verb.conjugations as any)[tense] as Record<string, ConjugationForm>;
     const persons = Object.keys(forms);
     const person = persons[Math.floor(Math.random() * persons.length)];
     const correct = forms[person];
 
-    // Generate wrong options from other persons/tenses
     const allForms: ConjugationForm[] = [];
     tenses.forEach((t) => {
       const tf = (verb.conjugations as any)[t] as Record<string, ConjugationForm>;
@@ -40,8 +55,8 @@ function generateQuestions(count: number): Question[] {
       });
     });
 
-    const shuffled = allForms.sort(() => Math.random() - 0.5).slice(0, 3);
-    const options = [...shuffled, correct].sort(() => Math.random() - 0.5);
+    const wrong = shuffle(allForms).slice(0, 3);
+    const options = shuffle([...wrong, correct]);
 
     questions.push({
       verbId: verb.id,
@@ -55,7 +70,6 @@ function generateQuestions(count: number): Question[] {
       options,
     });
   }
-
   return questions;
 }
 
@@ -68,14 +82,25 @@ const TENSE_RU: Record<string, string> = {
 export default function GuessFormGame() {
   const navigate = useNavigate();
   const { markCorrect, markWrong } = useLearning();
+  // gameKey — при изменении генерируются новые вопросы
+  const [gameKey, setGameKey] = useState(0);
   const [questions] = useState(() => generateQuestions(10));
+  const [allQuestions, setAllQuestions] = useState<Question[]>(() => generateQuestions(10));
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selected, setSelected] = useState<string | null>(null);
   const [score, setScore] = useState(0);
   const [showResult, setShowResult] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const question = questions[currentIndex];
-  const isFinished = currentIndex >= questions.length;
+  // Очищаем таймер при анмаунте — предотвращает утечку памяти
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
+
+  const question = allQuestions[currentIndex];
+  const isFinished = currentIndex >= allQuestions.length;
 
   const handleSelect = useCallback(
     (option: ConjugationForm) => {
@@ -89,7 +114,7 @@ export default function GuessFormGame() {
         markWrong(question.verbId);
       }
       setShowResult(true);
-      setTimeout(() => {
+      timerRef.current = setTimeout(() => {
         setSelected(null);
         setShowResult(false);
         setCurrentIndex((i) => i + 1);
@@ -97,6 +122,23 @@ export default function GuessFormGame() {
     },
     [selected, question, markCorrect, markWrong]
   );
+
+  const handleRestart = useCallback(() => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    setAllQuestions(generateQuestions(10));
+    setCurrentIndex(0);
+    setScore(0);
+    setSelected(null);
+    setShowResult(false);
+  }, []);
+
+  if (!question && !isFinished) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-muted-foreground">Нет доступных вопросов</p>
+      </div>
+    );
+  }
 
   if (isFinished) {
     return (
@@ -109,7 +151,7 @@ export default function GuessFormGame() {
         >
           <div className="text-6xl mb-4">{score >= 7 ? "🎉" : score >= 4 ? "👍" : "💪"}</div>
           <h2 className="text-3xl font-black text-foreground mb-2">
-            {score} из {questions.length}
+            {score} из {allQuestions.length}
           </h2>
           <p className="text-muted-foreground mb-8">
             {score >= 7 ? "Отлично!" : score >= 4 ? "Хорошо, продолжай!" : "Давай повторим!"}
@@ -122,10 +164,7 @@ export default function GuessFormGame() {
               К играм
             </button>
             <button
-              onClick={() => {
-                setCurrentIndex(0);
-                setScore(0);
-              }}
+              onClick={handleRestart}
               className="px-6 py-3 bg-primary text-primary-foreground rounded-xl font-bold"
             >
               Ещё раз
@@ -138,7 +177,6 @@ export default function GuessFormGame() {
 
   return (
     <div className="min-h-screen bg-background pb-20 px-4 pt-8">
-      {/* Top bar */}
       <div className="flex items-center gap-3 mb-6">
         <button onClick={() => navigate("/games")} className="text-muted-foreground">
           <ArrowLeft className="w-6 h-6" />
@@ -146,16 +184,15 @@ export default function GuessFormGame() {
         <div className="flex-1 bg-muted rounded-full h-2.5 overflow-hidden">
           <motion.div
             className="h-full bg-success rounded-full"
-            animate={{ width: `${((currentIndex) / questions.length) * 100}%` }}
+            animate={{ width: `${(currentIndex / allQuestions.length) * 100}%` }}
             transition={{ duration: 0.3 }}
           />
         </div>
         <span className="text-sm font-bold text-muted-foreground">
-          {currentIndex + 1}/{questions.length}
+          {currentIndex + 1}/{allQuestions.length}
         </span>
       </div>
 
-      {/* Question */}
       <AnimatePresence mode="wait">
         <motion.div
           key={currentIndex}
@@ -175,7 +212,6 @@ export default function GuessFormGame() {
             <p className="text-lg text-muted-foreground">{question.verbTranslation}</p>
           </div>
 
-          {/* Options */}
           <div className="space-y-3">
             {question.options.map((option, i) => {
               const isCorrect = option.hebrew === question.correctAnswer.hebrew;
@@ -189,6 +225,7 @@ export default function GuessFormGame() {
                   key={i}
                   whileTap={!selected ? { scale: 0.97 } : {}}
                   onClick={() => handleSelect(option)}
+                  aria-label={`Вариант: ${option.hebrew} — ${option.transcription}`}
                   className={`w-full rounded-xl p-4 border-2 text-left transition-colors ${bg} ${
                     selected ? "cursor-default" : "active:scale-[0.98]"
                   }`}

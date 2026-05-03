@@ -1,4 +1,4 @@
-import { Flame, Target, BookCheck, Sparkles, AlignJustify, Info, MessageCircle, Mic } from "lucide-react";
+import { Flame, Target, BookCheck, Sparkles, AlignJustify, Info, MessageCircle, Mic, GraduationCap } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import ProgressCircle from "@/components/ProgressCircle";
@@ -92,7 +92,7 @@ export default function Home() {
         >
           <Sparkles className="w-6 h-6 text-streak mb-2" />
           <p className="font-bold text-foreground text-sm">Игры</p>
-          <p className="text-xs text-muted-foreground">5 режимов</p>
+          <p className="text-xs text-muted-foreground">6 режимов</p>
         </motion.button>
         <motion.button
           whileTap={{ scale: 0.95 }}
@@ -123,12 +123,21 @@ export default function Home() {
         </motion.button>
         <motion.button
           whileTap={{ scale: 0.95 }}
-          onClick={() => navigate("/about")}
+          onClick={() => navigate("/games/conjugation-voice")}
           className="bg-card rounded-2xl p-4 shadow-sm text-left border border-border"
         >
+          <GraduationCap className="w-6 h-6 text-primary mb-2" />
+          <p className="font-bold text-foreground text-sm">Спряжение голосом</p>
+          <p className="text-xs text-muted-foreground">Тренажёр с Мирьям</p>
+        </motion.button>
+        <motion.button
+          whileTap={{ scale: 0.95 }}
+          onClick={() => navigate("/about")}
+          className="bg-card rounded-2xl p-4 shadow-sm text-left border border-border col-span-2"
+        >
           <Info className="w-6 h-6 text-primary mb-2" />
-          <p className="font-bold text-foreground text-sm">О нас</p>
-          <p className="text-xs text-muted-foreground">Разработчики</p>
+          <p className="font-bold text-foreground text-sm">О приложении</p>
+          <p className="text-xs text-muted-foreground">Разработчики · Версия · Контакты</p>
         </motion.button>
       </div>
     </div>
