@@ -901,6 +901,11 @@ export default function VoiceDialogue() {
 
   /* ── Disconnect ── */
   const endSession = useCallback(() => {
+    if (retryTimerRef.current) {
+      window.clearTimeout(retryTimerRef.current);
+      retryTimerRef.current = null;
+    }
+    retryCountRef.current = 0;
     clearSilenceWatchdog();
     awaitingModelReplyRef.current = false;
     nudgeAttemptsRef.current = 0;
