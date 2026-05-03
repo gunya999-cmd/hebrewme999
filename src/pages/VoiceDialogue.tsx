@@ -243,10 +243,38 @@ export default function VoiceDialogue() {
   const awaitingModelReplyRef = useRef(false);
   const nudgeAttemptsRef = useRef(0);
   const lastUserTurnAtRef = useRef(0);
+  // Auto-retry on transient WebSocket failures (network drop, server error, protocol)
+  const retryCountRef = useRef(0);
+  const retryTimerRef = useRef<number | null>(null);
+  const MAX_RETRIES = 2;
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [transcript, currentAiText, currentUserText]);
+
+  // Build friendly Russian error messages for WebSocket close codes.
+  const formatCloseError = useCallback((code: number, reason: string, willRetry: boolean, attempt: number) => {
+    const retrySuffix = willRetry
+      ? ` Повторная попытка ${attempt} из ${MAX_RETRIES}…`
+      : " Попробуйте начать разговор заново.";
+    switch (code) {
+      case 1006:
+        return `Соединение разорвано — проверьте интернет.${retrySuffix}`;
+      case 1007:
+        return `Ошибка протокола (1007): сервер отклонил данные.${retrySuffix}`;
+      case 1008:
+        return `Запрос отклонён сервером (1008). Проверьте уровень и инструкции.${retrySuffix}`;
+      case 1011:
+        return `Внутренняя ошибка сервиса (1011).${retrySuffix}`;
+      case 1013:
+        return `Сервис временно перегружен (1013).${retrySuffix}`;
+      case 4008:
+      case 4029:
+        return `Превышен лимит запросов (${code}). Подождите немного и попробуйте снова.`;
+      default:
+        return `Соединение закрыто (${code}${reason ? `: ${reason}` : ""}).${retrySuffix}`;
+    }
+  }, []);
 
   const stopPlaybackSource = useCallback(() => {
     const currentSource = currentPlaybackSourceRef.current;
@@ -698,6 +726,8 @@ export default function VoiceDialogue() {
             setConnected(true);
             setConnecting(false);
             setSpeechStatus("listening");
+            setError(null);
+            retryCountRef.current = 0;
             geminiTranscriptionSeenRef.current = false;
             userTurnActiveRef.current = false;
             userTextBufferRef.current = "";
@@ -814,12 +844,36 @@ export default function VoiceDialogue() {
         stopSpeechRecognition();
         setConnected(false);
         setConnecting(false);
-        if (e.code !== 1000) {
-          setError(
-            e.code === 1006
-              ? "Соединение разорвано. Проверьте интернет и попробуйте снова."
-              : `Соединение закрыто (${e.code}${e.reason ? `: ${e.reason}` : ""})`
-          );
+        if (e.code === 1000) {
+          retryCountRef.current = 0;
+          return;
+        }
+        // Retriable codes — transient failures
+        const retriable = e.code === 1006 || e.code === 1011 || e.code === 1013 || e.code === 1001;
+        const canRetry = retriable && retryCountRef.current < MAX_RETRIES;
+        if (canRetry) {
+          retryCountRef.current += 1;
+          const attempt = retryCountRef.current;
+          setError(formatCloseError(e.code, e.reason, true, attempt));
+          // Cleanup audio nodes before retry
+          workletNodeRef.current?.disconnect();
+          workletNodeRef.current = null;
+          sourceRef.current?.disconnect();
+          sourceRef.current = null;
+          streamRef.current?.getTracks().forEach(t => t.stop());
+          streamRef.current = null;
+          audioCtxRef.current?.close().catch(() => {});
+          audioCtxRef.current = null;
+          analyserRef.current = null;
+          if (retryTimerRef.current) window.clearTimeout(retryTimerRef.current);
+          const delay = 800 * attempt;
+          retryTimerRef.current = window.setTimeout(() => {
+            retryTimerRef.current = null;
+            startSession(selectedLevel);
+          }, delay);
+        } else {
+          retryCountRef.current = 0;
+          setError(formatCloseError(e.code, e.reason, false, 0));
         }
       };
 
@@ -843,10 +897,15 @@ export default function VoiceDialogue() {
       setError(getMicrophoneErrorMessage(err));
       setConnecting(false);
     }
-  }, [connected, connecting, micDeviceId, armSilenceWatchdog, enqueueAudio, flushAiText, flushUserText, interruptPlayback, sendRealtimeInput, startSpeechRecognition, startVoiceActivityMonitor, stopVoiceActivityMonitor]);
+  }, [connected, connecting, micDeviceId, armSilenceWatchdog, enqueueAudio, flushAiText, flushUserText, interruptPlayback, sendRealtimeInput, startSpeechRecognition, startVoiceActivityMonitor, stopVoiceActivityMonitor, stopSpeechRecognition, clearSilenceWatchdog, formatCloseError]);
 
   /* ── Disconnect ── */
   const endSession = useCallback(() => {
+    if (retryTimerRef.current) {
+      window.clearTimeout(retryTimerRef.current);
+      retryTimerRef.current = null;
+    }
+    retryCountRef.current = 0;
     clearSilenceWatchdog();
     awaitingModelReplyRef.current = false;
     nudgeAttemptsRef.current = 0;
