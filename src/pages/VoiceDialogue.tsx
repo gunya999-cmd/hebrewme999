@@ -842,12 +842,36 @@ export default function VoiceDialogue() {
         stopSpeechRecognition();
         setConnected(false);
         setConnecting(false);
-        if (e.code !== 1000) {
-          setError(
-            e.code === 1006
-              ? "Соединение разорвано. Проверьте интернет и попробуйте снова."
-              : `Соединение закрыто (${e.code}${e.reason ? `: ${e.reason}` : ""})`
-          );
+        if (e.code === 1000) {
+          retryCountRef.current = 0;
+          return;
+        }
+        // Retriable codes — transient failures
+        const retriable = e.code === 1006 || e.code === 1011 || e.code === 1013 || e.code === 1001;
+        const canRetry = retriable && retryCountRef.current < MAX_RETRIES;
+        if (canRetry) {
+          retryCountRef.current += 1;
+          const attempt = retryCountRef.current;
+          setError(formatCloseError(e.code, e.reason, true, attempt));
+          // Cleanup audio nodes before retry
+          workletNodeRef.current?.disconnect();
+          workletNodeRef.current = null;
+          sourceRef.current?.disconnect();
+          sourceRef.current = null;
+          streamRef.current?.getTracks().forEach(t => t.stop());
+          streamRef.current = null;
+          audioCtxRef.current?.close().catch(() => {});
+          audioCtxRef.current = null;
+          analyserRef.current = null;
+          if (retryTimerRef.current) window.clearTimeout(retryTimerRef.current);
+          const delay = 800 * attempt;
+          retryTimerRef.current = window.setTimeout(() => {
+            retryTimerRef.current = null;
+            startSession(selectedLevel);
+          }, delay);
+        } else {
+          retryCountRef.current = 0;
+          setError(formatCloseError(e.code, e.reason, false, 0));
         }
       };
 
