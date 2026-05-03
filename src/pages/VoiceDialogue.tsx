@@ -243,10 +243,38 @@ export default function VoiceDialogue() {
   const awaitingModelReplyRef = useRef(false);
   const nudgeAttemptsRef = useRef(0);
   const lastUserTurnAtRef = useRef(0);
+  // Auto-retry on transient WebSocket failures (network drop, server error, protocol)
+  const retryCountRef = useRef(0);
+  const retryTimerRef = useRef<number | null>(null);
+  const MAX_RETRIES = 2;
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [transcript, currentAiText, currentUserText]);
+
+  // Build friendly Russian error messages for WebSocket close codes.
+  const formatCloseError = useCallback((code: number, reason: string, willRetry: boolean, attempt: number) => {
+    const retrySuffix = willRetry
+      ? ` Повторная попытка ${attempt} из ${MAX_RETRIES}…`
+      : " Попробуйте начать разговор заново.";
+    switch (code) {
+      case 1006:
+        return `Соединение разорвано — проверьте интернет.${retrySuffix}`;
+      case 1007:
+        return `Ошибка протокола (1007): сервер отклонил данные.${retrySuffix}`;
+      case 1008:
+        return `Запрос отклонён сервером (1008). Проверьте уровень и инструкции.${retrySuffix}`;
+      case 1011:
+        return `Внутренняя ошибка сервиса (1011).${retrySuffix}`;
+      case 1013:
+        return `Сервис временно перегружен (1013).${retrySuffix}`;
+      case 4008:
+      case 4029:
+        return `Превышен лимит запросов (${code}). Подождите немного и попробуйте снова.`;
+      default:
+        return `Соединение закрыто (${code}${reason ? `: ${reason}` : ""}).${retrySuffix}`;
+    }
+  }, []);
 
   const stopPlaybackSource = useCallback(() => {
     const currentSource = currentPlaybackSourceRef.current;
