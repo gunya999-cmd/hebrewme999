@@ -312,6 +312,26 @@ export default function VoiceDialogue() {
     }
   }, []);
 
+  const sendNudgeRef = useRef<() => void>(() => {});
+
+  const armSilenceWatchdog = useCallback(() => {
+    if (silenceWatchdogRef.current !== null) {
+      window.clearTimeout(silenceWatchdogRef.current);
+    }
+    silenceWatchdogRef.current = window.setTimeout(() => {
+      silenceWatchdogRef.current = null;
+      if (!awaitingModelReplyRef.current) return;
+      if (lastModelActivityAtRef.current >= lastUserTurnAtRef.current) return;
+      if (wsRef.current?.readyState !== WebSocket.OPEN) return;
+      if (nudgeAttemptsRef.current >= MAX_NUDGES) {
+        console.warn("[SilenceWatchdog] giving up after", nudgeAttemptsRef.current, "nudges");
+        awaitingModelReplyRef.current = false;
+        return;
+      }
+      sendNudgeRef.current();
+    }, SILENCE_TIMEOUT_MS);
+  }, []);
+
   const sendUserTextTurn = useCallback((text: string) => {
     const cleanText = text.trim();
     if (!cleanText || wsRef.current?.readyState !== WebSocket.OPEN) return;
@@ -340,23 +360,8 @@ export default function VoiceDialogue() {
     armSilenceWatchdog();
   }, [armSilenceWatchdog]);
 
-  const armSilenceWatchdog = useCallback(() => {
-    if (silenceWatchdogRef.current !== null) {
-      window.clearTimeout(silenceWatchdogRef.current);
-    }
-    silenceWatchdogRef.current = window.setTimeout(() => {
-      silenceWatchdogRef.current = null;
-      if (!awaitingModelReplyRef.current) return;
-      if (lastModelActivityAtRef.current >= lastUserTurnAtRef.current) return;
-      if (wsRef.current?.readyState !== WebSocket.OPEN) return;
-      if (nudgeAttemptsRef.current >= MAX_NUDGES) {
-        console.warn("[SilenceWatchdog] giving up after", nudgeAttemptsRef.current, "nudges");
-        awaitingModelReplyRef.current = false;
-        return;
-      }
-      sendNudge();
-    }, SILENCE_TIMEOUT_MS);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    sendNudgeRef.current = sendNudge;
   }, [sendNudge]);
 
   const markModelActivity = useCallback(() => {
