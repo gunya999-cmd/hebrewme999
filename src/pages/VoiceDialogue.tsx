@@ -726,6 +726,8 @@ export default function VoiceDialogue() {
             setConnected(true);
             setConnecting(false);
             setSpeechStatus("listening");
+            setError(null);
+            retryCountRef.current = 0;
             geminiTranscriptionSeenRef.current = false;
             userTurnActiveRef.current = false;
             userTextBufferRef.current = "";
