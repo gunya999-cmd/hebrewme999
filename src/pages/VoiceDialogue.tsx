@@ -677,8 +677,8 @@ export default function VoiceDialogue() {
             systemInstruction: {
               parts: [{ text: customInstructionRef.current || LEVEL_INSTRUCTIONS[selectedLevel] }],
             },
-            inputAudioTranscription: { languageCode: "he-IL" },
-            outputAudioTranscription: { languageCode: "he-IL" },
+            inputAudioTranscription: {},
+            outputAudioTranscription: {},
           },
         };
         console.log("[Gemini] sending setup");
