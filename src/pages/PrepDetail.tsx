@@ -2,6 +2,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Volume2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { prepositions, PREP_CATEGORY_LABELS, PREP_PERSON_LABELS } from "@/data/prepositions";
+import { getSpeechRate } from "@/hooks/useSpeechRate";
+import { SpeechRateSelector } from "@/components/SpeechRateSelector";
 
 const FORM_KEYS = [
   'standalone', 'ani', 'ata', 'at', 'hu', 'hi', 'anakhnu', 'atem', 'aten', 'hem', 'hen'
@@ -24,6 +26,8 @@ export default function PrepDetail() {
     if (text === '—') return;
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = "he-IL";
+    utterance.rate = getSpeechRate();
+    speechSynthesis.cancel();
     speechSynthesis.speak(utterance);
   };
 
@@ -51,6 +55,7 @@ export default function PrepDetail() {
           >
             <Volume2 className="w-5 h-5 text-primary-foreground" />
           </button>
+          <div className="mt-3 flex justify-center"><SpeechRateSelector variant="compact" /></div>
         </div>
       </div>
 

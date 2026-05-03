@@ -4,6 +4,8 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { SEED_VERBS } from "@/data/verbs";
 import { BINYAN_NAMES, PERSON_LABELS, TENSE_LABELS, ConjugationForm } from "@/types/verb";
+import { getSpeechRate } from "@/hooks/useSpeechRate";
+import { SpeechRateSelector } from "@/components/SpeechRateSelector";
 
 const TENSES = ["present", "past", "future", "imperative"] as const;
 
@@ -29,6 +31,8 @@ export default function VerbDetail() {
   const speak = (text: string) => {
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = "he-IL";
+    utterance.rate = getSpeechRate();
+    speechSynthesis.cancel();
     speechSynthesis.speak(utterance);
   };
 
@@ -57,6 +61,7 @@ export default function VerbDetail() {
           >
             <Volume2 className="w-5 h-5 text-primary-foreground" />
           </button>
+          <div className="mt-3 flex justify-center"><SpeechRateSelector variant="compact" /></div>
         </div>
       </div>
 
