@@ -10,6 +10,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import miriamAvatar from "@/assets/miriam-avatar.png";
 import { useHebrewRecorder } from "@/hooks/useHebrewRecorder";
+import { getSpeechRate } from "@/hooks/useSpeechRate";
+import { SpeechRateSelector } from "@/components/SpeechRateSelector";
 
 /* ── Types ── */
 type Msg = { role: "user" | "assistant"; content: string; hebrew?: string };
@@ -245,7 +247,7 @@ function speakText(text: string, onEnd?: () => void) {
   const toSpeak = hebrewOnly || text.replace(/[\(\)]/g, "");
   const utt = new SpeechSynthesisUtterance(toSpeak);
   utt.lang = "he-IL";
-  utt.rate = 0.85;
+  utt.rate = getSpeechRate();
   if (onEnd) utt.onend = onEnd;
   window.speechSynthesis.speak(utt);
 }
@@ -1096,6 +1098,7 @@ export default function AITutor() {
             </Button>
           </div>
         </div>
+        <div className="px-3 pb-2 flex justify-end"><SpeechRateSelector variant="compact" /></div>
       </div>
 
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
