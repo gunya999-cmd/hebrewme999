@@ -3,7 +3,7 @@ import { ArrowLeft, Mic, MicOff, Phone, PhoneOff, Settings2 } from "lucide-react
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate, useLocation } from "react-router-dom";
-import tutorAvatar from "@/assets/tutor-avatar.png";
+import tutorAvatar from "@/assets/miriam-avatar.png";
 import { MicDiagnostics } from "@/components/MicDiagnostics";
 import { getSpeechRate } from "@/hooks/useSpeechRate";
 import { SpeechRateSelector } from "@/components/SpeechRateSelector";
