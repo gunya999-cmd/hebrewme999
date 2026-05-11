@@ -1083,6 +1083,13 @@ export default function VoiceDialogue() {
         </Button>
       </div>
       <div className="px-4 py-2 border-b border-border flex justify-end"><SpeechRateSelector variant="compact" /></div>
+
+      {/* Hero 3D avatar — lip-syncs with Miriam's voice playback */}
+      {connected && (
+        <div className="flex justify-center pt-4 pb-2">
+          <MiriamAvatar3D size={180} speaking={aiSpeaking} />
+        </div>
+      )}
       <MicDiagnostics
         open={diagOpen}
         onOpenChange={setDiagOpen}
