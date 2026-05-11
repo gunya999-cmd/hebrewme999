@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { ArrowLeft, Mic, Sparkles, MessageCircle, CheckCircle2, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import miriamAvatar from "@/assets/miriam-avatar.png";
+import { MiriamAvatar3D } from "@/components/MiriamAvatar3D";
 
 /* ── Loora-style AI tutor landing ──
  * Inspired by loora.ai: big avatar, warm gradient, scenario cards.
