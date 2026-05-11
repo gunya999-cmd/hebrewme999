@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate, useLocation } from "react-router-dom";
 import tutorAvatar from "@/assets/miriam-avatar.png";
+import { MiriamAvatar3D } from "@/components/MiriamAvatar3D";
 import { MicDiagnostics } from "@/components/MicDiagnostics";
 import { getSpeechRate } from "@/hooks/useSpeechRate";
 import { SpeechRateSelector } from "@/components/SpeechRateSelector";
@@ -999,7 +1000,7 @@ export default function VoiceDialogue() {
         </div>
         <div className="flex-1 flex flex-col items-center justify-center px-4 gap-6">
           <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="relative">
-            <img src={tutorAvatar} alt="Мирьям" width={120} height={120} className="rounded-full border-4 border-primary/20 shadow-lg" />
+            <MiriamAvatar3D size={140} speaking={false} />
             <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-green-500 rounded-full border-2 border-background flex items-center justify-center">
               <span className="text-xs">🎙</span>
             </div>
@@ -1053,10 +1054,10 @@ export default function VoiceDialogue() {
       <div className="px-4 pt-4 pb-3 border-b border-border flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="relative">
-            <img src={tutorAvatar} alt="Мирьям" width={44} height={44} className="rounded-full border-2 border-primary/20" />
+            <MiriamAvatar3D size={44} speaking={aiSpeaking} showRing={false} />
             {aiSpeaking && (
               <motion.div
-                className="absolute inset-0 rounded-full border-2 border-primary"
+                className="absolute inset-0 rounded-full border-2 border-primary pointer-events-none"
                 animate={{ scale: [1, 1.2, 1], opacity: [1, 0.5, 1] }}
                 transition={{ duration: 1, repeat: Infinity }}
               />
@@ -1082,6 +1083,13 @@ export default function VoiceDialogue() {
         </Button>
       </div>
       <div className="px-4 py-2 border-b border-border flex justify-end"><SpeechRateSelector variant="compact" /></div>
+
+      {/* Hero 3D avatar — lip-syncs with Miriam's voice playback */}
+      {connected && (
+        <div className="flex justify-center pt-4 pb-2">
+          <MiriamAvatar3D size={180} speaking={aiSpeaking} />
+        </div>
+      )}
       <MicDiagnostics
         open={diagOpen}
         onOpenChange={setDiagOpen}

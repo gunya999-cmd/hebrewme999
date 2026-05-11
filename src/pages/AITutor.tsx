@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { ArrowLeft, Mic, Sparkles, MessageCircle, CheckCircle2, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import miriamAvatar from "@/assets/miriam-avatar.png";
+import { MiriamAvatar3D } from "@/components/MiriamAvatar3D";
 
 /* ── Loora-style AI tutor landing ──
  * Inspired by loora.ai: big avatar, warm gradient, scenario cards.
@@ -123,13 +124,7 @@ export default function AITutor() {
           className="relative"
         >
           <div className="absolute inset-0 -m-4 rounded-full bg-gradient-to-tr from-orange-400/40 via-pink-400/30 to-amber-300/40 blur-2xl" />
-          <img
-            src={miriamAvatar}
-            alt="Мирьям"
-            width={168}
-            height={168}
-            className="relative rounded-full border-4 border-white/70 dark:border-white/10 shadow-xl"
-          />
+          <MiriamAvatar3D size={168} speaking showRing={false} />
           <motion.span
             className="absolute -bottom-1 -right-1 w-10 h-10 rounded-full bg-green-500 border-4 border-white dark:border-background flex items-center justify-center text-base"
             animate={{ scale: [1, 1.1, 1] }}
