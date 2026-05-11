@@ -1000,7 +1000,7 @@ export default function VoiceDialogue() {
         </div>
         <div className="flex-1 flex flex-col items-center justify-center px-4 gap-6">
           <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="relative">
-            <img src={tutorAvatar} alt="Мирьям" width={120} height={120} className="rounded-full border-4 border-primary/20 shadow-lg" />
+            <MiriamAvatar3D size={140} speaking={false} />
             <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-green-500 rounded-full border-2 border-background flex items-center justify-center">
               <span className="text-xs">🎙</span>
             </div>
