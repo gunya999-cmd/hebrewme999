@@ -1054,10 +1054,10 @@ export default function VoiceDialogue() {
       <div className="px-4 pt-4 pb-3 border-b border-border flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="relative">
-            <img src={tutorAvatar} alt="Мирьям" width={44} height={44} className="rounded-full border-2 border-primary/20" />
+            <MiriamAvatar3D size={44} speaking={aiSpeaking} showRing={false} />
             {aiSpeaking && (
               <motion.div
-                className="absolute inset-0 rounded-full border-2 border-primary"
+                className="absolute inset-0 rounded-full border-2 border-primary pointer-events-none"
                 animate={{ scale: [1, 1.2, 1], opacity: [1, 0.5, 1] }}
                 transition={{ duration: 1, repeat: Infinity }}
               />
