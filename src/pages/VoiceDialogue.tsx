@@ -1000,7 +1000,7 @@ export default function VoiceDialogue() {
         </div>
         <div className="flex-1 flex flex-col items-center justify-center px-4 gap-6">
           <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="relative">
-            <MiriamAvatar3D size={140} speaking={false} />
+            <MiriamAvatar3D size={280} speaking={false} />
             <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-green-500 rounded-full border-2 border-background flex items-center justify-center">
               <span className="text-xs">🎙</span>
             </div>
@@ -1054,7 +1054,7 @@ export default function VoiceDialogue() {
       <div className="px-4 pt-4 pb-3 border-b border-border flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="relative">
-            <MiriamAvatar3D size={44} speaking={aiSpeaking} showRing={false} />
+            <MiriamAvatar3D size={88} speaking={aiSpeaking} showRing={false} />
             {aiSpeaking && (
               <motion.div
                 className="absolute inset-0 rounded-full border-2 border-primary pointer-events-none"
@@ -1087,7 +1087,7 @@ export default function VoiceDialogue() {
       {/* Hero 3D avatar — lip-syncs with Miriam's voice playback */}
       {connected && (
         <div className="flex justify-center pt-4 pb-2">
-          <MiriamAvatar3D size={180} speaking={aiSpeaking} />
+          <MiriamAvatar3D size={360} speaking={aiSpeaking} />
         </div>
       )}
       <MicDiagnostics
