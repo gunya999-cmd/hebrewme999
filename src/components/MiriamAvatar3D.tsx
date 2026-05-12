@@ -1,11 +1,12 @@
 import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import avatarVideo from "@/assets/miriam-avatar.mp4";
+import speakingVideo from "@/assets/miriam-avatar.mp4";
+import idleVideo from "@/assets/miriam-avatar-idle.mp4";
 import avatarPoster from "@/assets/miriam-avatar-poster.jpg";
 import { cn } from "@/lib/utils";
 
 interface MiriamAvatar3DProps {
-  /** When true, the avatar plays (lip-sync with AI speech). When false, it pauses on first frame. */
+  /** When true — plays the active "speaking" loop. When false — plays the idle living-presence loop. */
   speaking?: boolean;
   size?: number;
   className?: string;
@@ -15,9 +16,9 @@ interface MiriamAvatar3DProps {
 }
 
 /**
- * 3D animated Miriam avatar synced with AI audio playback.
- * Plays the looping video while `speaking` is true, otherwise pauses
- * on the first frame so the face stays still while she "listens".
+ * 3D animated Miriam avatar. Always alive — switches between an idle
+ * "breathing/looking around" loop and an active "speaking" loop, with a
+ * smooth crossfade so the presence never feels frozen.
  */
 export function MiriamAvatar3D({
   speaking = false,
@@ -26,25 +27,22 @@ export function MiriamAvatar3D({
   showRing = true,
   rounded = true,
 }: MiriamAvatar3DProps) {
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const speakingRef = useRef<HTMLVideoElement>(null);
+  const idleRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    const v = videoRef.current;
-    if (!v) return;
-    if (speaking) {
+    const s = speakingRef.current;
+    const i = idleRef.current;
+    if (!s || !i) return;
+    const safePlay = (v: HTMLVideoElement) => {
       v.play().catch(() => {
-        /* autoplay can fail before first user gesture — safe to ignore */
+        /* autoplay restrictions before first gesture — ignore */
       });
-    } else {
-      v.pause();
-      // Reset to first frame so idle face is consistent
-      try {
-        v.currentTime = 0;
-      } catch {
-        /* ignore */
-      }
-    }
-  }, [speaking]);
+    };
+    // Both loops keep running so we can crossfade instantly without a freeze.
+    safePlay(s);
+    safePlay(i);
+  }, []);
 
   return (
     <div
@@ -62,19 +60,42 @@ export function MiriamAvatar3D({
           transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
         />
       )}
+
+      {/* Idle layer — always playing underneath */}
       <video
-        ref={videoRef}
-        src={avatarVideo}
+        ref={idleRef}
+        src={idleVideo}
         poster={avatarPoster}
         muted
         playsInline
         loop
+        autoPlay
         preload="auto"
         width={size}
         height={size}
         className={cn(
-          "block w-full h-full object-cover shadow-xl border-4 border-white/70 dark:border-white/10",
+          "absolute inset-0 block w-full h-full object-cover shadow-xl border-4 border-white/70 dark:border-white/10 transition-opacity duration-300",
           rounded ? "rounded-full" : "rounded-2xl",
+          speaking ? "opacity-0" : "opacity-100",
+        )}
+      />
+
+      {/* Speaking layer — fades in while AI is talking */}
+      <video
+        ref={speakingRef}
+        src={speakingVideo}
+        poster={avatarPoster}
+        muted
+        playsInline
+        loop
+        autoPlay
+        preload="auto"
+        width={size}
+        height={size}
+        className={cn(
+          "relative block w-full h-full object-cover shadow-xl border-4 border-white/70 dark:border-white/10 transition-opacity duration-300",
+          rounded ? "rounded-full" : "rounded-2xl",
+          speaking ? "opacity-100" : "opacity-0",
         )}
       />
     </div>
