@@ -563,8 +563,8 @@ export default function VoiceDialogue() {
       const visibleText = (finalText || interim).trim();
       if (visibleText) setSpeechStatus("hearing");
 
-      // Barge-in: any detected speech interrupts Miriam's playback.
-      if (visibleText && isPlayingRef.current) interruptPlayback();
+      // Barge-in via SR disabled: SR often re-recognises Miriam's own voice
+      // through the speakers and was cutting her off mid-sentence.
 
       // Web SpeechRecognition is unreliable for Hebrew on most browsers
       // (it mis-recognises he-IL as Thai/Arabic/romanised). Since we now
