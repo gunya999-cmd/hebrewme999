@@ -484,11 +484,9 @@ export default function VoiceDialogue() {
         setMicLevel(nextLevel);
       }
 
-      // Higher threshold so Miriam's own playback (echo leak) doesn't interrupt her.
-      // Real user speech easily exceeds 0.08 RMS on a near-field laptop mic.
-      if (rms > 0.08 && isPlayingRef.current && !mutedRef.current) {
-        interruptPlayback();
-      }
+      // NOTE: client-side barge-in disabled. Mic echo from speakers used to
+      // cut Miriam off mid-word. Interruption is now handled exclusively by
+      // Gemini's serverContent.interrupted signal.
 
       monitorFrameRef.current = requestAnimationFrame(tick);
     };
@@ -565,8 +563,8 @@ export default function VoiceDialogue() {
       const visibleText = (finalText || interim).trim();
       if (visibleText) setSpeechStatus("hearing");
 
-      // Barge-in: any detected speech interrupts Miriam's playback.
-      if (visibleText && isPlayingRef.current) interruptPlayback();
+      // Barge-in via SR disabled: SR often re-recognises Miriam's own voice
+      // through the speakers and was cutting her off mid-sentence.
 
       // Web SpeechRecognition is unreliable for Hebrew on most browsers
       // (it mis-recognises he-IL as Thai/Arabic/romanised). Since we now
@@ -699,12 +697,12 @@ export default function VoiceDialogue() {
             },
             realtimeInputConfig: {
               automaticActivityDetection: {
-                startOfSpeechSensitivity: "START_SENSITIVITY_HIGH",
+                startOfSpeechSensitivity: "START_SENSITIVITY_LOW",
                 endOfSpeechSensitivity: "END_SENSITIVITY_LOW",
-                prefixPaddingMs: 200,
-                silenceDurationMs: 800,
+                prefixPaddingMs: 300,
+                silenceDurationMs: 1200,
               },
-              activityHandling: "START_OF_ACTIVITY_INTERRUPTS",
+              activityHandling: "NO_INTERRUPTION",
             },
             systemInstruction: {
               parts: [{ text: customInstructionRef.current || LEVEL_INSTRUCTIONS[selectedLevel] }],
@@ -740,11 +738,11 @@ export default function VoiceDialogue() {
             // Start sending audio from worklet → resample to 16kHz (Gemini's preferred input rate).
             const TARGET_INPUT_RATE = 16000;
             workletNode.port.onmessage = (e) => {
-              // Only stop streaming when explicitly muted. Web SpeechRecognition
-              // is just a barge-in helper / fallback — Gemini's own
-              // inputTranscription is the authoritative source for Hebrew text,
-              // so the user's audio MUST keep flowing to Gemini at all times.
               if (mutedRef.current || !e.data?.pcm) return;
+              // Don't stream mic audio while Miriam is speaking — otherwise her
+              // own voice leaks back through the mic and Gemini's VAD cuts her
+              // off mid-sentence (self-interruption from echo).
+              if (isPlayingRef.current) return;
               const float32 = e.data.pcm as Float32Array;
               const resampled = resampleLinear(float32, inputSampleRate, TARGET_INPUT_RATE);
               const base64 = float32ToPcm16Base64(resampled);
