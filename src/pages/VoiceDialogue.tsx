@@ -484,11 +484,9 @@ export default function VoiceDialogue() {
         setMicLevel(nextLevel);
       }
 
-      // Higher threshold so Miriam's own playback (echo leak) doesn't interrupt her.
-      // Real user speech easily exceeds 0.08 RMS on a near-field laptop mic.
-      if (rms > 0.08 && isPlayingRef.current && !mutedRef.current) {
-        interruptPlayback();
-      }
+      // NOTE: client-side barge-in disabled. Mic echo from speakers used to
+      // cut Miriam off mid-word. Interruption is now handled exclusively by
+      // Gemini's serverContent.interrupted signal.
 
       monitorFrameRef.current = requestAnimationFrame(tick);
     };
