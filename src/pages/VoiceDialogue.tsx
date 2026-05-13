@@ -697,12 +697,12 @@ export default function VoiceDialogue() {
             },
             realtimeInputConfig: {
               automaticActivityDetection: {
-                startOfSpeechSensitivity: "START_SENSITIVITY_HIGH",
+                startOfSpeechSensitivity: "START_SENSITIVITY_LOW",
                 endOfSpeechSensitivity: "END_SENSITIVITY_LOW",
-                prefixPaddingMs: 200,
-                silenceDurationMs: 800,
+                prefixPaddingMs: 300,
+                silenceDurationMs: 1200,
               },
-              activityHandling: "START_OF_ACTIVITY_INTERRUPTS",
+              activityHandling: "NO_INTERRUPTION",
             },
             systemInstruction: {
               parts: [{ text: customInstructionRef.current || LEVEL_INSTRUCTIONS[selectedLevel] }],
