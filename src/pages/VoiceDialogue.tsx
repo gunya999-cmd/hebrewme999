@@ -738,11 +738,11 @@ export default function VoiceDialogue() {
             // Start sending audio from worklet → resample to 16kHz (Gemini's preferred input rate).
             const TARGET_INPUT_RATE = 16000;
             workletNode.port.onmessage = (e) => {
-              // Only stop streaming when explicitly muted. Web SpeechRecognition
-              // is just a barge-in helper / fallback — Gemini's own
-              // inputTranscription is the authoritative source for Hebrew text,
-              // so the user's audio MUST keep flowing to Gemini at all times.
               if (mutedRef.current || !e.data?.pcm) return;
+              // Don't stream mic audio while Miriam is speaking — otherwise her
+              // own voice leaks back through the mic and Gemini's VAD cuts her
+              // off mid-sentence (self-interruption from echo).
+              if (isPlayingRef.current) return;
               const float32 = e.data.pcm as Float32Array;
               const resampled = resampleLinear(float32, inputSampleRate, TARGET_INPUT_RATE);
               const base64 = float32ToPcm16Base64(resampled);
