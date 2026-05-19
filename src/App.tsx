@@ -19,6 +19,7 @@ import VoiceDialogue from "@/pages/VoiceDialogue";
 import Prepositions from "@/pages/Prepositions";
 import PrepDetail from "@/pages/PrepDetail";
 import About from "@/pages/About";
+import Vocabulary from "@/pages/Vocabulary";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -52,6 +53,7 @@ const App = () => (
             <Route path="/voice-dialogue" element={<VoiceDialogue />} />
             <Route path="/prepositions" element={<Prepositions />} />
             <Route path="/preposition/:id" element={<PrepDetail />} />
+            <Route path="/vocabulary" element={<Vocabulary />} />
             <Route path="/about" element={<About />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

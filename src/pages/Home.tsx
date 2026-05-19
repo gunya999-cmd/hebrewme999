@@ -1,4 +1,4 @@
-import { Flame, Target, BookCheck, Sparkles, AlignJustify, Info, MessageCircle, Mic, GraduationCap } from "lucide-react";
+import { Flame, Target, BookCheck, Sparkles, AlignJustify, Info, MessageCircle, Mic, GraduationCap, Languages } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import ProgressCircle from "@/components/ProgressCircle";
@@ -129,6 +129,15 @@ export default function Home() {
           <GraduationCap className="w-6 h-6 text-primary mb-2" />
           <p className="font-bold text-foreground text-sm">Спряжение голосом</p>
           <p className="text-xs text-muted-foreground">Тренажёр с Мирьям</p>
+        </motion.button>
+        <motion.button
+          whileTap={{ scale: 0.95 }}
+          onClick={() => navigate("/vocabulary")}
+          className="bg-card rounded-2xl p-4 shadow-sm text-left border border-border col-span-2"
+        >
+          <Languages className="w-6 h-6 text-success mb-2" />
+          <p className="font-bold text-foreground text-sm">Слова</p>
+          <p className="text-xs text-muted-foreground">50 нужных слов и фраз с озвучкой</p>
         </motion.button>
         <motion.button
           whileTap={{ scale: 0.95 }}
