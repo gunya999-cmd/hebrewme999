@@ -3,10 +3,10 @@ import { ArrowLeft, Mic, MicOff, Phone, PhoneOff, Settings2 } from "lucide-react
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate, useLocation } from "react-router-dom";
-import tutorAvatar from "@/assets/miriam-avatar.png";
 import { MiriamAvatar3D } from "@/components/MiriamAvatar3D";
 import { MicDiagnostics } from "@/components/MicDiagnostics";
 import { getSpeechRate } from "@/hooks/useSpeechRate";
+import { getSupabaseAuthHeaders, getSupabaseFunctionUrl, isSupabaseConfigured, SUPABASE_CONFIG_ERROR } from "@/lib/env";
 import { SpeechRateSelector } from "@/components/SpeechRateSelector";
 
 /* ── Types ── */
@@ -32,23 +32,31 @@ const LEVELS: { id: Level; label: string; emoji: string; desc: string }[] = [
 const CORRECTION_RULE = ` חשוב מאוד: כאשר התלמיד טועה (בדקדוק, בהגייה, בבחירת מילה, במין/מספר/זמן הפועל או במילת יחס) — תקני אותו תמיד, אך בעדינות. פתחי את התיקון באחת מהצורות הבאות בעברית בלבד: «נכון לומר…», «עדיף לומר…» או «נכון להגיד…», ומיד אחר כך אמרי את הצורה הנכונה המלאה. אחרי התיקון המשיכי את השיחה בשאלה קצרה. אם המשפט נכון — אל תתקני, רק עודדי והמשיכי. אסור להשתמש ברוסית או באנגלית גם בזמן התיקון.`;
 
 const LEVEL_INSTRUCTIONS: Record<Level, string> = {
-  beginner: `אתה מרים, מורה לעברית מתל אביב. דבר רק בעברית! אסור לדבר ברוסית או באנגלית. השתמש במשפטים פשוטים מאוד של 3-5 מילים. דבר לאט וברור. נושאים: ברכות, מספרים, צבעים, אוכל, משפחה. תמיד שאל שאלות פשוטות כדי להמשיך את השיחה. אם התלמיד לא מבין - חזור על המשפט לאט יותר ותוסיף רמז בעברית פשוטה. היה חם ומעודד.${CORRECTION_RULE}`,
-  intermediate: `אתה מרים, מורה לעברית מתל אביב. דבר רק בעברית! אסור לדבר ברוסית או באנגלית. השתמש במשפטים של 5-10 מילים. נושאים: קניות, טיולים, עבודה, תחביבים. שאל שאלות פתוחות כדי שהתלמיד יבנה משפטים בעצמו. תקן טעויות בעדינות. ספר עובדות מעניינות על ישראל.${CORRECTION_RULE}`,
-  advanced: `אתה מרים, מורה לעברית מתל אביב. דבר רק בעברית! אסור לדבר ברוסית או באנגלית. דבר בעברית טבעית כמו עם דובר שפת אם. השתמש בסלנג, ביטויים ומטפורות. נושאים: פוליטיקה, תרבות, חדשות, פילוסופיה, הומור. עודד תשובות מפורטות וויכוח. תקן טעויות סגנוניות.${CORRECTION_RULE}`,
+  beginner: `את מרים, מורה לעברית מתל אביב. דברי רק בעברית! אסור לדבר ברוסית או באנגלית. השתמשי במשפטים פשוטים מאוד של 3-5 מילים. דברי לאט וברור. נושאים: ברכות, מספרים, צבעים, אוכל, משפחה. תמיד שאלי שאלות פשוטות כדי להמשיך את השיחה. אם התלמיד לא מבין - חזרי על המשפט לאט יותר והוסיפי רמז בעברית פשוטה. היי חמה ומעודדת.${CORRECTION_RULE}`,
+  intermediate: `את מרים, מורה לעברית מתל אביב. דברי רק בעברית! אסור לדבר ברוסית או באנגלית. השתמשי במשפטים של 5-10 מילים. נושאים: קניות, טיולים, עבודה, תחביבים. שאלי שאלות פתוחות כדי שהתלמיד יבנה משפטים בעצמו. תקני טעויות בעדינות. ספרי עובדות מעניינות על ישראל.${CORRECTION_RULE}`,
+  advanced: `את מרים, מורה לעברית מתל אביב. דברי רק בעברית! אסור לדבר ברוסית או באנגלית. דברי בעברית טבעית כמו עם דובר שפת אם. השתמשי בסלנג, ביטויים ומטפורות. נושאים: תרבות, חדשות, פילוסופיה, הומור ושיחה יומיומית בישראל. עודדי תשובות מפורטות וויכוח. תקני טעויות סגנוניות.${CORRECTION_RULE}`,
 };
 
-const CONFIG_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/gemini-voice-config`;
-const TRANSLATE_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-dialogue`;
-
 type AudioWindow = Window & typeof globalThis & { webkitAudioContext?: typeof AudioContext };
+
+type SpeechRecognitionAlternativeLike = { transcript?: string };
+type SpeechRecognitionResultLike = {
+  isFinal: boolean;
+  0?: SpeechRecognitionAlternativeLike;
+};
+type SpeechRecognitionEventLike = {
+  resultIndex: number;
+  results: ArrayLike<SpeechRecognitionResultLike>;
+};
+type SpeechRecognitionErrorEventLike = { error?: string };
 type SpeechRecognitionLike = {
   lang: string;
   continuous: boolean;
   interimResults: boolean;
   maxAlternatives: number;
   onstart: (() => void) | null;
-  onresult: ((event: any) => void) | null;
-  onerror: ((event: any) => void) | null;
+  onresult: ((event: SpeechRecognitionEventLike) => void) | null;
+  onerror: ((event: SpeechRecognitionErrorEventLike) => void) | null;
   onend: (() => void) | null;
   start: () => void;
   stop: () => void;
@@ -167,11 +175,12 @@ function getMicrophoneErrorMessage(err: unknown): string {
 /* ── Translate helper ── */
 async function translateToRussian(text: string): Promise<string> {
   try {
-    const resp = await fetch(TRANSLATE_URL, {
+    if (!isSupabaseConfigured) return "";
+    const resp = await fetch(getSupabaseFunctionUrl("ai-dialogue"), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        ...getSupabaseAuthHeaders(),
       },
       body: JSON.stringify({ action: "translate", text }),
     });
@@ -334,7 +343,7 @@ export default function VoiceDialogue() {
   /* ── Silence watchdog: detect "model went silent" and nudge it ── */
   const SILENCE_TIMEOUT_MS = 3500;
   const MAX_NUDGES = 2;
-  const NUDGE_TEXT_HE = "תמשיכי בבקשה. ענתה לי בעברית פשוטה."; // "Please continue. Reply in simple Hebrew."
+  const NUDGE_TEXT_HE = "תמשיכי בבקשה. עני לי בעברית פשוטה."; // "Please continue. Reply in simple Hebrew."
 
   const clearSilenceWatchdog = useCallback(() => {
     if (silenceWatchdogRef.current !== null) {
@@ -492,7 +501,7 @@ export default function VoiceDialogue() {
     };
 
     monitorFrameRef.current = requestAnimationFrame(tick);
-  }, [interruptPlayback, stopVoiceActivityMonitor]);
+  }, [stopVoiceActivityMonitor]);
 
   /* ── Flush AI text buffer to transcript ── */
   const flushAiText = useCallback(async () => {
@@ -548,7 +557,7 @@ export default function VoiceDialogue() {
       if (!mutedRef.current) setSpeechStatus("listening");
     };
 
-    recognition.onresult = (event: any) => {
+    recognition.onresult = (event: SpeechRecognitionEventLike) => {
       if (mutedRef.current) return;
 
       let interim = "";
@@ -577,7 +586,7 @@ export default function VoiceDialogue() {
       // "слушаю / слышу" indicator in the UI.
     };
 
-    recognition.onerror = (event: any) => {
+    recognition.onerror = (event: SpeechRecognitionErrorEventLike) => {
       if (event?.error === "no-speech" || event?.error === "aborted") return;
       console.warn("[SpeechRecognition] error:", event?.error || event);
       speechTextModeRef.current = false;
@@ -608,7 +617,7 @@ export default function VoiceDialogue() {
       setSpeechStatus("error");
       return false;
     }
-  }, [interruptPlayback, stopSpeechRecognition]);
+  }, [stopSpeechRecognition]);
 
   /* ── Connect to Gemini Live ── */
   const startSession = useCallback(async (selectedLevel: Level) => {
@@ -621,6 +630,13 @@ export default function VoiceDialogue() {
     setError(null);
 
     try {
+      if (!isSupabaseConfigured) {
+        throw new Error(SUPABASE_CONFIG_ERROR);
+      }
+      if (!navigator.mediaDevices?.getUserMedia) {
+        throw new Error("Браузер не поддерживает доступ к микрофону. Откройте приложение в Chrome, Edge или Safari по HTTPS.");
+      }
+
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
           ...(micDeviceId ? { deviceId: { exact: micDeviceId } } : {}),
@@ -634,11 +650,11 @@ export default function VoiceDialogue() {
       streamRef.current = stream;
 
       // Get API key after mic permission to preserve user gesture chain
-      const configResp = await fetch(CONFIG_URL, {
+      const configResp = await fetch(getSupabaseFunctionUrl("gemini-voice-config"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          ...getSupabaseAuthHeaders(),
         },
         body: JSON.stringify({}),
       });
@@ -711,7 +727,6 @@ export default function VoiceDialogue() {
             outputAudioTranscription: {},
           },
         };
-        console.log("[Gemini] sending setup");
         ws.send(JSON.stringify(setup));
       };
 
@@ -840,7 +855,7 @@ export default function VoiceDialogue() {
       };
 
       ws.onclose = (e) => {
-        console.log("[Gemini] WebSocket closed:", e.code, e.reason || "(no reason)");
+        console.info("[Gemini] WebSocket closed:", e.code, e.reason || "(no reason)");
         clearSilenceWatchdog();
         awaitingModelReplyRef.current = false;
         stopSpeechRecognition();
@@ -879,7 +894,7 @@ export default function VoiceDialogue() {
         }
       };
 
-    } catch (err: any) {
+    } catch (err) {
       console.error("startSession error:", err);
       interruptPlayback();
       stopVoiceActivityMonitor();
@@ -899,7 +914,7 @@ export default function VoiceDialogue() {
       setError(getMicrophoneErrorMessage(err));
       setConnecting(false);
     }
-  }, [connected, connecting, micDeviceId, armSilenceWatchdog, enqueueAudio, flushAiText, flushUserText, interruptPlayback, sendRealtimeInput, startSpeechRecognition, startVoiceActivityMonitor, stopVoiceActivityMonitor, stopSpeechRecognition, clearSilenceWatchdog, formatCloseError]);
+  }, [connected, connecting, micDeviceId, armSilenceWatchdog, enqueueAudio, flushAiText, flushUserText, interruptPlayback, sendRealtimeInput, startSpeechRecognition, startVoiceActivityMonitor, stopVoiceActivityMonitor, stopSpeechRecognition, clearSilenceWatchdog, formatCloseError, markModelActivity, markModelTurnComplete]);
 
   /* ── Disconnect ── */
   const endSession = useCallback(() => {
@@ -948,13 +963,13 @@ export default function VoiceDialogue() {
         if (speechTextModeRef.current) {
           if (newVal) {
             recognitionShouldRunRef.current = false;
-            try { speechRecognitionRef.current?.stop(); } catch {}
+            try { speechRecognitionRef.current?.stop(); } catch (error) { console.debug("Speech recognition stop ignored", error); }
             setSpeechStatus("off");
           } else {
             recognitionShouldRunRef.current = true;
             try {
               if (!recognitionRunningRef.current) speechRecognitionRef.current?.start();
-            } catch {}
+            } catch (error) { console.debug("Speech recognition start ignored", error); }
             setSpeechStatus("listening");
           }
         }

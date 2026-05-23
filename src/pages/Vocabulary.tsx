@@ -4,6 +4,7 @@ import { Volume2, Loader2, Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { VOCABULARY, VOCAB_CATEGORIES, VocabWord } from "@/data/vocabulary";
 import { toast } from "sonner";
+import { isSupabaseConfigured, SUPABASE_CONFIG_ERROR } from "@/lib/env";
 
 const CATS: Array<{ key: VocabWord["category"] | "all"; label: string }> = [
   { key: "all", label: "Все" },
@@ -37,6 +38,10 @@ export default function Vocabulary() {
 
   const play = async (w: VocabWord) => {
     try {
+      if (!isSupabaseConfigured) {
+        toast.error(SUPABASE_CONFIG_ERROR);
+        return;
+      }
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current = null;
@@ -62,9 +67,9 @@ export default function Vocabulary() {
       audio.onended = () => setPlayingId(null);
       audio.onerror = () => setPlayingId(null);
       await audio.play();
-    } catch (e: any) {
-      console.error(e);
-      toast.error("Не удалось воспроизвести");
+    } catch (error) {
+      console.error(error);
+      toast.error(error instanceof Error ? error.message : "Не удалось воспроизвести");
       setPlayingId(null);
     }
   };

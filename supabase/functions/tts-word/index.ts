@@ -96,8 +96,8 @@ serve(async (req) => {
       });
     }
 
-    const data = await resp.json();
-    const part = data?.candidates?.[0]?.content?.parts?.find((p: any) => p.inlineData);
+    const data = await resp.json() as { candidates?: Array<{ content?: { parts?: Array<{ inlineData?: { data?: string } }> } }> };
+    const part = data.candidates?.[0]?.content?.parts?.find((p) => p.inlineData);
     const b64 = part?.inlineData?.data;
     if (!b64) {
       console.error("No audio in response", JSON.stringify(data).slice(0, 500));

@@ -3,11 +3,18 @@ import { ArrowLeft, Volume2 } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { SEED_VERBS } from "@/data/verbs";
-import { BINYAN_NAMES, PERSON_LABELS, TENSE_LABELS, ConjugationForm } from "@/types/verb";
+import { BINYAN_NAMES, PERSON_LABELS, TENSE_LABELS, ConjugationForm, VerbConjugations } from "@/types/verb";
 import { getSpeechRate } from "@/hooks/useSpeechRate";
 import { SpeechRateSelector } from "@/components/SpeechRateSelector";
 
 const TENSES = ["present", "past", "future", "imperative"] as const;
+
+type TenseKey = keyof VerbConjugations;
+
+function getTenseForms(conjugations: VerbConjugations, tense: string): Record<string, ConjugationForm> | undefined {
+  if (!(tense in conjugations)) return undefined;
+  return conjugations[tense as TenseKey] as unknown as Record<string, ConjugationForm>;
+}
 
 export default function VerbDetail() {
   const { id } = useParams();
@@ -25,7 +32,7 @@ export default function VerbDetail() {
 
   const conjugation = verb.conjugations;
   const activeForms: Record<string, ConjugationForm> | undefined = conjugation
-    ? (conjugation as any)[activeTense]
+    ? getTenseForms(conjugation, activeTense)
     : undefined;
 
   const speak = (text: string) => {

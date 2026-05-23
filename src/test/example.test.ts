@@ -1,7 +1,7 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 
-describe("example", () => {
-  it("should pass", () => {
+describe("test environment", () => {
+  it("runs unit tests", () => {
     expect(true).toBe(true);
   });
 });

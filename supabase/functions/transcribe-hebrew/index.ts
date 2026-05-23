@@ -26,7 +26,7 @@ function cleanTranscript(text: string): string {
     // Remove surrounding quotes and whitespace
     .replace(/^["'`«»\s]+|["'`«»\s]+$/g, "")
     // Remove Hebrew label prefixes like "תמלול:" 
-    .replace(/^\s*תמלול[:\-]?\s*/i, "")
+    .replace(/^\s*תמלול[:-]?\s*/i, "")
     // Remove any Latin characters (transliteration / English)
     .replace(/[a-zA-Z]+/g, "")
     // Remove any Cyrillic characters (Russian)
@@ -36,7 +36,7 @@ function cleanTranscript(text: string): string {
     // Remove Thai characters
     .replace(/[\u0E00-\u0E7F]+/g, "")
     // Remove trailing/leading punctuation
-    .replace(/^[.,!?;:\-]+|[.,!?;:\-]+$/g, "")
+    .replace(/^[.,!?;:-]+|[.,!?;:-]+$/g, "")
     .trim();
 }
 

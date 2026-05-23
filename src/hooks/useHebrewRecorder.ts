@@ -6,8 +6,7 @@
 // and send it to the `transcribe-hebrew` edge function (Gemini multimodal).
 
 import { useCallback, useEffect, useRef, useState } from "react";
-
-const TRANSCRIBE_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/transcribe-hebrew`;
+import { getSupabaseAuthHeaders, getSupabaseFunctionUrl, isSupabaseConfigured, SUPABASE_CONFIG_ERROR } from "@/lib/env";
 
 function pickMimeType(): string {
   const candidates = [
@@ -59,6 +58,11 @@ export function useHebrewRecorder() {
     setError(null);
     expectedRef.current = opts?.expectedText;
 
+    if (!isSupabaseConfigured) {
+      setError(SUPABASE_CONFIG_ERROR);
+      throw new Error(SUPABASE_CONFIG_ERROR);
+    }
+
     if (!navigator.mediaDevices?.getUserMedia) {
       const msg = "Браузер не поддерживает запись звука";
       setError(msg);
@@ -106,11 +110,11 @@ export function useHebrewRecorder() {
             return;
           }
           const base64 = await blobToBase64(blob);
-          const resp = await fetch(TRANSCRIBE_URL, {
+          const resp = await fetch(getSupabaseFunctionUrl("transcribe-hebrew"), {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+              ...getSupabaseAuthHeaders(),
             },
             body: JSON.stringify({
               audio: base64,

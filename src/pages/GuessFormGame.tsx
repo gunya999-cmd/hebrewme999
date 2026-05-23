@@ -3,8 +3,15 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, CheckCircle2, XCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { SEED_VERBS } from "@/data/verbs";
-import { PERSON_LABELS, ConjugationForm } from "@/types/verb";
+import { PERSON_LABELS, ConjugationForm, VerbConjugations } from "@/types/verb";
 import { useLearning } from "@/hooks/useLearning";
+
+
+type TenseKey = "present" | "past" | "future";
+
+function getTenseForms(conjugations: VerbConjugations, tense: TenseKey): Record<string, ConjugationForm> {
+  return conjugations[tense] as unknown as Record<string, ConjugationForm>;
+}
 
 interface Question {
   verbId: string;
@@ -42,14 +49,14 @@ function generateQuestions(count: number): Question[] {
     usedIds.add(verb.id);
 
     const tense = tenses[Math.floor(Math.random() * tenses.length)];
-    const forms = (verb.conjugations as any)[tense] as Record<string, ConjugationForm>;
+    const forms = getTenseForms(verb.conjugations!, tense);
     const persons = Object.keys(forms);
     const person = persons[Math.floor(Math.random() * persons.length)];
     const correct = forms[person];
 
     const allForms: ConjugationForm[] = [];
     tenses.forEach((t) => {
-      const tf = (verb.conjugations as any)[t] as Record<string, ConjugationForm>;
+      const tf = getTenseForms(verb.conjugations!, t);
       Object.values(tf).forEach((f) => {
         if (f.hebrew !== correct.hebrew) allForms.push(f);
       });
@@ -83,8 +90,6 @@ export default function GuessFormGame() {
   const navigate = useNavigate();
   const { markCorrect, markWrong } = useLearning();
   // gameKey — при изменении генерируются новые вопросы
-  const [gameKey, setGameKey] = useState(0);
-  const [questions] = useState(() => generateQuestions(10));
   const [allQuestions, setAllQuestions] = useState<Question[]>(() => generateQuestions(10));
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selected, setSelected] = useState<string | null>(null);
