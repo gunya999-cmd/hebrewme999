@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "prebuild": "node scripts/patch-voice-dialogue.cjs",
+    "prebuild": "node scripts/patch-voice-dialogue.cjs && node scripts/patch-dedupe-data.cjs",
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
