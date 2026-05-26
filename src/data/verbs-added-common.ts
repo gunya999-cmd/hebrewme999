@@ -1,9 +1,8 @@
 import { Verb } from "@/types/verb";
 
 // New high-value infinitives for the user-facing dictionary.
-// They intentionally do not duplicate existing full-conjugation records;
-// if a duplicate still appears in the source data, verbs-unique.ts removes it
-// by normalized Hebrew infinitive before rendering.
+// They intentionally include only dictionary-safe verb records. The final
+// app list is still normalized, deduplicated and sorted in verbs-unique.ts.
 export const COMMON_ADDED_VERBS: Verb[] = [
   // פעל — Paal / Qal: very common everyday verbs
   { id: "common-paal-001", infinitive_hebrew: "לשבת", transcription_ru: "лашэ́вет", translation_ru: "сидеть", root: "ישב", binyan: "פעל", difficulty: "easy" },
@@ -58,7 +57,7 @@ export const COMMON_ADDED_VERBS: Verb[] = [
   { id: "common-hitpael-002", infinitive_hebrew: "להתכתב", transcription_ru: "леhиткате́в", translation_ru: "переписываться", root: "כתב", binyan: "התפעל", difficulty: "medium" },
   { id: "common-hitpael-003", infinitive_hebrew: "להתאמן", transcription_ru: "леhитаме́н", translation_ru: "тренироваться", root: "אמנ", binyan: "התפעל", difficulty: "easy" },
   { id: "common-hitpael-004", infinitive_hebrew: "להתעניין", transcription_ru: "леhитанье́н", translation_ru: "интересоваться", root: "ענינ", binyan: "התפעל", difficulty: "medium" },
-  { id: "common-hitpael-005", infinitive_hebrew: "להתבלבל", transcription_ru: "леhитбальбе́ль", translation_ru: "путаться, confused", root: "בלבל", binyan: "התפעל", difficulty: "medium" },
+  { id: "common-hitpael-005", infinitive_hebrew: "להתבלבל", transcription_ru: "леhитбальбе́ль", translation_ru: "путаться, запутываться", root: "בלבל", binyan: "התפעל", difficulty: "medium" },
   { id: "common-hitpael-006", infinitive_hebrew: "להתקדם", transcription_ru: "леhиткаде́м", translation_ru: "продвигаться", root: "קדמ", binyan: "התפעל", difficulty: "medium" },
   { id: "common-hitpael-007", infinitive_hebrew: "להתקרב", transcription_ru: "леhиткаре́в", translation_ru: "приближаться", root: "קרב", binyan: "התפעל", difficulty: "medium" },
   { id: "common-hitpael-008", infinitive_hebrew: "להתרגל", transcription_ru: "леhитраге́ль", translation_ru: "привыкать", root: "רגל", binyan: "התפעל", difficulty: "medium" },
