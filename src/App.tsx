@@ -17,6 +17,7 @@ const GuessRootGame = lazy(() => import("@/pages/GuessRootGame"));
 const GuessBinyanGame = lazy(() => import("@/pages/GuessBinyanGame"));
 const PrepFillGame = lazy(() => import("@/pages/PrepFillGame"));
 const ConjugationVoice = lazy(() => import("@/pages/ConjugationVoice"));
+const VerbDropsGame = lazy(() => import("@/pages/VerbDropsGame"));
 const AITutor = lazy(() => import("@/pages/AITutor"));
 const VoiceDialogue = lazy(() => import("@/pages/VoiceDialogue"));
 const Prepositions = lazy(() => import("@/pages/Prepositions"));
@@ -65,6 +66,7 @@ const App = () => (
               <Route path="/games/guess-binyan" element={<GuessBinyanGame />} />
               <Route path="/games/prep-fill" element={<PrepFillGame />} />
               <Route path="/games/conjugation-voice" element={<ConjugationVoice />} />
+              <Route path="/games/verb-drops" element={<VerbDropsGame />} />
               <Route path="/ai-tutor" element={<AITutor />} />
               <Route path="/voice-dialogue" element={<VoiceDialogue />} />
               <Route path="/prepositions" element={<Prepositions />} />
