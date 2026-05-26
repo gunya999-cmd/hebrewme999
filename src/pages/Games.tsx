@@ -1,8 +1,16 @@
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Brain, PenLine, Puzzle, Layers, BookOpen, Mic } from "lucide-react";
+import { Brain, PenLine, Puzzle, Layers, BookOpen, Mic, Sparkles } from "lucide-react";
 
 const games = [
+  {
+    id: "verb-drops",
+    title: "Капли глаголов",
+    desc: "5 минут: картинки, аудио и сборка инфинитива по буквам",
+    icon: Sparkles,
+    color: "bg-primary/10 text-primary",
+    path: "/games/verb-drops",
+  },
   {
     id: "guess-form",
     title: "Угадай форму",
@@ -65,7 +73,7 @@ export default function Games() {
             key={game.id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.1 }}
+            transition={{ delay: i * 0.08 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => navigate(game.path)}
             className="bg-card rounded-2xl p-4 text-left border border-border shadow-sm"
