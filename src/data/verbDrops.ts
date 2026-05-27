@@ -31,7 +31,7 @@ export const VERB_DROPS_SEED: VerbDropCard[] = [
   { id: "vd-006", infinitive_hebrew: "לראות", transcription_ru: "лиръо́т", translation_ru: "видеть", binyan: "פעל", root: "ראה", category: "daily", visualType: "see", frequencyRank: 6 },
   { id: "vd-007", infinitive_hebrew: "לשמוע", transcription_ru: "лишמו́а", translation_ru: "слышать", binyan: "פעל", root: "שמע", category: "communication", visualType: "listen", frequencyRank: 7 },
   { id: "vd-008", infinitive_hebrew: "לדעת", transcription_ru: "лада́ат", translation_ru: "знать", binyan: "פעל", root: "ידע", category: "study", visualType: "know", frequencyRank: 8 },
-  { id: "vd-009", infinitive_hebrew: "לרצות", transcription_ru: "лирцо́т", translation_ru: "хотеть", binyan: "פעל", root: "רצה", category: "daily", visualType: "want", frequencyRank: 9 },
+  { id: "vd-009", infinitive_hebrew: "לרצות", transcription_ru: "лирצו́т", translation_ru: "хотеть", binyan: "פעל", root: "רצה", category: "daily", visualType: "want", frequencyRank: 9 },
   { id: "vd-010", infinitive_hebrew: "לתת", transcription_ru: "лате́т", translation_ru: "давать", binyan: "פעל", root: "נתנ", category: "daily", visualType: "give", frequencyRank: 10 },
   { id: "vd-011", infinitive_hebrew: "לקחת", transcription_ru: "лака́хат", translation_ru: "брать", binyan: "פעל", root: "לקח", category: "daily", visualType: "take", frequencyRank: 11 },
   { id: "vd-012", infinitive_hebrew: "לאכול", transcription_ru: "леэхо́ль", translation_ru: "есть", binyan: "פעל", root: "אכל", category: "food", visualType: "eat", frequencyRank: 12 },
@@ -73,4 +73,8 @@ export const VERB_DROPS_SEED: VerbDropCard[] = [
   { id: "vd-048", infinitive_hebrew: "להתעניין", transcription_ru: "леhитанье́н", translation_ru: "интересоваться", binyan: "התפעל", root: "ענינ", category: "study", visualType: "interest", frequencyRank: 48 },
   { id: "vd-049", infinitive_hebrew: "להסתדר", transcription_ru: "леhистаде́р", translation_ru: "справляться", binyan: "התפעל", root: "סדר", category: "daily", visualType: "manage", frequencyRank: 49 },
   { id: "vd-050", infinitive_hebrew: "להתכונן", transcription_ru: "леhитконэ́н", translation_ru: "готовиться", binyan: "התפעל", root: "כונ", category: "study", visualType: "prepare", frequencyRank: 50 },
+  { id: "vd-051", infinitive_hebrew: "לעלות", transcription_ru: "лаало́т", translation_ru: "подниматься", binyan: "פעל", root: "עלה", category: "movement", visualType: "go-up", frequencyRank: 51 },
+  { id: "vd-052", infinitive_hebrew: "לרדת", transcription_ru: "ларе́дет", translation_ru: "спускаться", binyan: "פעל", root: "ירד", category: "movement", visualType: "go-down", frequencyRank: 52 },
+  { id: "vd-053", infinitive_hebrew: "לרוץ", transcription_ru: "лару́ц", translation_ru: "бежать", binyan: "פעל", root: "רוצ", category: "movement", visualType: "run", frequencyRank: 53 },
+  { id: "vd-054", infinitive_hebrew: "להתקדם", transcription_ru: "леhиткаде́м", translation_ru: "двигаться вперёд", binyan: "התפעל", root: "קדמ", category: "movement", visualType: "move-forward", frequencyRank: 54 },
 ];
