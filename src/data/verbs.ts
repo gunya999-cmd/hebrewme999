@@ -9,6 +9,45 @@ const f = (hebrew: string, transcription: string, translation: string) => ({
   hebrew, transcription, translation,
 });
 
+// Approximate learner-facing frequency order for the main dictionary.
+// Lower number means the verb appears earlier in /dictionary.
+const COMMON_FREQUENCY_RANK_BY_INFINITIVE: Record<string, number> = {
+  לעשות: 1,
+  ללכת: 2,
+  לבוא: 3,
+  לראות: 4,
+  לשמוע: 5,
+  לדעת: 6,
+  לרצות: 7,
+  לתת: 8,
+  לקחת: 9,
+  לומר: 10,
+  לדבר: 11,
+  לכתוב: 12,
+  לאכול: 13,
+  לשתות: 14,
+  לחשוב: 15,
+  לעבוד: 16,
+  לגור: 17,
+  ללמוד: 18,
+  להבין: 19,
+  להתחיל: 20,
+  להמשיך: 21,
+  להגיע: 22,
+  להכיר: 23,
+  לשאול: 24,
+  לקבל: 25,
+  להשתמש: 26,
+  להחליט: 27,
+  להרגיש: 28,
+  להצליח: 29,
+};
+
+const withFrequencyRank = (verb: Verb): Verb => ({
+  ...verb,
+  frequencyRank: verb.frequencyRank ?? COMMON_FREQUENCY_RANK_BY_INFINITIVE[verb.infinitive_hebrew],
+});
+
 // Verbs 1-5 with full conjugations (original)
 const CORE_VERBS: Verb[] = [
   {
@@ -109,7 +148,7 @@ const CORE_VERBS: Verb[] = [
       present: {
         ms: f("לומד", "ломе́д", "учит (м)"),
         fs: f("לומדת", "ломе́дет", "учит (ж)"),
-        mp: f("לומדים", "ломди́м", "учат (м)"),
+        mp: f("לומדים", "ломדי́м", "учат (м)"),
         fp: f("לומדות", "ломдо́т", "учат (ж)"),
       },
       past: {
@@ -130,7 +169,7 @@ const CORE_VERBS: Verb[] = [
         hi: f("תלמד", "тилма́д", "она будет учить"),
         anachnu: f("נלמד", "нилма́д", "мы будем учить"),
         atem: f("תלמדו", "тилмеду́", "вы будете учить"),
-        hem: f("ילמדו", "илмеду́", "они будут учить"),
+        hem: f("ילמדו", "илмедוּ", "они будут учить"),
       },
       imperative: {
         ms: f("למד", "лма́д", "учи (м)"),
@@ -178,8 +217,8 @@ const CORE_VERBS: Verb[] = [
       imperative: {
         ms: f("הבן", "hаве́н", "пойми (м)"),
         fs: f("הביני", "hави́ни", "пойми (ж)"),
-        mp: f("הבינו", "hави́ну", "пойми (мн)"),
-        fp: f("הבינו", "hави́ну", "пойми (мн.ж)"),
+        mp: f("הבינו", "hави́נו", "пойми (мн)"),
+        fp: f("הבינו", "hави́נו", "пойми (мн.ж)"),
       },
     },
   },
@@ -204,7 +243,7 @@ const CORE_VERBS: Verb[] = [
         at: f("התלבשת", "hитлаба́шт", "ты оделась"),
         hu: f("התלבש", "hитлабе́ш", "он оделся"),
         hi: f("התלבשה", "hитлабша́", "она оделась"),
-        anachnu: f("התלבשנו", "hитлаба́шну", "мы оделись"),
+        anachnu: f("התלבשנו", "hитлаба́шנו", "мы оделись"),
         atem: f("התלבשתם", "hитлаба́штем", "вы оделись"),
         hem: f("התלבשו", "hитлабшу́", "они оделись"),
       },
@@ -229,15 +268,17 @@ const CORE_VERBS: Verb[] = [
 ];
 
 export const SEED_VERBS: Verb[] = [
-  ...VERIFIED_EXTRA_VERBS,
   ...CORE_VERBS,
   ...PAAL_VERBS,
   ...OTHER_BINYAN_VERBS,
   ...EXTRA_VERBS,
   ...MORE_VERBS,
-].sort((a, b) => {
-  const rankA = a.frequencyRank ?? Number.MAX_SAFE_INTEGER;
-  const rankB = b.frequencyRank ?? Number.MAX_SAFE_INTEGER;
-  if (rankA !== rankB) return rankA - rankB;
-  return Number(a.id) - Number(b.id);
-});
+  ...VERIFIED_EXTRA_VERBS,
+]
+  .map(withFrequencyRank)
+  .sort((a, b) => {
+    const rankA = a.frequencyRank ?? Number.MAX_SAFE_INTEGER;
+    const rankB = b.frequencyRank ?? Number.MAX_SAFE_INTEGER;
+    if (rankA !== rankB) return rankA - rankB;
+    return a.id.localeCompare(b.id, undefined, { numeric: true });
+  });
