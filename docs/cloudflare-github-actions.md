@@ -50,3 +50,7 @@ The API token must be allowed to deploy both Cloudflare Pages and Workers for th
 - Existing Pages config file: `wrangler.toml`.
 - Worker config file: `wrangler.worker.toml`.
 - Worker name: `hebrewme-worker`.
+
+## Last deployment trigger
+
+- Triggered from GitHub on 2026-05-28 to verify automatic Pages and Worker deployments from `main`.
