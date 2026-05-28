@@ -14,6 +14,9 @@ permissions:
   contents: read
   deployments: write
 
+env:
+  CLOUDFLARE_PAGES_PROJECT_NAME: hebrewme999
+
 jobs:
   deploy-pages:
     name: Build and deploy Pages
@@ -41,5 +44,5 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy dist --project-name=${{ secrets.CLOUDFLARE_PAGES_PROJECT_NAME }} --branch=${{ github.ref_name }}
+          command: pages deploy dist --project-name=${{ env.CLOUDFLARE_PAGES_PROJECT_NAME }} --branch=${{ github.ref_name }}
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
