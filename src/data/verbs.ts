@@ -3,6 +3,7 @@ import { PAAL_VERBS } from "./verbs-paal";
 import { OTHER_BINYAN_VERBS } from "./verbs-other";
 import { EXTRA_VERBS } from "./verbs-extra";
 import { MORE_VERBS } from "./verbs-more";
+import { VERIFIED_EXTRA_VERBS } from "./verbs-verified-extra";
 
 const f = (hebrew: string, transcription: string, translation: string) => ({
   hebrew, transcription, translation,
@@ -99,7 +100,7 @@ const CORE_VERBS: Verb[] = [
   {
     id: "3",
     infinitive_hebrew: "ללמוד",
-    transcription_ru: "лилмо́д",
+    transcription_ru: "лилמו́д",
     translation_ru: "учить, изучать",
     root: "למד",
     binyan: "פעל",
@@ -228,9 +229,15 @@ const CORE_VERBS: Verb[] = [
 ];
 
 export const SEED_VERBS: Verb[] = [
+  ...VERIFIED_EXTRA_VERBS,
   ...CORE_VERBS,
   ...PAAL_VERBS,
   ...OTHER_BINYAN_VERBS,
   ...EXTRA_VERBS,
   ...MORE_VERBS,
-];
+].sort((a, b) => {
+  const rankA = a.frequencyRank ?? Number.MAX_SAFE_INTEGER;
+  const rankB = b.frequencyRank ?? Number.MAX_SAFE_INTEGER;
+  if (rankA !== rankB) return rankA - rankB;
+  return Number(a.id) - Number(b.id);
+});
