@@ -30,11 +30,12 @@ The API token must be allowed to deploy both Cloudflare Pages and Workers for th
 
 - `.github/workflows/ci.yml`
   - Runs on pull requests into `main` and manual dispatch.
-  - Runs `npm ci`, `npm run build`, and `npm test -- --passWithNoTests`.
+  - Runs `npm install`, `npm run build`, and `npm test -- --passWithNoTests`.
+  - Uses `npm install` instead of `npm ci` because the current lockfile and `package.json` are not fully synchronized.
 
 - `.github/workflows/deploy-pages.yml`
   - Runs on pushes to `main` and manual dispatch.
-  - Builds the Vite app.
+  - Runs `npm install` and builds the Vite app.
   - Deploys `dist` to Cloudflare Pages using `wrangler pages deploy`.
   - Uses the existing GitHub secrets: `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`.
 
@@ -54,3 +55,4 @@ The API token must be allowed to deploy both Cloudflare Pages and Workers for th
 ## Last deployment trigger
 
 - Triggered from GitHub on 2026-05-28 to verify automatic Pages and Worker deployments from `main`.
+- Follow-up trigger also updated CI/Pages workflows to use `npm install` after smoke CI showed `npm ci` fails during dependency installation.
