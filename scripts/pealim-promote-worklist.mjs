@@ -14,6 +14,7 @@ const args = Object.fromEntries(
 const input = args.input;
 const out = args.out || "src/data/generated/pealim-verified-verbs-promoted.ts";
 const constName = args.constName || "GENERATED_PEALIM_VERBS_PROMOTED";
+const allowPending = args.allowPending === "true";
 
 if (!input) {
   console.error("Usage: node scripts/pealim-promote-worklist.mjs --input=worklist.json --out=src/data/generated/file.ts");
@@ -25,6 +26,8 @@ const stripNiqqud = (value) => String(value || "")
   .replace(/[\u0591-\u05C7]/g, "")
   .normalize("NFC");
 
+const isFilled = (value) => String(value || "").trim().length > 0;
+
 const makeForm = (hebrew, translation_ru) => ({
   hebrew: String(hebrew || "").trim(),
   hebrew_plain: stripNiqqud(hebrew).trim(),
@@ -33,10 +36,14 @@ const makeForm = (hebrew, translation_ru) => ({
 });
 
 const normalizeBinyan = (entry) => {
-  const value = String(entry.binyan || entry.binyan_hebrew || "").trim();
+  const value = String(entry.pealimMeta?.binyan || entry.binyan || entry.binyan_hebrew || "").trim();
   if (value) return value;
   return "פעל";
 };
+
+const getRoot = (entry) => String(entry.pealimMeta?.root || entry.root || "").trim();
+const getInfinitiveWithNiqqud = (entry) => String(entry.pealimMeta?.infinitiveWithNiqqud || entry.infinitive_hebrew || entry.infinitive || "").trim();
+const getPealimMeaning = (entry) => String(entry.pealimMeta?.pealimMeaning || entry.translation_ru || "").trim();
 
 const defaultTranslations = (ru) => ({
   present: {
@@ -77,19 +84,62 @@ const defaultTranslations = (ru) => ({
   },
 });
 
+const validateWorkflow = (entries) => {
+  const errors = [];
+
+  for (const entry of entries) {
+    const label = `rank ${entry.rank} ${entry.infinitive}`;
+    const status = entry.workflowStatus || entry.extractionStatus || "pending";
+
+    if (status === "blocked") {
+      errors.push(`${label}: blocked (${entry.blockerReason || "no reason"})`);
+      continue;
+    }
+
+    if (!allowPending && status === "pending") {
+      errors.push(`${label}: still pending; set workflowStatus to extracted/reviewed or pass --allowPending=true`);
+    }
+
+    if (entry.pealimUrl?.includes("/search/") && !entry.pealimMeta?.exactDictUrlConfirmed) {
+      errors.push(`${label}: Pealim URL is still a search URL; replace it with exact /dict/ URL`);
+    }
+
+    if (!isFilled(getRoot(entry))) errors.push(`${label}: missing pealimMeta.root`);
+    if (!isFilled(normalizeBinyan(entry))) errors.push(`${label}: missing pealimMeta.binyan`);
+    if (!isFilled(getInfinitiveWithNiqqud(entry))) errors.push(`${label}: missing pealimMeta.infinitiveWithNiqqud`);
+
+    const forms = entry.extractedForms || {};
+    const required = [
+      ["present.ms", forms.present?.ms], ["present.fs", forms.present?.fs], ["present.mp", forms.present?.mp], ["present.fp", forms.present?.fp],
+      ["past.ani", forms.past?.ani], ["past.ata", forms.past?.ata], ["past.at", forms.past?.at], ["past.hu", forms.past?.hu], ["past.hi", forms.past?.hi],
+      ["past.anachnu", forms.past?.anachnu], ["past.atem", forms.past?.atem], ["past.aten", forms.past?.aten], ["past.hem", forms.past?.hem], ["past.hen", forms.past?.hen],
+      ["future.ani", forms.future?.ani], ["future.ata", forms.future?.ata], ["future.at", forms.future?.at], ["future.hu", forms.future?.hu], ["future.hi", forms.future?.hi],
+      ["future.anachnu", forms.future?.anachnu], ["future.atem", forms.future?.atem], ["future.aten", forms.future?.aten], ["future.hem", forms.future?.hem], ["future.hen", forms.future?.hen],
+      ["imperative.ms", forms.imperative?.ms], ["imperative.fs", forms.imperative?.fs], ["imperative.mp", forms.imperative?.mp], ["imperative.fp", forms.imperative?.fp],
+    ];
+
+    for (const [name, value] of required) {
+      if (!isFilled(value)) errors.push(`${label}: missing extractedForms.${name}`);
+    }
+  }
+
+  return errors;
+};
+
 const promoteEntry = (entry) => {
   const forms = entry.extractedForms || {};
-  const t = defaultTranslations(entry.translation_ru);
+  const ru = getPealimMeaning(entry);
+  const t = defaultTranslations(ru);
 
   return {
     id: `pv-${String(entry.rank).padStart(4, "0")}`,
     frequencyRank: entry.rank,
     tier: entry.tier,
-    infinitive_hebrew: entry.infinitive_hebrew || entry.infinitive,
+    infinitive_hebrew: getInfinitiveWithNiqqud(entry),
     infinitive_hebrew_plain: entry.infinitive,
     transcription_ru: entry.transcription_ru || "",
-    translation_ru: entry.translation_ru,
-    root: entry.root || "CHECK_ROOT",
+    translation_ru: ru,
+    root: getRoot(entry),
     binyan: normalizeBinyan(entry),
     difficulty: entry.difficulty,
     source: "pealim",
@@ -139,12 +189,20 @@ const promoteEntry = (entry) => {
 
 const payload = JSON.parse(readFileSync(resolve(input), "utf8"));
 const entries = Array.isArray(payload) ? payload : payload.entries;
-const verbs = entries.map(promoteEntry);
-const errors = validatePealimVerbs(verbs);
 
-if (errors.length) {
-  console.error(`Cannot promote worklist; ${errors.length} validation issue(s):`);
-  for (const error of errors) console.error(`- ${error}`);
+const workflowErrors = validateWorkflow(entries);
+if (workflowErrors.length) {
+  console.error(`Cannot promote worklist; ${workflowErrors.length} workflow issue(s):`);
+  for (const error of workflowErrors) console.error(`- ${error}`);
+  process.exit(1);
+}
+
+const verbs = entries.map(promoteEntry);
+const dataErrors = validatePealimVerbs(verbs);
+
+if (dataErrors.length) {
+  console.error(`Cannot promote worklist; ${dataErrors.length} data validation issue(s):`);
+  for (const error of dataErrors) console.error(`- ${error}`);
   process.exit(1);
 }
 
