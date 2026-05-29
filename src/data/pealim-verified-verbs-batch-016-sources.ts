@@ -257,16 +257,15 @@ export const PEALIM_VERIFIED_BATCH_016_SOURCES: PealimVerbBatchSource[] = [
     id: "pv-0320",
     frequencyRank: 320,
     tier: "top_conversational_350",
-    infinitive_hebrew: "לְהַסְבִּיר",
-    infinitive_plain: "להסביר",
-    transcription_ru: "леhасб и р",
-    translation_ru: "объяснять",
-    root: "ס-ב-ר",
+    infinitive_hebrew: "לְהַבְהִיר",
+    infinitive_plain: "להבהיר",
+    transcription_ru: "леhавh и р",
+    translation_ru: "прояснять; уточнять; делать ясным",
+    root: "ב-ה-ר",
     binyan: "הפעיל",
     source: "pealim",
-    sourceUrl: "https://www.pealim.com/ru/search/?q=%D7%9C%D7%94%D7%A1%D7%91%D7%99%D7%A8",
-    verificationStatus: "needs_full_conjugation_entry",
-    notes: "Duplicate-risk check against prior batches required before merge into final unified dataset."
+    sourceUrl: "https://www.pealim.com/ru/search/?q=%D7%9C%D7%94%D7%91%D7%94%D7%99%D7%A8",
+    verificationStatus: "needs_full_conjugation_entry"
   },
   {
     id: "pv-0321",
