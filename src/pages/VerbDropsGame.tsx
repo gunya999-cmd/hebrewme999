@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, CheckCircle2, Loader2, RotateCcw, Trophy, Volume2, XCircle } from "lucide-react";
-import VerbIllustration from "@/components/VerbIllustration";
+import { ArrowLeft, CheckCircle2, Loader2, RotateCcw, Sparkles, Timer, Trophy, Volume2, XCircle } from "lucide-react";
+import VerbDropArtwork from "@/components/VerbDropArtwork";
 import { supabase } from "@/integrations/supabase/client";
 import { isSupabaseConfigured } from "@/lib/env";
 import { VERB_DROP_CATEGORIES, VERB_DROPS_SEED, VerbDropCard, VerbDropCategory } from "@/data/verbDrops";
@@ -20,7 +20,20 @@ interface SessionStep {
   options: VerbDropCard[];
 }
 
-const SESSION_TASK_COUNT = 12;
+const SESSION_TASK_COUNT = 14;
+const SESSION_SECONDS = 5 * 60;
+
+const HERO_WALK_VERB: VerbDropCard = {
+  id: "hero-walk",
+  infinitive_hebrew: "ללכת",
+  transcription_ru: "",
+  translation_ru: "идти",
+  binyan: "פעל",
+  root: "הלך",
+  category: "movement",
+  visualType: "walk",
+  frequencyRank: 0,
+};
 
 function shuffle<T>(items: T[]): T[] {
   const copy = [...items];
@@ -33,6 +46,13 @@ function shuffle<T>(items: T[]): T[] {
 
 function stripHebrewMarks(text: string): string {
   return text.replace(/[\u0591-\u05C7]/g, "").replace(/\s+/g, "").trim();
+}
+
+function formatTime(seconds: number): string {
+  const safe = Math.max(0, seconds);
+  const minutes = Math.floor(safe / 60);
+  const rest = safe % 60;
+  return `${minutes}:${rest.toString().padStart(2, "0")}`;
 }
 
 function createOptions(verb: VerbDropCard, pool: VerbDropCard[]): VerbDropCard[] {
@@ -69,7 +89,9 @@ function speakWithBrowser(text: string) {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = "he-IL";
-  utterance.rate = 0.85;
+  utterance.rate = 0.9;
+  utterance.pitch = 1;
+  utterance.volume = 1;
   window.speechSynthesis.cancel();
   window.speechSynthesis.speak(utterance);
 }
@@ -80,6 +102,7 @@ export default function VerbDropsGame() {
   const [progress, setProgress] = useState<Record<string, VerbDropProgress>>(() => loadVerbDropsProgress());
   const [steps, setSteps] = useState<SessionStep[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(SESSION_SECONDS);
   const [result, setResult] = useState<ResultState>(null);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [selectedLetters, setSelectedLetters] = useState<LetterTile[]>([]);
@@ -88,15 +111,71 @@ export default function VerbDropsGame() {
   const [playing, setPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioCacheRef = useRef<Map<string, string>>(new Map());
+  const audioRequestCacheRef = useRef<Map<string, Promise<string>>>(new Map());
+  const audioPlayTokenRef = useRef(0);
 
-  const currentStep = steps[currentIndex];
-  const isFinished = Boolean(topic && steps.length > 0 && currentIndex >= steps.length);
-  const progressPercent = steps.length ? Math.round((currentIndex / steps.length) * 100) : 0;
+  const currentStep = steps.length ? steps[currentIndex % steps.length] : undefined;
+  const isFinished = Boolean(topic && steps.length > 0 && timeLeft <= 0);
+  const progressPercent = Math.round(((SESSION_SECONDS - timeLeft) / SESSION_SECONDS) * 100);
 
   const weakWords = useMemo(() => {
     const weakIds = new Set(getWeakVerbIds(progress));
     return VERB_DROPS_SEED.filter((verb) => weakIds.has(verb.id)).slice(0, 4);
   }, [progress]);
+
+  useEffect(() => {
+    if (!topic || isFinished || !steps.length) return undefined;
+    const timer = window.setInterval(() => {
+      setTimeLeft((current) => {
+        if (current <= 1) return 0;
+        return current - 1;
+      });
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, [isFinished, steps.length, topic]);
+
+  const fetchAudioUrl = useCallback(async (verb: VerbDropCard): Promise<string> => {
+    const cached = audioCacheRef.current.get(verb.id);
+    if (cached) return cached;
+
+    const inFlight = audioRequestCacheRef.current.get(verb.id);
+    if (inFlight) return inFlight;
+
+    const text = stripHebrewMarks(verb.infinitive_hebrew);
+    const request = supabase.functions.invoke("tts-word", { body: { text } })
+      .then(({ data, error }) => {
+        const dataAny = data as { audio?: string; mime?: string } | null;
+        if (error || !dataAny?.audio) throw error || new Error("No audio returned from tts-word");
+
+        const binary = atob(dataAny.audio);
+        const bytes = new Uint8Array(binary.length);
+        for (let index = 0; index < binary.length; index += 1) bytes[index] = binary.charCodeAt(index);
+
+        const blob = new Blob([bytes], { type: dataAny.mime || "audio/wav" });
+        const url = URL.createObjectURL(blob);
+        audioCacheRef.current.set(verb.id, url);
+        return url;
+      })
+      .finally(() => {
+        audioRequestCacheRef.current.delete(verb.id);
+      });
+
+    audioRequestCacheRef.current.set(verb.id, request);
+    return request;
+  }, []);
+
+  const warmAudioCache = useCallback((verbs: VerbDropCard[]) => {
+    if (!isSupabaseConfigured) return;
+
+    const unique = verbs.filter((verb, index, arr) => arr.findIndex((item) => item.id === verb.id) === index);
+    unique.slice(0, 8).forEach((verb) => {
+      if (!audioCacheRef.current.has(verb.id) && !audioRequestCacheRef.current.has(verb.id)) {
+        void fetchAudioUrl(verb).catch(() => {
+          // Prefetch is best-effort. Manual playback still has browser he-IL fallback.
+        });
+      }
+    });
+  }, [fetchAudioUrl]);
 
   const prepareLetters = useCallback((verb: VerbDropCard) => {
     const letters = Array.from(stripHebrewMarks(verb.infinitive_hebrew)).map((value, index) => ({
@@ -111,55 +190,80 @@ export default function VerbDropsGame() {
     if (currentStep?.mode === "letters") prepareLetters(currentStep.verb);
   }, [currentStep?.id, currentStep?.mode, currentStep?.verb, prepareLetters]);
 
+  useEffect(() => {
+    if (!steps.length) return;
+    const upcoming = Array.from({ length: Math.min(6, steps.length) }, (_, offset) => steps[(currentIndex + offset) % steps.length].verb);
+    warmAudioCache(upcoming);
+  }, [currentIndex, steps, warmAudioCache]);
+
   const startSession = useCallback((nextTopic: TopicId) => {
     const nextSteps = buildSession(nextTopic, progress);
     setTopic(nextTopic);
     setSteps(nextSteps);
     setCurrentIndex(0);
+    setTimeLeft(SESSION_SECONDS);
     setResult(null);
     setSelectedAnswer(null);
     setSelectedLetters([]);
     setLetterBank([]);
     setScore({ correct: 0, wrong: 0 });
-  }, [progress]);
+    warmAudioCache(nextSteps.map((step) => step.verb));
+  }, [progress, warmAudioCache]);
 
   const playAudio = useCallback(async (verb: VerbDropCard) => {
     const text = stripHebrewMarks(verb.infinitive_hebrew);
+    const token = audioPlayTokenRef.current + 1;
+    audioPlayTokenRef.current = token;
+
     try {
       if (audioRef.current) {
         audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+        audioRef.current.onended = null;
+        audioRef.current.onerror = null;
         audioRef.current = null;
       }
+
       if (!isSupabaseConfigured) {
         speakWithBrowser(text);
         return;
       }
-      let audioUrl = audioCacheRef.current.get(verb.id);
-      if (!audioUrl) {
-        setPlaying(true);
-        const { data, error } = await supabase.functions.invoke("tts-word", { body: { text } });
-        if (error || !data?.audio) throw error || new Error("No audio");
-        const binary = atob(data.audio);
-        const bytes = new Uint8Array(binary.length);
-        for (let index = 0; index < binary.length; index += 1) bytes[index] = binary.charCodeAt(index);
-        const blob = new Blob([bytes], { type: data.mime || "audio/wav" });
-        audioUrl = URL.createObjectURL(blob);
-        audioCacheRef.current.set(verb.id, audioUrl);
-      }
+
+      setPlaying(true);
+      let didFallback = false;
+      const fallbackTimer = window.setTimeout(() => {
+        if (audioPlayTokenRef.current !== token) return;
+        didFallback = true;
+        setPlaying(false);
+        speakWithBrowser(text);
+      }, 750);
+
+      const audioUrl = await fetchAudioUrl(verb);
+      window.clearTimeout(fallbackTimer);
+
+      if (didFallback || audioPlayTokenRef.current !== token) return;
+
       const audio = new Audio(audioUrl);
+      audio.preload = "auto";
+      audio.volume = 1;
       audioRef.current = audio;
-      audio.onended = () => setPlaying(false);
+      audio.onended = () => {
+        if (audioPlayTokenRef.current === token) setPlaying(false);
+      };
       audio.onerror = () => {
+        if (audioPlayTokenRef.current !== token) return;
         setPlaying(false);
         speakWithBrowser(text);
       };
-      setPlaying(true);
+
       await audio.play();
     } catch {
-      setPlaying(false);
-      speakWithBrowser(text);
+      if (audioPlayTokenRef.current === token) {
+        setPlaying(false);
+        speakWithBrowser(text);
+      }
     }
-  }, []);
+  }, [fetchAudioUrl]);
 
   const goNext = useCallback(() => {
     setCurrentIndex((index) => index + 1);
@@ -208,22 +312,27 @@ export default function VerbDropsGame() {
 
   if (!topic) {
     return (
-      <div className="min-h-screen bg-background pb-24 px-4 pt-8">
+      <div className="min-h-screen overflow-hidden bg-[radial-gradient(circle_at_top,_hsl(var(--primary)/0.18),_transparent_34%),linear-gradient(180deg,_hsl(var(--background)),_hsl(var(--muted)/0.45))] pb-24 px-4 pt-8">
         <div className="flex items-center gap-3 mb-6">
           <button onClick={() => navigate("/games")} className="text-muted-foreground"><ArrowLeft className="w-6 h-6" /></button>
           <div>
             <h1 className="text-2xl font-black text-foreground">Капли глаголов</h1>
-            <p className="text-xs text-muted-foreground font-semibold">5 минут • картинки • аудио • буквы</p>
+            <p className="text-xs text-muted-foreground font-semibold">5 минут • глаголы • картинки • аудио</p>
           </div>
         </div>
-        <div className="rounded-[2rem] bg-gradient-to-br from-primary/15 via-accent/20 to-success/15 p-5 mb-5 border border-border">
-          <VerbIllustration type="walk" className="h-44 mb-4" />
-          <h2 className="text-xl font-black text-foreground">Учим глаголы как действия</h2>
-          <p className="text-sm text-muted-foreground mt-2">Смотри картинку, слушай иврит, выбирай инфинитив и собирай слово по буквам.</p>
-        </div>
+        <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} className="relative overflow-hidden rounded-[2.25rem] border border-white/70 bg-white/80 p-5 shadow-2xl shadow-primary/10 backdrop-blur-md mb-5">
+          <div className="absolute -top-10 -right-8 h-32 w-32 rounded-full bg-primary/15" />
+          <div className="absolute -bottom-16 -left-10 h-40 w-40 rounded-full bg-success/15" />
+          <VerbDropArtwork verb={HERO_WALK_VERB} className="h-44 mb-4 relative z-10" />
+          <div className="relative z-10">
+            <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-black text-primary"><Timer className="h-3.5 w-3.5" /> 5‑минутная сессия</div>
+            <h2 className="text-2xl font-black text-foreground">Запоминай глаголы действием</h2>
+            <p className="text-sm text-muted-foreground mt-2">Большая картинка, звук, быстрый выбор и сборка инфинитива по буквам.</p>
+          </div>
+        </motion.div>
         <div className="grid grid-cols-2 gap-3">
           {VERB_DROP_CATEGORIES.map((category, index) => (
-            <motion.button key={category.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.04 }} whileTap={{ scale: 0.96 }} onClick={() => startSession(category.id)} className="rounded-2xl border border-border bg-card p-4 text-left shadow-sm">
+            <motion.button key={category.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.04 }} whileTap={{ scale: 0.96 }} onClick={() => startSession(category.id)} className="rounded-[1.75rem] border border-white/80 bg-white/85 p-4 text-left shadow-xl shadow-black/5 backdrop-blur-sm">
               <div className="text-3xl mb-2">{category.emoji}</div>
               <p className="font-black text-sm text-foreground">{category.title}</p>
               <p className="text-xs text-muted-foreground mt-1">{category.desc}</p>
@@ -239,11 +348,12 @@ export default function VerbDropsGame() {
       <div className="min-h-screen bg-background pb-24 px-6 pt-10 flex flex-col justify-center">
         <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="text-center">
           <div className="mx-auto mb-5 h-20 w-20 rounded-[2rem] bg-success/10 flex items-center justify-center"><Trophy className="h-10 w-10 text-success" /></div>
-          <h1 className="text-3xl font-black text-foreground">Сессия завершена</h1>
-          <p className="text-muted-foreground mt-2">Ты потренировал глаголы в инфинитиве.</p>
-          <div className="grid grid-cols-2 gap-3 my-7">
+          <h1 className="text-3xl font-black text-foreground">5 минут завершены</h1>
+          <p className="text-muted-foreground mt-2">Количество заданий зависело от скорости прохождения.</p>
+          <div className="grid grid-cols-3 gap-3 my-7">
             <div className="rounded-2xl border border-border bg-card p-4"><p className="text-3xl font-black text-success">{score.correct}</p><p className="text-xs text-muted-foreground font-semibold">правильно</p></div>
             <div className="rounded-2xl border border-border bg-card p-4"><p className="text-3xl font-black text-destructive">{score.wrong}</p><p className="text-xs text-muted-foreground font-semibold">ошибок</p></div>
+            <div className="rounded-2xl border border-border bg-card p-4"><p className="text-3xl font-black text-primary">{currentIndex}</p><p className="text-xs text-muted-foreground font-semibold">карточек</p></div>
           </div>
           {weakWords.length > 0 && (
             <div className="rounded-2xl bg-muted p-4 text-left mb-5">
@@ -263,25 +373,25 @@ export default function VerbDropsGame() {
   const selectedWord = selectedLetters.map((letter) => letter.value).join("");
 
   return (
-    <div className="min-h-screen bg-background pb-24 px-4 pt-8">
+    <div className="relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_20%_0%,_hsl(var(--primary)/0.20),_transparent_34%),radial-gradient(circle_at_90%_22%,_hsl(var(--success)/0.18),_transparent_28%),linear-gradient(180deg,_hsl(var(--background)),_hsl(var(--muted)/0.55))] pb-24 px-4 pt-8">
       <div className="flex items-center gap-3 mb-4">
         <button onClick={() => setTopic(null)} className="text-muted-foreground"><ArrowLeft className="w-6 h-6" /></button>
-        <div className="flex-1"><div className="flex items-center justify-between mb-1"><p className="text-xs font-bold text-muted-foreground">{currentIndex + 1}/{steps.length}</p><p className="text-xs font-bold text-primary">{progressPercent}%</p></div><div className="h-2 rounded-full bg-muted overflow-hidden"><motion.div className="h-full rounded-full bg-primary" animate={{ width: `${progressPercent}%` }} /></div></div>
+        <div className="flex-1"><div className="flex items-center justify-between mb-1"><p className="text-xs font-bold text-muted-foreground">{currentIndex + 1} карточек</p><p className="flex items-center gap-1 text-xs font-black text-primary"><Timer className="h-3.5 w-3.5" />{formatTime(timeLeft)}</p></div><div className="h-2.5 rounded-full bg-white/70 overflow-hidden"><motion.div className="h-full rounded-full bg-primary" animate={{ width: `${progressPercent}%` }} /></div></div>
         <button onClick={restart} className="text-muted-foreground"><RotateCcw className="w-5 h-5" /></button>
       </div>
 
       <AnimatePresence mode="wait">
         <motion.div key={currentStep.id} initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -18 }}>
-          <VerbIllustration type={currentStep.verb.visualType} className="h-56 mb-5" />
+          <motion.div animate={{ y: [0, -6, 0] }} transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }} className="rounded-[2.5rem] border border-white/70 bg-white/80 p-4 shadow-2xl shadow-primary/10 backdrop-blur-md mb-5"><VerbDropArtwork verb={currentStep.verb} className="h-60" /></motion.div>
 
           {currentStep.mode === "intro" && (
-            <div className="text-center">
-              <p className="text-xs font-black uppercase tracking-wide text-primary mb-2">Новый глагол</p>
+            <div className="rounded-[2rem] border border-white/70 bg-white/85 p-5 text-center shadow-xl shadow-black/5 backdrop-blur-md">
+              <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-black text-primary"><Sparkles className="h-3.5 w-3.5" /> новая капля</div>
               <h2 dir="rtl" className="font-hebrew text-5xl font-black text-foreground mb-2">{currentStep.verb.infinitive_hebrew}</h2>
               <p className="text-sm text-muted-foreground font-semibold">{currentStep.verb.transcription_ru}</p>
               <p className="text-2xl font-black text-foreground mt-2">{currentStep.verb.translation_ru}</p>
               <div className="mt-3 flex items-center justify-center gap-2"><span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary font-hebrew">{currentStep.verb.binyan}</span><span className="rounded-full bg-muted px-3 py-1 text-xs font-bold text-muted-foreground">корень: {currentStep.verb.root}</span></div>
-              <div className="mt-6 flex gap-3"><button onClick={() => playAudio(currentStep.verb)} className="flex-1 rounded-xl border border-border bg-card py-3 font-bold text-foreground flex items-center justify-center gap-2">{playing ? <Loader2 className="w-5 h-5 animate-spin" /> : <Volume2 className="w-5 h-5" />}Слушать</button><button onClick={goNext} className="flex-1 rounded-xl bg-primary py-3 font-bold text-primary-foreground">Понятно</button></div>
+              <div className="mt-6 flex gap-3"><button onClick={() => playAudio(currentStep.verb)} className="flex-1 rounded-xl border border-border bg-card py-3 font-bold text-foreground flex items-center justify-center gap-2">{playing ? <Loader2 className="w-5 h-5 animate-spin" /> : <Volume2 className="w-5 h-5" />}Слушать</button><button onClick={goNext} className="flex-1 rounded-xl bg-primary py-3 font-bold text-primary-foreground">Ловлю</button></div>
             </div>
           )}
 
@@ -292,8 +402,8 @@ export default function VerbDropsGame() {
               <div className="grid grid-cols-2 gap-3">{currentStep.options.map((option) => {
                 const isSelected = selectedAnswer === option.infinitive_hebrew;
                 const isCorrect = option.infinitive_hebrew === correctText;
-                const state = result && isCorrect ? "border-success bg-success/10" : result && isSelected ? "border-destructive bg-destructive/10" : "border-border bg-card";
-                return <button key={option.id} dir="rtl" onClick={() => submitAnswer(option.infinitive_hebrew)} disabled={!!result} className={`rounded-2xl border-2 p-4 font-hebrew text-2xl font-black text-foreground ${state}`}>{option.infinitive_hebrew}</button>;
+                const state = result && isCorrect ? "border-success bg-success/15 text-success shadow-success/10" : result && isSelected ? "border-destructive bg-destructive/15 text-destructive shadow-destructive/10" : "border-white/80 bg-white/90 shadow-black/5";
+                return <button key={option.id} dir="rtl" onClick={() => submitAnswer(option.infinitive_hebrew)} disabled={!!result} className={`min-h-[72px] rounded-[2rem] border-2 px-4 py-3 font-hebrew text-2xl font-black shadow-xl backdrop-blur-md transition-colors ${state}`}>{option.infinitive_hebrew}</button>;
               })}</div>
             </div>
           )}
@@ -302,10 +412,10 @@ export default function VerbDropsGame() {
             <div>
               <p className="text-center text-sm font-bold text-muted-foreground mb-1">Собери глагол по буквам</p>
               <h2 className="text-center text-2xl font-black text-foreground mb-4">{currentStep.verb.translation_ru}</h2>
-              <div dir="rtl" className="min-h-[4rem] rounded-2xl border-2 border-dashed border-primary/30 bg-primary/5 p-3 flex items-center justify-center gap-2 mb-4">
-                {selectedLetters.length === 0 ? <span className="text-sm text-muted-foreground">нажми буквы снизу</span> : selectedLetters.map((letter) => <button key={letter.id} onClick={() => undoLetter(letter)} className="h-11 w-11 rounded-xl bg-background font-hebrew text-2xl font-black text-foreground shadow-sm">{letter.value}</button>)}
+              <div dir="rtl" className="min-h-[76px] rounded-[2rem] border-2 border-dashed border-primary/30 bg-white/70 p-3 flex items-center justify-center gap-2 mb-4 shadow-inner">
+                {selectedLetters.length === 0 ? <span className="text-sm text-muted-foreground">нажми буквы снизу</span> : selectedLetters.map((letter) => <button key={letter.id} onClick={() => undoLetter(letter)} className="h-12 min-w-12 rounded-2xl bg-primary font-hebrew text-2xl font-black text-primary-foreground shadow-lg">{letter.value}</button>)}
               </div>
-              <div dir="rtl" className="grid grid-cols-5 gap-2 mb-4">{letterBank.map((letter) => <button key={letter.id} onClick={() => chooseLetter(letter)} disabled={!!result} className="h-12 rounded-xl bg-card border border-border font-hebrew text-2xl font-black text-foreground shadow-sm">{letter.value}</button>)}</div>
+              <div dir="rtl" className="grid grid-cols-5 gap-2 mb-4">{letterBank.map((letter) => <button key={letter.id} onClick={() => chooseLetter(letter)} disabled={!!result} className="h-14 rounded-2xl border border-white/80 bg-white/90 font-hebrew text-2xl font-black text-foreground shadow-xl shadow-black/5">{letter.value}</button>)}</div>
               <p dir="rtl" className="text-center font-hebrew text-lg text-muted-foreground min-h-7">{selectedWord}</p>
             </div>
           )}
@@ -315,7 +425,7 @@ export default function VerbDropsGame() {
               <div className="flex items-center justify-center gap-2 mb-1">{result === "correct" ? <CheckCircle2 className="w-6 h-6 text-success" /> : <XCircle className="w-6 h-6 text-destructive" />}<p className="font-black text-foreground">{result === "correct" ? "נכון!" : "Почти"}</p></div>
               <p dir="rtl" className="font-hebrew text-3xl font-black text-foreground">{correctText}</p>
               <p className="text-sm text-muted-foreground font-semibold">{currentStep.verb.translation_ru}</p>
-              <button onClick={goNext} className="mt-4 w-full rounded-xl bg-primary py-3 font-bold text-primary-foreground">Дальше</button>
+              <button onClick={goNext} className="mt-4 w-full rounded-xl bg-primary py-3 font-bold text-primary-foreground">Следующая капля</button>
             </motion.div>
           )}
         </motion.div>

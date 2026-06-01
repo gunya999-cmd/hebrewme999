@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { SEED_VERBS } from "@/data/verbs";
+import { UNIQUE_SEED_VERBS } from "@/data/verbs-unique";
 import { BINYAN_NAMES, Binyan } from "@/types/verb";
 import { useLearning } from "@/hooks/useLearning";
 
@@ -15,7 +15,7 @@ export default function Dictionary() {
   const { progress } = useLearning();
 
   const filtered = useMemo(() => {
-    return SEED_VERBS.filter((v) => {
+    return UNIQUE_SEED_VERBS.filter((v) => {
       const q = search.toLowerCase();
       const matchesSearch = !q || v.translation_ru.toLowerCase().includes(q) || v.transcription_ru.toLowerCase().includes(q) || v.infinitive_hebrew.includes(q) || v.root.includes(q);
       const matchesBinyan = !selectedBinyan || v.binyan === selectedBinyan;

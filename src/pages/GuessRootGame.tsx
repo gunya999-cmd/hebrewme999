@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, CheckCircle2, XCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { SEED_VERBS } from "@/data/verbs";
+import { UNIQUE_SEED_VERBS } from "@/data/verbs-unique";
 import { useLearning } from "@/hooks/useLearning";
 
 interface Question {
@@ -25,27 +25,17 @@ function shuffle<T>(arr: T[]): T[] {
 }
 
 function generateQuestions(count: number): Question[] {
-  const verbs = SEED_VERBS.filter((v) => v.root);
+  const verbs = shuffle(UNIQUE_SEED_VERBS.filter((v) => v.root));
   const questions: Question[] = [];
-  const usedIds = new Set<string>();
 
-  let attempts = 0;
-  while (questions.length < count && attempts < count * 3) {
-    attempts++;
-    const verb = verbs[Math.floor(Math.random() * verbs.length)];
-    if (usedIds.has(verb.id)) continue;
-    usedIds.add(verb.id);
+  for (const verb of verbs) {
+    if (questions.length >= count) break;
 
-    const otherRoots = verbs
-      .filter((v) => v.root !== verb.root)
-      .map((v) => v.root);
-    const uniqueOtherRoots = [...new Set(otherRoots)];
-    const wrong = shuffle(uniqueOtherRoots).slice(0, 3);
+    const wrong = shuffle(
+      Array.from(new Set(verbs.filter((v) => v.root !== verb.root).map((v) => v.root)))
+    ).slice(0, 3);
 
-    // Если не хватает уникальных корней — пропускаем
     if (wrong.length < 3) continue;
-
-    const options = shuffle([...wrong, verb.root]);
 
     questions.push({
       verbId: verb.id,
@@ -53,9 +43,10 @@ function generateQuestions(count: number): Question[] {
       verbTranscription: verb.transcription_ru,
       verbTranslation: verb.translation_ru,
       correctRoot: verb.root,
-      options,
+      options: shuffle([...wrong, verb.root]),
     });
   }
+
   return questions;
 }
 

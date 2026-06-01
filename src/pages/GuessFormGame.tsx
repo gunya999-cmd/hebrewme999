@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, CheckCircle2, XCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { SEED_VERBS } from "@/data/verbs";
+import { UNIQUE_SEED_VERBS } from "@/data/verbs-unique";
 import { PERSON_LABELS, ConjugationForm, VerbConjugations } from "@/types/verb";
 import { useLearning } from "@/hooks/useLearning";
 
@@ -25,6 +25,8 @@ interface Question {
   options: ConjugationForm[];
 }
 
+const TENSES = ["present", "past", "future"] as const;
+
 // Fisher-Yates shuffle — честная случайность
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
@@ -35,48 +37,52 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
+function uniqueFormsByHebrew(forms: ConjugationForm[]): ConjugationForm[] {
+  return Array.from(new Map(forms.map((form) => [form.hebrew, form])).values());
+}
+
+function getAllUniqueForms(conjugations: VerbConjugations): ConjugationForm[] {
+  return uniqueFormsByHebrew(
+    TENSES.flatMap((tense) => Object.values(getTenseForms(conjugations, tense)))
+  );
+}
+
 function generateQuestions(count: number): Question[] {
-  const verbsWithConj = SEED_VERBS.filter((v) => v.conjugations);
+  const verbsWithConj = shuffle(UNIQUE_SEED_VERBS.filter((v) => v.conjugations));
   const questions: Question[] = [];
-  const tenses = ["present", "past", "future"] as const;
-  const usedIds = new Set<string>();
 
-  let attempts = 0;
-  while (questions.length < count && attempts < count * 3) {
-    attempts++;
-    const verb = verbsWithConj[Math.floor(Math.random() * verbsWithConj.length)];
-    if (usedIds.has(verb.id)) continue;
-    usedIds.add(verb.id);
+  for (const verb of verbsWithConj) {
+    if (questions.length >= count) break;
 
-    const tense = tenses[Math.floor(Math.random() * tenses.length)];
-    const forms = getTenseForms(verb.conjugations!, tense);
-    const persons = Object.keys(forms);
-    const person = persons[Math.floor(Math.random() * persons.length)];
-    const correct = forms[person];
+    const conjugations = verb.conjugations!;
+    const candidateForms = shuffle(
+      TENSES.flatMap((tense) => {
+        const forms = getTenseForms(conjugations, tense);
+        return Object.entries(forms).map(([person, form]) => ({ tense, person, form }));
+      })
+    );
+    const allForms = getAllUniqueForms(conjugations);
 
-    const allForms: ConjugationForm[] = [];
-    tenses.forEach((t) => {
-      const tf = getTenseForms(verb.conjugations!, t);
-      Object.values(tf).forEach((f) => {
-        if (f.hebrew !== correct.hebrew) allForms.push(f);
+    for (const candidate of candidateForms) {
+      const correct = candidate.form;
+      const wrong = shuffle(allForms.filter((form) => form.hebrew !== correct.hebrew)).slice(0, 3);
+      if (wrong.length < 3) continue;
+
+      questions.push({
+        verbId: verb.id,
+        verbHebrewInf: verb.infinitive_hebrew,
+        verbTranscription: verb.transcription_ru,
+        verbTranslation: verb.translation_ru,
+        person: candidate.person,
+        personLabel: PERSON_LABELS[candidate.person] || candidate.person,
+        tense: candidate.tense,
+        correctAnswer: correct,
+        options: shuffle([...wrong, correct]),
       });
-    });
-
-    const wrong = shuffle(allForms).slice(0, 3);
-    const options = shuffle([...wrong, correct]);
-
-    questions.push({
-      verbId: verb.id,
-      verbHebrewInf: verb.infinitive_hebrew,
-      verbTranscription: verb.transcription_ru,
-      verbTranslation: verb.translation_ru,
-      person,
-      personLabel: PERSON_LABELS[person] || person,
-      tense,
-      correctAnswer: correct,
-      options,
-    });
+      break;
+    }
   }
+
   return questions;
 }
 

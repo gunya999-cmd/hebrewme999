@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, CheckCircle2, XCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { SEED_VERBS } from "@/data/verbs";
+import { UNIQUE_SEED_VERBS } from "@/data/verbs-unique";
 import { Binyan, BINYAN_NAMES } from "@/types/verb";
 import { useLearning } from "@/hooks/useLearning";
 
@@ -28,13 +28,15 @@ function shuffle<T>(arr: T[]): T[] {
 }
 
 function generateQuestions(count: number): Question[] {
-  const verbs = shuffle([...SEED_VERBS]);
+  const supportedBinyans = new Set<Binyan>(ALL_BINYANS);
+  const verbs = shuffle(UNIQUE_SEED_VERBS.filter((verb) => supportedBinyans.has(verb.binyan)));
   const questions: Question[] = [];
 
-  for (let i = 0; i < Math.min(count, verbs.length); i++) {
-    const verb = verbs[i];
-    const wrongBinyans = shuffle(ALL_BINYANS.filter((b) => b !== verb.binyan)).slice(0, 3);
-    const options = shuffle([...wrongBinyans, verb.binyan]);
+  for (const verb of verbs) {
+    if (questions.length >= count) break;
+
+    const wrongBinyans = shuffle(ALL_BINYANS.filter((binyan) => binyan !== verb.binyan)).slice(0, 3);
+    if (wrongBinyans.length < 3) continue;
 
     questions.push({
       verbId: verb.id,
@@ -42,9 +44,10 @@ function generateQuestions(count: number): Question[] {
       verbTranscription: verb.transcription_ru,
       verbTranslation: verb.translation_ru,
       correctBinyan: verb.binyan,
-      options,
+      options: shuffle([...wrongBinyans, verb.binyan]),
     });
   }
+
   return questions;
 }
 
