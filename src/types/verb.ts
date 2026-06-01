@@ -19,7 +19,9 @@ export interface PastFutureTense {
   hi: ConjugationForm;
   anachnu: ConjugationForm;
   atem: ConjugationForm;
+  aten: ConjugationForm;
   hem: ConjugationForm;
+  hen: ConjugationForm;
 }
 
 export interface ImperativeTense {
@@ -69,8 +71,10 @@ export const PERSON_LABELS: Record<string, string> = {
   hu: "он",
   hi: "она",
   anachnu: "мы",
-  atem: "вы",
-  hem: "они",
+  atem: "вы (м)",
+  aten: "вы (ж)",
+  hem: "они (м)",
+  hen: "они (ж)",
 };
 
 export const TENSE_LABELS: Record<string, string> = {
