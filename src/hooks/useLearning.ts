@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { LearningProgress, DailyStats } from "@/types/verb";
 
 const STORAGE_KEY = "hebrew_learning_progress";
@@ -76,22 +76,22 @@ function saveStats(stats: DailyStats) {
   safeSetItem(STATS_KEY, JSON.stringify(stats));
 }
 
-function incrementNewLearnedStat() {
-  setTimeout(() => {
-    const current = loadStats();
-    const updated = { ...current, newLearned: current.newLearned + 1 };
-    saveStats(updated);
-    window.dispatchEvent(new StorageEvent("storage", { key: STATS_KEY }));
-  }, 0);
-}
-
 export function useLearning() {
   const [progress, setProgress] = useState<Record<string, LearningProgress>>(loadProgress);
   const [stats, setStats] = useState<DailyStats>(loadStats);
+  const progressRef = useRef(progress);
+
+  useEffect(() => {
+    progressRef.current = progress;
+  }, [progress]);
 
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === STORAGE_KEY) setProgress(loadProgress());
+      if (e.key === STORAGE_KEY) {
+        const nextProgress = loadProgress();
+        progressRef.current = nextProgress;
+        setProgress(nextProgress);
+      }
       if (e.key === STATS_KEY) setStats(loadStats());
     };
     window.addEventListener("storage", handleStorageChange);
@@ -114,6 +114,7 @@ export function useLearning() {
           correctCount: existing.correctCount + 1,
         },
       };
+      progressRef.current = updated;
       saveProgress(updated);
       return updated;
     });
@@ -137,28 +138,37 @@ export function useLearning() {
           wrongCount: existing.wrongCount + 1,
         },
       };
+      progressRef.current = updated;
       saveProgress(updated);
       return updated;
     });
   }, []);
 
   const markLearned = useCallback((verbId: string) => {
-    setProgress((prev) => {
-      const existing = prev[verbId] || { verbId, level: 0, nextReview: "", correctCount: 0, wrongCount: 0 };
-      const wasAlreadyLearned = (existing.level || 0) >= 1;
-      const updated = {
-        ...prev,
-        [verbId]: {
-          ...existing,
-          level: Math.max(existing.level, 1),
-          nextReview: new Date(Date.now() + DAY_MS).toISOString(),
-          lastReview: new Date().toISOString(),
-        },
-      };
-      saveProgress(updated);
-      if (!wasAlreadyLearned) incrementNewLearnedStat();
-      return updated;
-    });
+    const currentProgress = progressRef.current;
+    const existing = currentProgress[verbId] || { verbId, level: 0, nextReview: "", correctCount: 0, wrongCount: 0 };
+    const wasAlreadyLearned = (existing.level || 0) >= 1;
+    const updated = {
+      ...currentProgress,
+      [verbId]: {
+        ...existing,
+        level: Math.max(existing.level, 1),
+        nextReview: new Date(Date.now() + DAY_MS).toISOString(),
+        lastReview: new Date().toISOString(),
+      },
+    };
+
+    progressRef.current = updated;
+    saveProgress(updated);
+    setProgress(updated);
+
+    if (!wasAlreadyLearned) {
+      setStats((prev) => {
+        const updatedStats = { ...prev, newLearned: prev.newLearned + 1 };
+        saveStats(updatedStats);
+        return updatedStats;
+      });
+    }
   }, []);
 
   const learnedCount = Object.values(progress).filter((p) => p.level >= 1).length;
