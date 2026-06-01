@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, CheckCircle2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { SEED_VERBS } from "@/data/verbs";
+import { UNIQUE_SEED_VERBS } from "@/data/verbs-unique";
 import { PERSON_LABELS, ConjugationForm, VerbConjugations } from "@/types/verb";
 import { useLearning } from "@/hooks/useLearning";
 
@@ -30,7 +30,7 @@ const TENSE_RU: Record<string, string> = {
 };
 
 function generateQuestions(count: number): Question[] {
-  const verbsWithConj = SEED_VERBS.filter((v) => v.conjugations);
+  const verbsWithConj = UNIQUE_SEED_VERBS.filter((v) => v.conjugations);
   const questions: Question[] = [];
   const tenses = ["present", "past", "future"] as const;
   const usedIds = new Set<string>();
