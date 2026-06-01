@@ -3,9 +3,21 @@ import { LearningProgress, DailyStats } from "@/types/verb";
 
 const STORAGE_KEY = "hebrew_learning_progress";
 const STATS_KEY = "hebrew_daily_stats";
+const DAY_MS = 86400000;
+
+function dateIsoLocal(date = new Date()): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
 
 function todayIso(): string {
-  return new Date().toISOString().split("T")[0];
+  return dateIsoLocal();
+}
+
+function yesterdayIso(): string {
+  return dateIsoLocal(new Date(Date.now() - DAY_MS));
 }
 
 function safeGetItem(key: string): string | null {
@@ -46,7 +58,7 @@ function loadStats(): DailyStats {
     if (data) {
       const stats = JSON.parse(data) as DailyStats;
       if (stats.date === today) return stats;
-      const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
+      const yesterday = yesterdayIso();
       return {
         date: today,
         newLearned: 0,
@@ -82,7 +94,7 @@ export function useLearning() {
       const existing = prev[verbId] || { verbId, level: 0, nextReview: "", correctCount: 0, wrongCount: 0 };
       const newLevel = Math.min(existing.level + 1, 5);
       const days = [1, 3, 7, 14, 30][newLevel - 1] || 1;
-      const nextReview = new Date(Date.now() + days * 86400000).toISOString();
+      const nextReview = new Date(Date.now() + days * DAY_MS).toISOString();
       const updated = {
         ...prev,
         [verbId]: {
@@ -111,7 +123,7 @@ export function useLearning() {
         [verbId]: {
           ...existing,
           level: Math.max(0, existing.level - 1),
-          nextReview: new Date(Date.now() + 86400000).toISOString(),
+          nextReview: new Date(Date.now() + DAY_MS).toISOString(),
           lastReview: new Date().toISOString(),
           wrongCount: existing.wrongCount + 1,
         },
@@ -130,7 +142,7 @@ export function useLearning() {
         [verbId]: {
           ...existing,
           level: Math.max(existing.level, 1),
-          nextReview: new Date(Date.now() + 86400000).toISOString(),
+          nextReview: new Date(Date.now() + DAY_MS).toISOString(),
           lastReview: new Date().toISOString(),
         },
       };
