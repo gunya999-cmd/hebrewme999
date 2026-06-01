@@ -76,6 +76,15 @@ function saveStats(stats: DailyStats) {
   safeSetItem(STATS_KEY, JSON.stringify(stats));
 }
 
+function incrementNewLearnedStat() {
+  setTimeout(() => {
+    const current = loadStats();
+    const updated = { ...current, newLearned: current.newLearned + 1 };
+    saveStats(updated);
+    window.dispatchEvent(new StorageEvent("storage", { key: STATS_KEY }));
+  }, 0);
+}
+
 export function useLearning() {
   const [progress, setProgress] = useState<Record<string, LearningProgress>>(loadProgress);
   const [stats, setStats] = useState<DailyStats>(loadStats);
@@ -134,9 +143,9 @@ export function useLearning() {
   }, []);
 
   const markLearned = useCallback((verbId: string) => {
-    const wasAlreadyLearned = (progress[verbId]?.level || 0) >= 1;
     setProgress((prev) => {
       const existing = prev[verbId] || { verbId, level: 0, nextReview: "", correctCount: 0, wrongCount: 0 };
+      const wasAlreadyLearned = (existing.level || 0) >= 1;
       const updated = {
         ...prev,
         [verbId]: {
@@ -147,16 +156,10 @@ export function useLearning() {
         },
       };
       saveProgress(updated);
+      if (!wasAlreadyLearned) incrementNewLearnedStat();
       return updated;
     });
-    if (!wasAlreadyLearned) {
-      setStats((prev) => {
-        const updated = { ...prev, newLearned: prev.newLearned + 1 };
-        saveStats(updated);
-        return updated;
-      });
-    }
-  }, [progress]);
+  }, []);
 
   const learnedCount = Object.values(progress).filter((p) => p.level >= 1).length;
   const masteredCount = Object.values(progress).filter((p) => p.level >= 5).length;
