@@ -1,0 +1,6 @@
+name = "hebrewme-worker"
+main = "workers/health-check.ts"
+compatibility_date = "2026-05-28"
+
+[observability]
+enabled = true
