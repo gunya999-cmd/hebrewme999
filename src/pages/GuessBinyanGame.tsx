@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, CheckCircle2, XCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { SEED_VERBS } from "@/data/verbs";
+import { UNIQUE_SEED_VERBS } from "@/data/verbs-unique";
 import { Binyan, BINYAN_NAMES } from "@/types/verb";
 import { useLearning } from "@/hooks/useLearning";
 
@@ -28,7 +28,7 @@ function shuffle<T>(arr: T[]): T[] {
 }
 
 function generateQuestions(count: number): Question[] {
-  const verbs = shuffle([...SEED_VERBS]);
+  const verbs = shuffle([...UNIQUE_SEED_VERBS]);
   const questions: Question[] = [];
 
   for (let i = 0; i < Math.min(count, verbs.length); i++) {
