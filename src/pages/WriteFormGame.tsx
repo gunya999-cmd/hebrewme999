@@ -23,41 +23,52 @@ interface Question {
   correctAnswer: ConjugationForm;
 }
 
+const TENSES = ["present", "past", "future"] as const;
+
 const TENSE_RU: Record<string, string> = {
   present: "настоящее",
   past: "прошедшее",
   future: "будущее",
 };
 
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 function generateQuestions(count: number): Question[] {
-  const verbsWithConj = UNIQUE_SEED_VERBS.filter((v) => v.conjugations);
+  const verbsWithConj = shuffle(UNIQUE_SEED_VERBS.filter((v) => v.conjugations));
   const questions: Question[] = [];
-  const tenses = ["present", "past", "future"] as const;
-  const usedIds = new Set<string>();
 
-  let attempts = 0;
-  while (questions.length < count && attempts < count * 3) {
-    attempts++;
-    const verb = verbsWithConj[Math.floor(Math.random() * verbsWithConj.length)];
-    if (usedIds.has(verb.id)) continue;
-    usedIds.add(verb.id);
+  for (const verb of verbsWithConj) {
+    if (questions.length >= count) break;
 
-    const tense = tenses[Math.floor(Math.random() * tenses.length)];
-    const forms = getTenseForms(verb.conjugations!, tense);
-    const persons = Object.keys(forms);
-    const person = persons[Math.floor(Math.random() * persons.length)];
-    const correct = forms[person];
+    const conjugations = verb.conjugations!;
+    const candidates = shuffle(
+      TENSES.flatMap((tense) => {
+        const forms = getTenseForms(conjugations, tense);
+        return Object.entries(forms).map(([person, form]) => ({ tense, person, form }));
+      })
+    );
+
+    const candidate = candidates[0];
+    if (!candidate) continue;
 
     questions.push({
       verbId: verb.id,
       verbTranslation: verb.translation_ru,
       verbTranscription: verb.transcription_ru,
-      person,
-      personLabel: PERSON_LABELS[person] || person,
-      tense,
-      correctAnswer: correct,
+      person: candidate.person,
+      personLabel: PERSON_LABELS[candidate.person] || candidate.person,
+      tense: candidate.tense,
+      correctAnswer: candidate.form,
     });
   }
+
   return questions;
 }
 
