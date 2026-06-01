@@ -3,12 +3,12 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import ProgressCircle from "@/components/ProgressCircle";
 import { useLearning } from "@/hooks/useLearning";
-import { SEED_VERBS } from "@/data/verbs";
+import { UNIQUE_SEED_VERBS } from "@/data/verbs-unique";
 
 export default function Home() {
   const navigate = useNavigate();
   const { stats, learnedCount } = useLearning();
-  const totalVerbs = SEED_VERBS.length;
+  const totalVerbs = UNIQUE_SEED_VERBS.length;
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -17,7 +17,7 @@ export default function Home() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl font-black text-primary-foreground">Иврит Глаголы</h1>
-            <p className="text-primary-foreground/70 text-sm font-medium">300 глаголов за 30 дней</p>
+            <p className="text-primary-foreground/70 text-sm font-medium">{totalVerbs} глаголов за 30 дней</p>
           </div>
           <div className="flex items-center gap-1 bg-primary-foreground/20 rounded-full px-3 py-1.5">
             <Flame className="w-5 h-5 text-streak" />
