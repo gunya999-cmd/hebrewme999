@@ -25,48 +25,30 @@ export const VERB_DROP_CATEGORIES: Array<{ id: VerbDropCategory | "all"; title: 
   { id: "all", title: "Все глаголы", desc: "смешанная тренировка", emoji: "🎮" },
 ];
 
-function textIncludesAny(text: string, items: string[]): boolean {
-  return items.some((item) => text.includes(item));
+function hasAny(text: string, words: string[]): boolean {
+  return words.some((word) => text.includes(word));
 }
 
 function getVerbDropCategory(translation: string): VerbDropCategory {
   const text = translation.toLowerCase();
 
-  if (textIncludesAny(text, [
-    "идти", "ходить", "приход", "выход", "вход", "возвращ", "проход", "переезж", "двиг",
-    "ехать", "ездить", "лететь", "летать", "бежать", "бегать", "подним", "спуск", "плыть",
-    "плавать", "стоять", "сидеть", "лежать", "падать", "прыгать", "гулять", "приезж", "уезж",
-  ])) {
+  if (hasAny(text, ["идти", "ходить", "приход", "выход", "вход", "возвращ", "проход", "переезж", "ехать", "ездить", "бежать", "бегать", "подним", "спуск", "двиг", "стоять", "сидеть", "лежать", "падать", "прыгать", "плавать", "плыть", "взлет", "приземл", "садиться"])) {
     return "movement";
   }
 
-  if (textIncludesAny(text, [
-    "есть", "кушать", "пить", "готовить", "варить", "печь", "жарить", "резать", "покупать",
-    "заказывать", "платить", "продавать", "еда", "кормить", "пробовать", "наливать",
-  ])) {
+  if (hasAny(text, ["есть", "пить", "готовить", "варить", "печь", "жарить", "покупать", "заказывать", "продавать", "платить", "еда", "кормить", "пробовать"])) {
     return "food";
   }
 
-  if (textIncludesAny(text, [
-    "говор", "сказать", "слуш", "слыш", "спраш", "отвеч", "звон", "рассказ", "объяс",
-    "просить", "поздрав", "обещ", "крич", "молч", "сообщ",
-  ])) {
+  if (hasAny(text, ["говор", "сказать", "слуш", "слыш", "спраш", "отвеч", "звон", "рассказ", "объяс", "просить", "сообщ", "молиться", "смешить", "смеяться"])) {
     return "communication";
   }
 
-  if (textIncludesAny(text, [
-    "откры", "закры", "убир", "мыть", "стирать", "чинить", "строить", "класть", "полож",
-    "надев", "снимать", "одев", "жить", "спать", "просып", "вставать", "искать", "находить",
-    "выбрасывать", "держать", "нести", "ставить", "включ", "выключ",
-  ])) {
+  if (hasAny(text, ["откры", "закры", "убир", "мыть", "стирать", "чинить", "класть", "полож", "жить", "спать", "искать", "находить", "включ", "выключ", "разрушать", "портить", "касаться", "кашлять", "чихать"])) {
     return "home";
   }
 
-  if (textIncludesAny(text, [
-    "читать", "писать", "учиться", "учить", "поним", "знать", "помнить", "забывать",
-    "думать", "решать", "провер", "считать", "изуч", "перевод", "рисовать",
-    "печатать", "планировать", "выбирать",
-  ])) {
+  if (hasAny(text, ["читать", "писать", "учиться", "учить", "поним", "знать", "помнить", "думать", "решать", "провер", "считать", "изуч", "обязываться", "обязательство"])) {
     return "study";
   }
 
@@ -74,20 +56,21 @@ function getVerbDropCategory(translation: string): VerbDropCategory {
 }
 
 // Uses the same authoritative order as the main dictionary.
-// Card images are expected at /verb-cards/001.webp ... /verb-cards/350.webp.
+// Card images are stored at /verb-cards/001.webp ... /verb-cards/350.webp.
 export const VERB_DROPS_SEED: VerbDropCard[] = TABLE_TOP_350_VERBS.map((verb, index) => {
   const frequencyRank = index + 1;
+  const number = String(frequencyRank).padStart(3, "0");
 
   return {
-    id: verb.id || `top350-${String(frequencyRank).padStart(3, "0")}`,
+    id: verb.id || `top350-${number}`,
     infinitive_hebrew: verb.infinitive_hebrew,
     transcription_ru: verb.transcription_ru,
     translation_ru: verb.translation_ru,
     binyan: verb.binyan,
     root: verb.root || "",
     category: getVerbDropCategory(verb.translation_ru),
-    visualType: `card-${String(frequencyRank).padStart(3, "0")}`,
+    visualType: `card-${number}`,
     frequencyRank,
-    imageSrc: `/verb-cards/${String(frequencyRank).padStart(3, "0")}.webp`,
+    imageSrc: `/verb-cards/${number}.webp`,
   };
 });
