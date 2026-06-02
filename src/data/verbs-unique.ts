@@ -1,4 +1,4 @@
-﻿import { TABLE_TOP_350_VERBS } from "@/data/verbs-table-top350";
+import { TABLE_TOP_350_VERBS } from "@/data/verbs-table-top350";
 import { Verb } from "@/types/verb";
 
 export interface VerbDuplicateReportItem {

@@ -46,9 +46,12 @@ export interface Verb {
   infinitive_hebrew: string;
   transcription_ru: string;
   translation_ru: string;
+  translation_source?: string;
   root: string;
   binyan: Binyan;
   difficulty: Difficulty;
+  pealim_url?: string;
+  pealim_url_status?: string;
   conjugations?: VerbConjugations;
 }
 

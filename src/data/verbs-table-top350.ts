@@ -10,8 +10,12 @@ export type TableTop350PackedRow = [
   rank: number,
   infinitive_hebrew: string,
   transcription_ru: string,
+  translation_ru: string,
+  translation_source: string,
   binyan: Verb["binyan"],
   difficulty: Verb["difficulty"],
+  pealim_url: string,
+  pealim_url_status: string,
   packedForms: string
 ];
 
@@ -133,10 +137,11 @@ const existingByInfinitive = new Map(
   [...SEED_VERBS, ...COMMON_ADDED_VERBS].map((verb) => [normalizeHebrew(verb.infinitive_hebrew), verb])
 );
 
-// Authoritative dictionary list from hebrewme_top350_pealim_audit_top350_ru_transcriptions_filled.csv.
-// The CSV provides the 350 infinitives and 10,150 checked Pealim forms.
-// Existing app translations/roots are preserved when a matching infinitive already exists.
-export const TABLE_TOP_350_VERBS: Verb[] = TABLE_TOP_350_PACKED_ROWS.map(([rank, infinitive_hebrew, transcription_ru, binyan, difficulty, packedForms]) => {
+// Authoritative dictionary list from hebrewme_top350_replaced_16_for_app.csv.
+// The 16 formerly unresolved verbs were replaced with checked common verbs.
+// The CSV provides 350 infinitives, Russian translations and 10,150 checked Pealim rows.
+// app_hebrew_form is used as the source and stripped from niqqud for app input compatibility.
+export const TABLE_TOP_350_VERBS: Verb[] = TABLE_TOP_350_PACKED_ROWS.map(([rank, infinitive_hebrew, transcription_ru, translation_ru, translation_source, binyan, difficulty, pealim_url, pealim_url_status, packedForms]) => {
   const existing = existingByInfinitive.get(normalizeHebrew(infinitive_hebrew));
 
   return {
@@ -144,10 +149,13 @@ export const TABLE_TOP_350_VERBS: Verb[] = TABLE_TOP_350_PACKED_ROWS.map(([rank,
     id: `top350-${String(rank).padStart(3, "0")}`,
     infinitive_hebrew,
     transcription_ru,
-    translation_ru: existing?.translation_ru || "",
+    translation_ru,
+    translation_source,
     root: existing?.root || "",
     binyan,
     difficulty,
+    pealim_url,
+    pealim_url_status,
     conjugations: unpackConjugations(packedForms),
   };
 });
