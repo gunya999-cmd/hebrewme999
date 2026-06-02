@@ -20,7 +20,6 @@ import base64
 import csv
 import json
 import os
-import re
 import sys
 import time
 import urllib.error
@@ -30,14 +29,32 @@ from pathlib import Path
 from typing import Any
 
 API_URL_TEMPLATE = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
-ROW_RE = re.compile(
-    r'\[(\d+),"((?:\\.|[^"\\])*)","((?:\\.|[^"\\])*)","((?:\\.|[^"\\])*)","((?:\\.|[^"\\])*)","((?:\\.|[^"\\])*)"\]',
-    re.S,
-)
 
 
-def decode_ts_string(value: str) -> str:
-    return json.loads(f'"{value}"')
+def extract_json_array_from_ts(text: str, path: Path) -> list[Any]:
+    """Extract the exported packed-row array from a TypeScript data file.
+
+    The top-350 data files store rows as a compact TypeScript/JSON-compatible
+    array. A row-level regex is fragile because the packed conjugation field is
+    very long. Parsing the whole array as JSON is more reliable.
+    """
+    assignment_index = text.find("=")
+    if assignment_index < 0:
+        raise RuntimeError(f"Cannot find array assignment in {path}")
+
+    start = text.find("[", assignment_index)
+    end = text.rfind("];")
+    if start < 0 or end < 0 or end <= start:
+        raise RuntimeError(f"Cannot find exported array body in {path}")
+
+    array_text = text[start : end + 1]
+    try:
+        return json.loads(array_text)
+    except json.JSONDecodeError as exc:
+        snippet = array_text[max(0, exc.pos - 120) : exc.pos + 120]
+        raise RuntimeError(
+            f"Cannot parse packed row array as JSON in {path}: {exc}. Around error: {snippet!r}"
+        ) from exc
 
 
 def read_top350_rows(repo_root: Path) -> list[dict[str, Any]]:
@@ -53,15 +70,18 @@ def read_top350_rows(repo_root: Path) -> list[dict[str, Any]]:
         if not path.exists():
             raise FileNotFoundError(f"Missing source table: {path}")
         text = path.read_text(encoding="utf-8")
-        for match in ROW_RE.finditer(text):
-            rank = int(match.group(1))
+        packed_rows = extract_json_array_from_ts(text, path)
+        for packed in packed_rows:
+            if not isinstance(packed, list) or len(packed) < 6:
+                raise RuntimeError(f"Invalid packed row in {path}: {packed!r}")
+            rank, infinitive_hebrew, transcription_ru, binyan, difficulty, _packed_forms = packed[:6]
             rows.append(
                 {
-                    "rank": rank,
-                    "infinitive_hebrew": decode_ts_string(match.group(2)),
-                    "transcription_ru": decode_ts_string(match.group(3)),
-                    "binyan": decode_ts_string(match.group(4)),
-                    "difficulty": decode_ts_string(match.group(5)),
+                    "rank": int(rank),
+                    "infinitive_hebrew": str(infinitive_hebrew),
+                    "transcription_ru": str(transcription_ru),
+                    "binyan": str(binyan),
+                    "difficulty": str(difficulty),
                 }
             )
     rows.sort(key=lambda r: r["rank"])
