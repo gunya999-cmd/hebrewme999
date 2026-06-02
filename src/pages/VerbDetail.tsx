@@ -4,7 +4,6 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { UNIQUE_SEED_VERBS } from "@/data/verbs-unique";
 import { BINYAN_NAMES, PERSON_LABELS, TENSE_LABELS, ConjugationForm, VerbConjugations } from "@/types/verb";
-import { getSpeechRate } from "@/hooks/useSpeechRate";
 import { SpeechRateSelector } from "@/components/SpeechRateSelector";
 import { playVerbAudio, speakHebrewWithBrowser } from "@/lib/verb-audio";
 
