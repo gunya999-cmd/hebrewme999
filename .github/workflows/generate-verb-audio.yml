@@ -1,0 +1,95 @@
+name: Generate verb audio
+
+on:
+  workflow_dispatch:
+    inputs:
+      start_rank:
+        description: "First verb rank to generate"
+        required: true
+        default: "1"
+      end_rank:
+        description: "Last verb rank to generate"
+        required: true
+        default: "350"
+      limit:
+        description: "Optional limit; 0 means no limit"
+        required: true
+        default: "0"
+      force:
+        description: "Regenerate existing WAV files"
+        required: true
+        type: boolean
+        default: false
+      voice:
+        description: "Gemini prebuilt voice name"
+        required: true
+        default: "Aoede"
+      model:
+        description: "Gemini TTS model"
+        required: true
+        default: "gemini-3.1-flash-tts-preview"
+
+permissions:
+  contents: write
+
+env:
+  GOOGLE_AI_API_KEY: ${{ secrets.GOOGLE_AI_API_KEY }}
+
+jobs:
+  generate-audio:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate secret
+        run: |
+          if [ -z "$GOOGLE_AI_API_KEY" ]; then
+            echo "GOOGLE_AI_API_KEY secret is missing. Add it in Settings -> Secrets and variables -> Actions."
+            exit 2
+          fi
+
+      - name: Generate Gemini Aoede verb audio
+        run: |
+          FORCE_FLAG=""
+          if [ "${{ inputs.force }}" = "true" ]; then
+            FORCE_FLAG="--force"
+          fi
+          python scripts/generate_gemini_aoede_audio_from_table.py \
+            --repo-root . \
+            --out-dir public/audio/verbs \
+            --model "${{ inputs.model }}" \
+            --voice "${{ inputs.voice }}" \
+            --start-rank "${{ inputs.start_rank }}" \
+            --end-rank "${{ inputs.end_rank }}" \
+            --limit "${{ inputs.limit }}" \
+            $FORCE_FLAG
+
+      - name: Upload generated audio artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hebrewme-verb-audio
+          path: |
+            public/audio/verbs/*.wav
+            public/audio/verbs-manifest.csv
+            public/audio/verbs-manifest.json
+            public/audio/verbs-generation-status.csv
+
+      - name: Commit generated audio
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/audio/verbs public/audio/verbs-manifest.csv public/audio/verbs-manifest.json public/audio/verbs-generation-status.csv
+          if git diff --cached --quiet; then
+            echo "No generated audio changes to commit."
+            exit 0
+          fi
+          git commit -m "Generate Gemini Aoede verb audio"
+          git push
