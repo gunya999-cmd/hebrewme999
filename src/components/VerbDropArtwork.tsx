@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { VerbDropCard } from "@/data/verbDrops";
 import VerbIllustration from "@/components/VerbIllustration";
 
@@ -171,7 +172,7 @@ function Scene({ scene }: { scene: MovementScene }) {
   }
 }
 
-export default function VerbDropArtwork({ verb, className = "" }: VerbDropArtworkProps) {
+function FallbackArtwork({ verb, className }: VerbDropArtworkProps) {
   const scene = getMovementScene(verb.infinitive_hebrew);
 
   if (!scene) {
@@ -188,4 +189,25 @@ export default function VerbDropArtwork({ verb, className = "" }: VerbDropArtwor
       </svg>
     </div>
   );
+}
+
+export default function VerbDropArtwork({ verb, className = "" }: VerbDropArtworkProps) {
+  const [imageFailed, setImageFailed] = useState(false);
+
+  if (verb.imageSrc && !imageFailed) {
+    return (
+      <div className={`relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-white via-primary/5 to-success/10 ${className}`}>
+        <img
+          src={verb.imageSrc}
+          alt={`${verb.infinitive_hebrew} — ${verb.translation_ru}`}
+          className="h-full w-full object-contain"
+          loading="eager"
+          decoding="async"
+          onError={() => setImageFailed(true)}
+        />
+      </div>
+    );
+  }
+
+  return <FallbackArtwork verb={verb} className={className} />;
 }
