@@ -6,6 +6,7 @@ import { UNIQUE_SEED_VERBS } from "@/data/verbs-unique";
 import { BINYAN_NAMES, PERSON_LABELS, TENSE_LABELS, ConjugationForm, VerbConjugations } from "@/types/verb";
 import { getSpeechRate } from "@/hooks/useSpeechRate";
 import { SpeechRateSelector } from "@/components/SpeechRateSelector";
+import { playVerbAudio, speakHebrewWithBrowser } from "@/lib/verb-audio";
 
 const TENSES = ["present", "past", "future", "imperative"] as const;
 
@@ -36,11 +37,7 @@ export default function VerbDetail() {
     : undefined;
 
   const speak = (text: string) => {
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = "he-IL";
-    utterance.rate = getSpeechRate();
-    speechSynthesis.cancel();
-    speechSynthesis.speak(utterance);
+    speakHebrewWithBrowser(text);
   };
 
   return (
@@ -63,8 +60,9 @@ export default function VerbDetail() {
             </span>
           </div>
           <button
-            onClick={() => speak(verb.infinitive_hebrew)}
+            onClick={() => void playVerbAudio(verb)}
             className="mt-3 bg-primary-foreground/20 rounded-full p-2.5 mx-auto block active:scale-90 transition-transform"
+            title="Озвучить инфинитив голосом Aoede"
           >
             <Volume2 className="w-5 h-5 text-primary-foreground" />
           </button>
