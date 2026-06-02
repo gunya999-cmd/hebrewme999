@@ -30,7 +30,7 @@ from pathlib import Path
 from typing import Any
 
 API_URL_TEMPLATE = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
-MAX_RETRY_SECONDS = 90.0
+MAX_RETRY_SECONDS = 75.0
 
 
 class RetryableHttpError(RuntimeError):
@@ -120,10 +120,9 @@ def extract_audio_bytes(data: dict[str, Any]) -> bytes:
 
 
 def retry_seconds_from_body(body: str) -> float | None:
-    # Gemini quota errors commonly include: "Please retry in 17.923009039s."
     match = re.search(r"retry in\s+([0-9]+(?:\.[0-9]+)?)s", body, re.IGNORECASE)
     if match:
-        return float(match.group(1)) + 2.0
+        return float(match.group(1)) + 3.0
 
     try:
         parsed = json.loads(body)
@@ -135,7 +134,7 @@ def retry_seconds_from_body(body: str) -> float | None:
         retry_delay = detail.get("retryDelay")
         if isinstance(retry_delay, str) and retry_delay.endswith("s"):
             try:
-                return float(retry_delay[:-1]) + 2.0
+                return float(retry_delay[:-1]) + 3.0
             except ValueError:
                 return None
     return None
@@ -187,6 +186,24 @@ def write_csv(path: Path, rows: list[dict[str, Any]]) -> None:
         writer.writerows(rows)
 
 
+def read_existing_status(path: Path) -> list[dict[str, Any]]:
+    if not path.exists():
+        return []
+    with path.open("r", encoding="utf-8-sig", newline="") as f:
+        return list(csv.DictReader(f))
+
+
+def merge_status(existing: list[dict[str, Any]], current: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    by_rank = {}
+    for row in existing:
+        rank = row.get("rank")
+        if rank:
+            by_rank[str(rank)] = row
+    for row in current:
+        by_rank[str(row["rank"])] = row
+    return [by_rank[k] for k in sorted(by_rank, key=lambda x: int(x))]
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo-root", default=".")
@@ -197,8 +214,10 @@ def main() -> int:
     parser.add_argument("--end-rank", type=int, default=350)
     parser.add_argument("--limit", type=int, default=0)
     parser.add_argument("--force", action="store_true")
-    parser.add_argument("--sleep", type=float, default=7.0, help="Seconds to sleep after each successful request. Free tier is usually ~10 requests/minute.")
-    parser.add_argument("--max-attempts", type=int, default=8)
+    parser.add_argument("--sleep", type=float, default=12.0, help="Seconds to sleep after each successful request.")
+    parser.add_argument("--max-attempts", type=int, default=3)
+    parser.add_argument("--max-successes", type=int, default=8, help="Stop after this many newly generated files. Use 0 for no cap.")
+    parser.add_argument("--stop-on-quota", action="store_true", default=True)
     parser.add_argument("--status-csv", default="public/audio/verbs-generation-status.csv")
     parser.add_argument("--manifest-csv", default="public/audio/verbs-manifest.csv")
     parser.add_argument("--manifest-json", default="public/audio/verbs-manifest.json")
@@ -218,9 +237,13 @@ def main() -> int:
     out_dir = (repo_root / args.out_dir).resolve()
     manifest_rows: list[dict[str, Any]] = []
     status_rows: list[dict[str, Any]] = []
-    generated = skipped = failed = 0
+    generated = skipped = failed = quota_stopped = 0
 
     for idx, row in enumerate(selected, start=1):
+        if args.max_successes and generated >= args.max_successes:
+            print(f"Reached max_successes={args.max_successes}; stopping this chunk successfully.")
+            break
+
         rank = int(row["rank"])
         filename = f"{rank:03d}.wav"
         rel_url = f"/audio/verbs/{filename}"
@@ -243,12 +266,12 @@ def main() -> int:
         manifest_rows.append(manifest_row)
 
         if out_file.exists() and out_file.stat().st_size > 1000 and not args.force:
-            print(f"[{idx}/{len(selected)}] SKIP {rank:03d} {row['infinitive_hebrew']} -> {out_file}")
+            print(f"[{idx}/{len(selected)}] SKIP {rank:03d} {row['infinitive_hebrew']} -> {out_file}", flush=True)
             status_rows.append({**manifest_row, "generation_status": "skipped_exists", "file_size": out_file.stat().st_size, "error": ""})
             skipped += 1
             continue
 
-        print(f"[{idx}/{len(selected)}] GEN  {rank:03d} {row['infinitive_hebrew']} -> {out_file}")
+        print(f"[{idx}/{len(selected)}] GEN  {rank:03d} {row['infinitive_hebrew']} -> {out_file}", flush=True)
         try:
             pcm = None
             last_error = ""
@@ -258,11 +281,27 @@ def main() -> int:
                     break
                 except RetryableHttpError as exc:
                     last_error = str(exc)
-                    is_retryable = exc.code in (429, 500, 502, 503, 504)
+                    if exc.code == 429 and args.stop_on_quota:
+                        wait_seconds = exc.retry_after if exc.retry_after is not None else 60.0
+                        print(
+                            f"Quota limit reached at rank {rank:03d}. Suggested retry in {wait_seconds:.1f}s. "
+                            "Stopping this chunk so generated files can be committed.",
+                            flush=True,
+                        )
+                        status_rows.append({**manifest_row, "generation_status": "quota_deferred", "file_size": 0, "error": last_error})
+                        quota_stopped += 1
+                        write_csv(repo_root / args.manifest_csv, manifest_rows)
+                        (repo_root / args.manifest_json).parent.mkdir(parents=True, exist_ok=True)
+                        (repo_root / args.manifest_json).write_text(json.dumps(manifest_rows, ensure_ascii=False, indent=2), encoding="utf-8")
+                        old_status = read_existing_status(repo_root / args.status_csv)
+                        write_csv(repo_root / args.status_csv, merge_status(old_status, status_rows))
+                        print(f"Partial chunk complete. generated={generated}, skipped={skipped}, failed={failed}, quota_deferred={quota_stopped}", flush=True)
+                        return 0
+                    is_retryable = exc.code in (500, 502, 503, 504)
                     if is_retryable and attempt < args.max_attempts:
                         wait_seconds = exc.retry_after if exc.retry_after is not None else min(2 ** attempt, MAX_RETRY_SECONDS)
                         wait_seconds = min(max(wait_seconds, 3.0), MAX_RETRY_SECONDS)
-                        print(f"Rate/server limit for rank {rank:03d}; attempt {attempt}/{args.max_attempts}. Sleeping {wait_seconds:.1f}s before retry.")
+                        print(f"Server limit for rank {rank:03d}; attempt {attempt}/{args.max_attempts}. Sleeping {wait_seconds:.1f}s before retry.", flush=True)
                         time.sleep(wait_seconds)
                         continue
                     raise RuntimeError(last_error)
@@ -270,7 +309,7 @@ def main() -> int:
                     last_error = f"{type(exc).__name__}: {exc}"
                     if attempt < args.max_attempts:
                         wait_seconds = min(2 ** attempt, 30)
-                        print(f"Transient error for rank {rank:03d}; attempt {attempt}/{args.max_attempts}. Sleeping {wait_seconds:.1f}s before retry.")
+                        print(f"Transient error for rank {rank:03d}; attempt {attempt}/{args.max_attempts}. Sleeping {wait_seconds:.1f}s before retry.", flush=True)
                         time.sleep(wait_seconds)
                         continue
                     raise RuntimeError(last_error)
@@ -281,19 +320,20 @@ def main() -> int:
             generated += 1
             time.sleep(args.sleep)
         except Exception as exc:
-            print(f"FAILED rank {rank:03d}: {exc}", file=sys.stderr)
+            print(f"FAILED rank {rank:03d}: {exc}", file=sys.stderr, flush=True)
             status_rows.append({**manifest_row, "generation_status": "failed", "file_size": 0, "error": str(exc)})
             failed += 1
 
+    old_status = read_existing_status(repo_root / args.status_csv)
     write_csv(repo_root / args.manifest_csv, manifest_rows)
     (repo_root / args.manifest_json).parent.mkdir(parents=True, exist_ok=True)
     (repo_root / args.manifest_json).write_text(json.dumps(manifest_rows, ensure_ascii=False, indent=2), encoding="utf-8")
-    write_csv(repo_root / args.status_csv, status_rows)
+    write_csv(repo_root / args.status_csv, merge_status(old_status, status_rows))
 
-    print(f"Done. generated={generated}, skipped={skipped}, failed={failed}")
-    print(f"Manifest CSV: {args.manifest_csv}")
-    print(f"Manifest JSON: {args.manifest_json}")
-    print(f"Status CSV: {args.status_csv}")
+    print(f"Done. generated={generated}, skipped={skipped}, failed={failed}, quota_deferred={quota_stopped}", flush=True)
+    print(f"Manifest CSV: {args.manifest_csv}", flush=True)
+    print(f"Manifest JSON: {args.manifest_json}", flush=True)
+    print(f"Status CSV: {args.status_csv}", flush=True)
     return 1 if failed else 0
 
 
