@@ -20,6 +20,7 @@ import base64
 import csv
 import json
 import os
+import re
 import sys
 import time
 import urllib.error
@@ -29,15 +30,19 @@ from pathlib import Path
 from typing import Any
 
 API_URL_TEMPLATE = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+MAX_RETRY_SECONDS = 90.0
+
+
+class RetryableHttpError(RuntimeError):
+    def __init__(self, code: int, body: str, retry_after: float | None = None):
+        super().__init__(f"HTTP {code}: {body}")
+        self.code = code
+        self.body = body
+        self.retry_after = retry_after
 
 
 def extract_json_array_from_ts(text: str, path: Path) -> list[Any]:
-    """Extract the exported packed-row array from a TypeScript data file.
-
-    The top-350 data files store rows as a compact TypeScript/JSON-compatible
-    array. A row-level regex is fragile because the packed conjugation field is
-    very long. Parsing the whole array as JSON is more reliable.
-    """
+    """Extract the exported packed-row array from a TypeScript data file."""
     assignment_index = text.find("=")
     if assignment_index < 0:
         raise RuntimeError(f"Cannot find array assignment in {path}")
@@ -114,6 +119,28 @@ def extract_audio_bytes(data: dict[str, Any]) -> bytes:
     raise RuntimeError(f"Unexpected Gemini response shape: {json.dumps(data, ensure_ascii=False)[:1200]}")
 
 
+def retry_seconds_from_body(body: str) -> float | None:
+    # Gemini quota errors commonly include: "Please retry in 17.923009039s."
+    match = re.search(r"retry in\s+([0-9]+(?:\.[0-9]+)?)s", body, re.IGNORECASE)
+    if match:
+        return float(match.group(1)) + 2.0
+
+    try:
+        parsed = json.loads(body)
+    except json.JSONDecodeError:
+        return None
+
+    details = ((parsed.get("error") or {}).get("details") or [])
+    for detail in details:
+        retry_delay = detail.get("retryDelay")
+        if isinstance(retry_delay, str) and retry_delay.endswith("s"):
+            try:
+                return float(retry_delay[:-1]) + 2.0
+            except ValueError:
+                return None
+    return None
+
+
 def call_gemini_tts(api_key: str, model: str, voice: str, prompt: str, timeout: int = 90) -> bytes:
     url = API_URL_TEMPLATE.format(model=model)
     payload = {
@@ -133,8 +160,12 @@ def call_gemini_tts(api_key: str, model: str, voice: str, prompt: str, timeout: 
         headers={"Content-Type": "application/json", "x-goog-api-key": api_key},
         method="POST",
     )
-    with urllib.request.urlopen(request, timeout=timeout) as response:
-        data = json.load(response)
+    try:
+        with urllib.request.urlopen(request, timeout=timeout) as response:
+            data = json.load(response)
+    except urllib.error.HTTPError as exc:
+        body = exc.read().decode("utf-8", errors="replace")[:5000]
+        raise RetryableHttpError(exc.code, body, retry_seconds_from_body(body)) from exc
     return extract_audio_bytes(data)
 
 
@@ -166,7 +197,8 @@ def main() -> int:
     parser.add_argument("--end-rank", type=int, default=350)
     parser.add_argument("--limit", type=int, default=0)
     parser.add_argument("--force", action="store_true")
-    parser.add_argument("--sleep", type=float, default=0.8)
+    parser.add_argument("--sleep", type=float, default=7.0, help="Seconds to sleep after each successful request. Free tier is usually ~10 requests/minute.")
+    parser.add_argument("--max-attempts", type=int, default=8)
     parser.add_argument("--status-csv", default="public/audio/verbs-generation-status.csv")
     parser.add_argument("--manifest-csv", default="public/audio/verbs-manifest.csv")
     parser.add_argument("--manifest-json", default="public/audio/verbs-manifest.json")
@@ -220,21 +252,26 @@ def main() -> int:
         try:
             pcm = None
             last_error = ""
-            for attempt in range(1, 4):
+            for attempt in range(1, args.max_attempts + 1):
                 try:
                     pcm = call_gemini_tts(api_key, args.model, args.voice, prompt)
                     break
-                except urllib.error.HTTPError as e:
-                    body = e.read().decode("utf-8", errors="replace")[:1000]
-                    last_error = f"HTTP {e.code}: {body}"
-                    if e.code in (429, 500, 502, 503, 504) and attempt < 3:
-                        time.sleep(2 ** attempt)
+                except RetryableHttpError as exc:
+                    last_error = str(exc)
+                    is_retryable = exc.code in (429, 500, 502, 503, 504)
+                    if is_retryable and attempt < args.max_attempts:
+                        wait_seconds = exc.retry_after if exc.retry_after is not None else min(2 ** attempt, MAX_RETRY_SECONDS)
+                        wait_seconds = min(max(wait_seconds, 3.0), MAX_RETRY_SECONDS)
+                        print(f"Rate/server limit for rank {rank:03d}; attempt {attempt}/{args.max_attempts}. Sleeping {wait_seconds:.1f}s before retry.")
+                        time.sleep(wait_seconds)
                         continue
                     raise RuntimeError(last_error)
-                except Exception as e:
-                    last_error = f"{type(e).__name__}: {e}"
-                    if attempt < 3:
-                        time.sleep(2 ** attempt)
+                except Exception as exc:
+                    last_error = f"{type(exc).__name__}: {exc}"
+                    if attempt < args.max_attempts:
+                        wait_seconds = min(2 ** attempt, 30)
+                        print(f"Transient error for rank {rank:03d}; attempt {attempt}/{args.max_attempts}. Sleeping {wait_seconds:.1f}s before retry.")
+                        time.sleep(wait_seconds)
                         continue
                     raise RuntimeError(last_error)
             if not pcm:
@@ -243,9 +280,9 @@ def main() -> int:
             status_rows.append({**manifest_row, "generation_status": "generated", "file_size": out_file.stat().st_size, "error": ""})
             generated += 1
             time.sleep(args.sleep)
-        except Exception as e:
-            print(f"FAILED rank {rank:03d}: {e}", file=sys.stderr)
-            status_rows.append({**manifest_row, "generation_status": "failed", "file_size": 0, "error": str(e)})
+        except Exception as exc:
+            print(f"FAILED rank {rank:03d}: {exc}", file=sys.stderr)
+            status_rows.append({**manifest_row, "generation_status": "failed", "file_size": 0, "error": str(exc)})
             failed += 1
 
     write_csv(repo_root / args.manifest_csv, manifest_rows)
