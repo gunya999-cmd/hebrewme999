@@ -133,15 +133,17 @@ const TABLE_TOP_350_PACKED_ROWS: TableTop350PackedRow[] = [
   ...TABLE_TOP_350_PACKED_ROWS_301_350,
 ];
 
+// Critical: chunk files can be generated in lexicographic order, for example 1, 10, 100, 11.
+// Always restore numeric popularity order here before exporting the app list.
+const SORTED_TABLE_TOP_350_PACKED_ROWS = [...TABLE_TOP_350_PACKED_ROWS].sort((a, b) => a[0] - b[0]);
+
 const existingByInfinitive = new Map(
   [...SEED_VERBS, ...COMMON_ADDED_VERBS].map((verb) => [normalizeHebrew(verb.infinitive_hebrew), verb])
 );
 
-// Authoritative dictionary list from hebrewme_top350_replaced_16_for_app.csv.
-// The 16 formerly unresolved verbs were replaced with checked common verbs.
-// The CSV provides 350 infinitives, Russian translations and 10,150 checked Pealim rows.
-// app_hebrew_form is used as the source and stripped from niqqud for app input compatibility.
-export const TABLE_TOP_350_VERBS: Verb[] = TABLE_TOP_350_PACKED_ROWS.map(([rank, infinitive_hebrew, transcription_ru, translation_ru, translation_source, binyan, difficulty, pealim_url, pealim_url_status, packedForms]) => {
+// Authoritative dictionary list from the checked top-350 Pealim table.
+// Rows are explicitly sorted by numeric rank, so card 001 matches rank 1, card 002 matches rank 2, etc.
+export const TABLE_TOP_350_VERBS: Verb[] = SORTED_TABLE_TOP_350_PACKED_ROWS.map(([rank, infinitive_hebrew, transcription_ru, translation_ru, translation_source, binyan, difficulty, pealim_url, pealim_url_status, packedForms]) => {
   const existing = existingByInfinitive.get(normalizeHebrew(infinitive_hebrew));
 
   return {

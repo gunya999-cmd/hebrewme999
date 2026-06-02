@@ -55,10 +55,20 @@ function getVerbDropCategory(translation: string): VerbDropCategory {
   return "daily";
 }
 
-// Uses the same authoritative order as the main dictionary.
-// Card images are stored at /verb-cards/001.webp ... /verb-cards/350.webp.
-export const VERB_DROPS_SEED: VerbDropCard[] = TABLE_TOP_350_VERBS.map((verb, index) => {
-  const frequencyRank = index + 1;
+function getRankFromVerbId(id: string, fallback: number): number {
+  const match = id.match(/(\d{3})$/);
+  if (!match) return fallback;
+  return Number(match[1]);
+}
+
+const SORTED_VERBS_FOR_DROPS = [...TABLE_TOP_350_VERBS].sort(
+  (a, b) => getRankFromVerbId(a.id, 9999) - getRankFromVerbId(b.id, 9999)
+);
+
+// Uses the same authoritative numeric rank as the main dictionary.
+// This prevents image mismatch if source chunks are generated as 1,10,100,11...
+export const VERB_DROPS_SEED: VerbDropCard[] = SORTED_VERBS_FOR_DROPS.map((verb, index) => {
+  const frequencyRank = getRankFromVerbId(verb.id, index + 1);
   const number = String(frequencyRank).padStart(3, "0");
 
   return {
