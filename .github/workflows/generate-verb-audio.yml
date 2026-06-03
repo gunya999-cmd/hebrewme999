@@ -32,12 +32,26 @@ on:
         description: "Gemini TTS model"
         required: true
         default: "gemini-3.1-flash-tts-preview"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/generate-verb-audio.yml"
+      - ".github/audio-generation-trigger.txt"
+      - "scripts/generate_gemini_aoede_audio_from_table.py"
 
 permissions:
   contents: write
 
 env:
   GOOGLE_AI_API_KEY: ${{ secrets.GOOGLE_AI_API_KEY }}
+  START_RANK: ${{ inputs.start_rank || '1' }}
+  END_RANK: ${{ inputs.end_rank || '350' }}
+  LIMIT: ${{ inputs.limit || '0' }}
+  MAX_SUCCESSES: ${{ inputs.max_successes || '8' }}
+  FORCE_AUDIO: ${{ inputs.force || 'false' }}
+  AOEDE_VOICE: ${{ inputs.voice || 'Aoede' }}
+  GEMINI_TTS_MODEL: ${{ inputs.model || 'gemini-3.1-flash-tts-preview' }}
 
 jobs:
   generate-audio:
@@ -68,18 +82,18 @@ jobs:
       - name: Generate Gemini Aoede verb audio
         run: |
           FORCE_FLAG=""
-          if [ "${{ inputs.force }}" = "true" ]; then
+          if [ "$FORCE_AUDIO" = "true" ]; then
             FORCE_FLAG="--force"
           fi
           python scripts/generate_gemini_aoede_audio_from_table.py \
             --repo-root . \
             --out-dir public/audio/verbs \
-            --model "${{ inputs.model }}" \
-            --voice "${{ inputs.voice }}" \
-            --start-rank "${{ inputs.start_rank }}" \
-            --end-rank "${{ inputs.end_rank }}" \
-            --limit "${{ inputs.limit }}" \
-            --max-successes "${{ inputs.max_successes }}" \
+            --model "$GEMINI_TTS_MODEL" \
+            --voice "$AOEDE_VOICE" \
+            --start-rank "$START_RANK" \
+            --end-rank "$END_RANK" \
+            --limit "$LIMIT" \
+            --max-successes "$MAX_SUCCESSES" \
             $FORCE_FLAG
 
       - name: Upload generated audio artifact
