@@ -30,7 +30,7 @@ from pathlib import Path
 from typing import Any
 
 API_URL_TEMPLATE = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
-MAX_RETRY_SECONDS = 75.0
+MAX_RETRY_SECONDS = 90.0
 
 
 class RetryableHttpError(RuntimeError):
@@ -42,7 +42,6 @@ class RetryableHttpError(RuntimeError):
 
 
 def extract_json_array_from_ts(text: str, path: Path) -> list[Any]:
-    """Extract the exported packed-row array from a TypeScript data file."""
     assignment_index = text.find("=")
     if assignment_index < 0:
         raise RuntimeError(f"Cannot find array assignment in {path}")
@@ -140,6 +139,14 @@ def retry_seconds_from_body(body: str) -> float | None:
     return None
 
 
+def is_per_day_quota(body: str) -> bool:
+    return "GenerateRequestsPerDayPerProjectPerModel" in body or "per day" in body.lower()
+
+
+def is_per_minute_quota(body: str) -> bool:
+    return "GenerateRequestsPerMinutePerProjectPerModel" in body or "per minute" in body.lower()
+
+
 def call_gemini_tts(api_key: str, model: str, voice: str, prompt: str, timeout: int = 90) -> bytes:
     url = API_URL_TEMPLATE.format(model=model)
     payload = {
@@ -204,6 +211,14 @@ def merge_status(existing: list[dict[str, Any]], current: list[dict[str, Any]]) 
     return [by_rank[k] for k in sorted(by_rank, key=lambda x: int(x))]
 
 
+def write_partial(repo_root: Path, manifest_csv: str, manifest_json: str, status_csv: str, manifest_rows: list[dict[str, Any]], status_rows: list[dict[str, Any]]) -> None:
+    write_csv(repo_root / manifest_csv, manifest_rows)
+    (repo_root / manifest_json).parent.mkdir(parents=True, exist_ok=True)
+    (repo_root / manifest_json).write_text(json.dumps(manifest_rows, ensure_ascii=False, indent=2), encoding="utf-8")
+    old_status = read_existing_status(repo_root / status_csv)
+    write_csv(repo_root / status_csv, merge_status(old_status, status_rows))
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo-root", default=".")
@@ -214,8 +229,8 @@ def main() -> int:
     parser.add_argument("--end-rank", type=int, default=350)
     parser.add_argument("--limit", type=int, default=0)
     parser.add_argument("--force", action="store_true")
-    parser.add_argument("--sleep", type=float, default=12.0, help="Seconds to sleep after each successful request.")
-    parser.add_argument("--max-attempts", type=int, default=3)
+    parser.add_argument("--sleep", type=float, default=22.0, help="Seconds to sleep after each successful request. 22s is safe for 3 requests/minute.")
+    parser.add_argument("--max-attempts", type=int, default=8)
     parser.add_argument("--max-successes", type=int, default=8, help="Stop after this many newly generated files. Use 0 for no cap.")
     parser.add_argument("--stop-on-quota", action="store_true", default=True)
     parser.add_argument("--status-csv", default="public/audio/verbs-generation-status.csv")
@@ -241,7 +256,7 @@ def main() -> int:
 
     for idx, row in enumerate(selected, start=1):
         if args.max_successes and generated >= args.max_successes:
-            print(f"Reached max_successes={args.max_successes}; stopping this chunk successfully.")
+            print(f"Reached max_successes={args.max_successes}; stopping this chunk successfully.", flush=True)
             break
 
         rank = int(row["rank"])
@@ -281,22 +296,27 @@ def main() -> int:
                     break
                 except RetryableHttpError as exc:
                     last_error = str(exc)
-                    if exc.code == 429 and args.stop_on_quota:
-                        wait_seconds = exc.retry_after if exc.retry_after is not None else 60.0
-                        print(
-                            f"Quota limit reached at rank {rank:03d}. Suggested retry in {wait_seconds:.1f}s. "
-                            "Stopping this chunk so generated files can be committed.",
-                            flush=True,
-                        )
-                        status_rows.append({**manifest_row, "generation_status": "quota_deferred", "file_size": 0, "error": last_error})
-                        quota_stopped += 1
-                        write_csv(repo_root / args.manifest_csv, manifest_rows)
-                        (repo_root / args.manifest_json).parent.mkdir(parents=True, exist_ok=True)
-                        (repo_root / args.manifest_json).write_text(json.dumps(manifest_rows, ensure_ascii=False, indent=2), encoding="utf-8")
-                        old_status = read_existing_status(repo_root / args.status_csv)
-                        write_csv(repo_root / args.status_csv, merge_status(old_status, status_rows))
-                        print(f"Partial chunk complete. generated={generated}, skipped={skipped}, failed={failed}, quota_deferred={quota_stopped}", flush=True)
-                        return 0
+                    if exc.code == 429:
+                        if is_per_day_quota(exc.body) and args.stop_on_quota:
+                            wait_seconds = exc.retry_after if exc.retry_after is not None else 3600.0
+                            print(
+                                f"Daily quota reached at rank {rank:03d}. Suggested retry in {wait_seconds:.1f}s. "
+                                "Stopping this chunk so generated files can be committed.",
+                                flush=True,
+                            )
+                            status_rows.append({**manifest_row, "generation_status": "quota_deferred", "file_size": 0, "error": last_error})
+                            quota_stopped += 1
+                            write_partial(repo_root, args.manifest_csv, args.manifest_json, args.status_csv, manifest_rows, status_rows)
+                            print(f"Partial chunk complete. generated={generated}, skipped={skipped}, failed={failed}, quota_deferred={quota_stopped}", flush=True)
+                            return 0
+                        if attempt < args.max_attempts:
+                            wait_seconds = exc.retry_after if exc.retry_after is not None else 25.0
+                            if is_per_minute_quota(exc.body):
+                                wait_seconds = max(wait_seconds, 25.0)
+                            wait_seconds = min(max(wait_seconds, 5.0), MAX_RETRY_SECONDS)
+                            print(f"Minute quota/server 429 for rank {rank:03d}; attempt {attempt}/{args.max_attempts}. Sleeping {wait_seconds:.1f}s before retry.", flush=True)
+                            time.sleep(wait_seconds)
+                            continue
                     is_retryable = exc.code in (500, 502, 503, 504)
                     if is_retryable and attempt < args.max_attempts:
                         wait_seconds = exc.retry_after if exc.retry_after is not None else min(2 ** attempt, MAX_RETRY_SECONDS)
@@ -324,11 +344,7 @@ def main() -> int:
             status_rows.append({**manifest_row, "generation_status": "failed", "file_size": 0, "error": str(exc)})
             failed += 1
 
-    old_status = read_existing_status(repo_root / args.status_csv)
-    write_csv(repo_root / args.manifest_csv, manifest_rows)
-    (repo_root / args.manifest_json).parent.mkdir(parents=True, exist_ok=True)
-    (repo_root / args.manifest_json).write_text(json.dumps(manifest_rows, ensure_ascii=False, indent=2), encoding="utf-8")
-    write_csv(repo_root / args.status_csv, merge_status(old_status, status_rows))
+    write_partial(repo_root, args.manifest_csv, args.manifest_json, args.status_csv, manifest_rows, status_rows)
 
     print(f"Done. generated={generated}, skipped={skipped}, failed={failed}, quota_deferred={quota_stopped}", flush=True)
     print(f"Manifest CSV: {args.manifest_csv}", flush=True)
