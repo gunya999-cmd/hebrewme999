@@ -1,10 +1,10 @@
 ﻿rank,infinitive_hebrew,transcription_ru,binyan,difficulty,audio_url,audio_file,audio_provider,audio_model,audio_voice,audio_prompt,generation_status,file_size,error
 1,לעשות,лаас о т,"делать, создавать, совершать",pealim_live_title_verified,/audio/verbs/001.wav,public/audio/verbs/001.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לעשות",skipped_exists,90284,
-2,לדבר,ледаб е р,говорить,pealim_live_title_verified,/audio/verbs/002.wav,public/audio/verbs/002.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לדבר",generated,80684,
+2,לדבר,ледаб е р,говорить,pealim_live_title_verified,/audio/verbs/002.wav,public/audio/verbs/002.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לדבר",skipped_exists,80684,
 3,לכתוב,лихт о в,писать,pealim_live_title_verified,/audio/verbs/003.wav,public/audio/verbs/003.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לכתוב",quota_deferred,0,"HTTP 429: {
   ""error"": {
     ""code"": 429,
-    ""message"": ""You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 10, model: gemini-3.1-flash-tts\nPlease retry in 32.215833237s."",
+    ""message"": ""You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 10, model: gemini-3.1-flash-tts\nPlease retry in 40.916058865s."",
     ""status"": ""RESOURCE_EXHAUSTED"",
     ""details"": [
       {
@@ -32,7 +32,7 @@
       },
       {
         ""@type"": ""type.googleapis.com/google.rpc.RetryInfo"",
-        ""retryDelay"": ""32s""
+        ""retryDelay"": ""40s""
       }
     ]
   }
