@@ -141,5 +141,31 @@
     "audio_model": "gemini-3.1-flash-tts-preview",
     "audio_voice": "Aoede",
     "audio_prompt": "Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לקחת"
+  },
+  {
+    "rank": 12,
+    "infinitive_hebrew": "לאכול",
+    "transcription_ru": "леэх о ль",
+    "binyan": "есть",
+    "difficulty": "pealim_live_title_verified",
+    "audio_url": "/audio/verbs/012.wav",
+    "audio_file": "public/audio/verbs/012.wav",
+    "audio_provider": "google_ai_studio_gemini_tts",
+    "audio_model": "gemini-3.1-flash-tts-preview",
+    "audio_voice": "Aoede",
+    "audio_prompt": "Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לאכול"
+  },
+  {
+    "rank": 13,
+    "infinitive_hebrew": "לשתות",
+    "transcription_ru": "лишт о т",
+    "binyan": "пить",
+    "difficulty": "added_ru_dictionary_value_needs_final_pealim_title_check",
+    "audio_url": "/audio/verbs/013.wav",
+    "audio_file": "public/audio/verbs/013.wav",
+    "audio_provider": "google_ai_studio_gemini_tts",
+    "audio_model": "gemini-3.1-flash-tts-preview",
+    "audio_voice": "Aoede",
+    "audio_prompt": "Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לשתות"
   }
 ]

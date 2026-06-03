@@ -5,14 +5,16 @@
 4,ללכת,лал е хет,идти,pealim_live_title_verified,/audio/verbs/004.wav,public/audio/verbs/004.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: ללכת",skipped_exists,92204,
 5,לבוא,лав о,приходить,pealim_live_title_verified,/audio/verbs/005.wav,public/audio/verbs/005.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לבוא",skipped_exists,80684,
 6,לראות,лиръ о т,видеть,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/006.wav,public/audio/verbs/006.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לראות",skipped_exists,84524,
-7,לשמוע,лишм о а,слышать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/007.wav,public/audio/verbs/007.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לשמוע",generated,78764,
-8,לדעת,лад а ат,знать,pealim_live_title_verified,/audio/verbs/008.wav,public/audio/verbs/008.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לדעת",generated,88364,
-9,לרצות,лирц о т,хотеть,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/009.wav,public/audio/verbs/009.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לרצות",generated,94124,
-10,לתת,лат е т,давать; позволять,pealim_live_title_verified,/audio/verbs/010.wav,public/audio/verbs/010.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לתת",generated,69164,
-11,לקחת,лак а хат,"брать, взять",pealim_live_title_verified,/audio/verbs/011.wav,public/audio/verbs/011.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לקחת",quota_deferred,0,"HTTP 429: {
+7,לשמוע,лишм о а,слышать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/007.wav,public/audio/verbs/007.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לשמוע",skipped_exists,78764,
+8,לדעת,лад а ат,знать,pealim_live_title_verified,/audio/verbs/008.wav,public/audio/verbs/008.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לדעת",skipped_exists,88364,
+9,לרצות,лирц о т,хотеть,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/009.wav,public/audio/verbs/009.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לרצות",skipped_exists,94124,
+10,לתת,лат е т,давать; позволять,pealim_live_title_verified,/audio/verbs/010.wav,public/audio/verbs/010.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לתת",skipped_exists,69164,
+11,לקחת,лак а хат,"брать, взять",pealim_live_title_verified,/audio/verbs/011.wav,public/audio/verbs/011.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לקחת",generated,82604,
+12,לאכול,леэх о ль,есть,pealim_live_title_verified,/audio/verbs/012.wav,public/audio/verbs/012.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לאכול",generated,94124,
+13,לשתות,лишт о т,пить,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/013.wav,public/audio/verbs/013.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לשתות",quota_deferred,0,"HTTP 429: {
   ""error"": {
     ""code"": 429,
-    ""message"": ""You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 3, model: gemini-3.1-flash-tts\nPlease retry in 11.723782924s."",
+    ""message"": ""You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 10, model: gemini-3.1-flash-tts\nPlease retry in 7.538219696s."",
     ""status"": ""RESOURCE_EXHAUSTED"",
     ""details"": [
       {
@@ -29,18 +31,18 @@
         ""violations"": [
           {
             ""quotaMetric"": ""generativelanguage.googleapis.com/generate_content_free_tier_requests"",
-            ""quotaId"": ""GenerateRequestsPerMinutePerProjectPerModel-FreeTier"",
+            ""quotaId"": ""GenerateRequestsPerDayPerProjectPerModel-FreeTier"",
             ""quotaDimensions"": {
               ""location"": ""global"",
               ""model"": ""gemini-3.1-flash-tts""
             },
-            ""quotaValue"": ""3""
+            ""quotaValue"": ""10""
           }
         ]
       },
       {
         ""@type"": ""type.googleapis.com/google.rpc.RetryInfo"",
-        ""retryDelay"": ""11s""
+        ""retryDelay"": ""7s""
       }
     ]
   }
