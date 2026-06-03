@@ -12,9 +12,13 @@ on:
         required: true
         default: "350"
       limit:
-        description: "Optional limit; 0 means no limit"
+        description: "Optional selected-row limit before skipping existing files; 0 means no selection limit"
         required: true
         default: "0"
+      max_successes:
+        description: "Max newly generated WAV files per run; 8 is safe for free-tier daily quota, 0 means no cap"
+        required: true
+        default: "8"
       force:
         description: "Regenerate existing WAV files"
         required: true
@@ -75,6 +79,7 @@ jobs:
             --start-rank "${{ inputs.start_rank }}" \
             --end-rank "${{ inputs.end_rank }}" \
             --limit "${{ inputs.limit }}" \
+            --max-successes "${{ inputs.max_successes }}" \
             $FORCE_FLAG
 
       - name: Upload generated audio artifact
