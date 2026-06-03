@@ -89,5 +89,57 @@
     "audio_model": "gemini-3.1-flash-tts-preview",
     "audio_voice": "Aoede",
     "audio_prompt": "Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לשמוע"
+  },
+  {
+    "rank": 8,
+    "infinitive_hebrew": "לדעת",
+    "transcription_ru": "лад а ат",
+    "binyan": "знать",
+    "difficulty": "pealim_live_title_verified",
+    "audio_url": "/audio/verbs/008.wav",
+    "audio_file": "public/audio/verbs/008.wav",
+    "audio_provider": "google_ai_studio_gemini_tts",
+    "audio_model": "gemini-3.1-flash-tts-preview",
+    "audio_voice": "Aoede",
+    "audio_prompt": "Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לדעת"
+  },
+  {
+    "rank": 9,
+    "infinitive_hebrew": "לרצות",
+    "transcription_ru": "лирц о т",
+    "binyan": "хотеть",
+    "difficulty": "added_ru_dictionary_value_needs_final_pealim_title_check",
+    "audio_url": "/audio/verbs/009.wav",
+    "audio_file": "public/audio/verbs/009.wav",
+    "audio_provider": "google_ai_studio_gemini_tts",
+    "audio_model": "gemini-3.1-flash-tts-preview",
+    "audio_voice": "Aoede",
+    "audio_prompt": "Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לרצות"
+  },
+  {
+    "rank": 10,
+    "infinitive_hebrew": "לתת",
+    "transcription_ru": "лат е т",
+    "binyan": "давать; позволять",
+    "difficulty": "pealim_live_title_verified",
+    "audio_url": "/audio/verbs/010.wav",
+    "audio_file": "public/audio/verbs/010.wav",
+    "audio_provider": "google_ai_studio_gemini_tts",
+    "audio_model": "gemini-3.1-flash-tts-preview",
+    "audio_voice": "Aoede",
+    "audio_prompt": "Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לתת"
+  },
+  {
+    "rank": 11,
+    "infinitive_hebrew": "לקחת",
+    "transcription_ru": "лак а хат",
+    "binyan": "брать, взять",
+    "difficulty": "pealim_live_title_verified",
+    "audio_url": "/audio/verbs/011.wav",
+    "audio_file": "public/audio/verbs/011.wav",
+    "audio_provider": "google_ai_studio_gemini_tts",
+    "audio_model": "gemini-3.1-flash-tts-preview",
+    "audio_voice": "Aoede",
+    "audio_prompt": "Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לקחת"
   }
 ]
