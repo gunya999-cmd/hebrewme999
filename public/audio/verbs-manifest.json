@@ -24,5 +24,18 @@
     "audio_model": "gemini-3.1-flash-tts-preview",
     "audio_voice": "Aoede",
     "audio_prompt": "Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לדבר"
+  },
+  {
+    "rank": 3,
+    "infinitive_hebrew": "לכתוב",
+    "transcription_ru": "лихт о в",
+    "binyan": "писать",
+    "difficulty": "pealim_live_title_verified",
+    "audio_url": "/audio/verbs/003.wav",
+    "audio_file": "public/audio/verbs/003.wav",
+    "audio_provider": "google_ai_studio_gemini_tts",
+    "audio_model": "gemini-3.1-flash-tts-preview",
+    "audio_voice": "Aoede",
+    "audio_prompt": "Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לכתוב"
   }
 ]
