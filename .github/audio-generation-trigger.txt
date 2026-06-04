@@ -1,4 +1,4 @@
 Trigger Gemini Aoede verb audio batch
-Date: 2026-06-03
+Date: 2026-06-04
 Batch mode: max_successes=8 via workflow defaults
-Manual retry: batch request 2
+Manual retry: batch request 3
