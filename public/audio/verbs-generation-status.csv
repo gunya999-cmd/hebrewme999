@@ -24,14 +24,15 @@
 23,לשים,ласим,"класть, ставить",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/023.wav,public/audio/verbs/023.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לשים",skipped_exists,69164,
 24,לצאת,лацет,выходить,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/024.wav,public/audio/verbs/024.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לצאת",skipped_exists,107564,
 25,להיכנס,леhиканес,входить,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/025.wav,public/audio/verbs/025.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: להיכנס",skipped_exists,124844,
-26,לחזור,лахзор,возвращаться,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/026.wav,public/audio/verbs/026.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לחזור",generated,80684,
-27,לעבור,лаавор,"проходить, переходить",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/027.wav,public/audio/verbs/027.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לעבור",generated,73004,
-28,לחיות,лихьёт,жить,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/028.wav,public/audio/verbs/028.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לחיות",generated,107564,
-29,לגור,лагур,"жить, проживать",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/029.wav,public/audio/verbs/029.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לגור",generated,90284,
-30,לעמוד,лаамод,стоять,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/030.wav,public/audio/verbs/030.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לעמוד",quota_deferred,0,"HTTP 429: {
+26,לחזור,лахзор,возвращаться,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/026.wav,public/audio/verbs/026.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לחזור",skipped_exists,80684,
+27,לעבור,лаавор,"проходить, переходить",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/027.wav,public/audio/verbs/027.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לעבור",skipped_exists,73004,
+28,לחיות,лихьёт,жить,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/028.wav,public/audio/verbs/028.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לחיות",skipped_exists,107564,
+29,לגור,лагур,"жить, проживать",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/029.wav,public/audio/verbs/029.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לגור",skipped_exists,90284,
+30,לעמוד,лаамод,стоять,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/030.wav,public/audio/verbs/030.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לעמוד",generated,67244,
+31,לפתוח,лифтóах,открывать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/031.wav,public/audio/verbs/031.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לפתוח",quota_deferred,0,"HTTP 429: {
   ""error"": {
     ""code"": 429,
-    ""message"": ""You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 10, model: gemini-3.1-flash-tts\nPlease retry in 13.074970644s."",
+    ""message"": ""You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 10, model: gemini-3.1-flash-tts\nPlease retry in 3.750904227s."",
     ""status"": ""RESOURCE_EXHAUSTED"",
     ""details"": [
       {
@@ -50,8 +51,8 @@
             ""quotaMetric"": ""generativelanguage.googleapis.com/generate_content_free_tier_requests"",
             ""quotaId"": ""GenerateRequestsPerDayPerProjectPerModel-FreeTier"",
             ""quotaDimensions"": {
-              ""model"": ""gemini-3.1-flash-tts"",
-              ""location"": ""global""
+              ""location"": ""global"",
+              ""model"": ""gemini-3.1-flash-tts""
             },
             ""quotaValue"": ""10""
           }
@@ -59,7 +60,7 @@
       },
       {
         ""@type"": ""type.googleapis.com/google.rpc.RetryInfo"",
-        ""retryDelay"": ""13s""
+        ""retryDelay"": ""3s""
       }
     ]
   }

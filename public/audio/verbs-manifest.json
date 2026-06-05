@@ -388,5 +388,18 @@
     "audio_model": "gemini-3.1-flash-tts-preview",
     "audio_voice": "Aoede",
     "audio_prompt": "Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לעמוד"
+  },
+  {
+    "rank": 31,
+    "infinitive_hebrew": "לפתוח",
+    "transcription_ru": "лифтóах",
+    "binyan": "открывать",
+    "difficulty": "added_ru_dictionary_value_needs_final_pealim_title_check",
+    "audio_url": "/audio/verbs/031.wav",
+    "audio_file": "public/audio/verbs/031.wav",
+    "audio_provider": "google_ai_studio_gemini_tts",
+    "audio_model": "gemini-3.1-flash-tts-preview",
+    "audio_voice": "Aoede",
+    "audio_prompt": "Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לפתוח"
   }
 ]
