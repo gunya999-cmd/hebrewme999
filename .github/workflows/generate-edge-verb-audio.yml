@@ -71,13 +71,13 @@ jobs:
           python scripts/generate_edge_hebrew_audio_from_table.py \
             --repo-root . \
             --out-dir public/audio/verbs \
-            --voice "${{ inputs.voice }}" \
-            --rate "${{ inputs.rate }}" \
-            --volume "${{ inputs.volume }}" \
-            --start-rank "${{ inputs.start_rank }}" \
-            --end-rank "${{ inputs.end_rank }}" \
-            --limit "${{ inputs.limit }}" \
-            --max-successes "${{ inputs.max_successes }}" \
+            --voice="${{ inputs.voice }}" \
+            --rate="${{ inputs.rate }}" \
+            --volume="${{ inputs.volume }}" \
+            --start-rank="${{ inputs.start_rank }}" \
+            --end-rank="${{ inputs.end_rank }}" \
+            --limit="${{ inputs.limit }}" \
+            --max-successes="${{ inputs.max_successes }}" \
             $FORCE_FLAG
 
       - name: Upload generated Edge audio artifact
