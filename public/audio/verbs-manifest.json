@@ -323,5 +323,70 @@
     "audio_model": "gemini-3.1-flash-tts-preview",
     "audio_voice": "Aoede",
     "audio_prompt": "Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: להיכנס"
+  },
+  {
+    "rank": 26,
+    "infinitive_hebrew": "לחזור",
+    "transcription_ru": "лахзор",
+    "binyan": "возвращаться",
+    "difficulty": "added_ru_dictionary_value_needs_final_pealim_title_check",
+    "audio_url": "/audio/verbs/026.wav",
+    "audio_file": "public/audio/verbs/026.wav",
+    "audio_provider": "google_ai_studio_gemini_tts",
+    "audio_model": "gemini-3.1-flash-tts-preview",
+    "audio_voice": "Aoede",
+    "audio_prompt": "Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לחזור"
+  },
+  {
+    "rank": 27,
+    "infinitive_hebrew": "לעבור",
+    "transcription_ru": "лаавор",
+    "binyan": "проходить, переходить",
+    "difficulty": "added_ru_dictionary_value_needs_final_pealim_title_check",
+    "audio_url": "/audio/verbs/027.wav",
+    "audio_file": "public/audio/verbs/027.wav",
+    "audio_provider": "google_ai_studio_gemini_tts",
+    "audio_model": "gemini-3.1-flash-tts-preview",
+    "audio_voice": "Aoede",
+    "audio_prompt": "Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לעבור"
+  },
+  {
+    "rank": 28,
+    "infinitive_hebrew": "לחיות",
+    "transcription_ru": "лихьёт",
+    "binyan": "жить",
+    "difficulty": "added_ru_dictionary_value_needs_final_pealim_title_check",
+    "audio_url": "/audio/verbs/028.wav",
+    "audio_file": "public/audio/verbs/028.wav",
+    "audio_provider": "google_ai_studio_gemini_tts",
+    "audio_model": "gemini-3.1-flash-tts-preview",
+    "audio_voice": "Aoede",
+    "audio_prompt": "Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לחיות"
+  },
+  {
+    "rank": 29,
+    "infinitive_hebrew": "לגור",
+    "transcription_ru": "лагур",
+    "binyan": "жить, проживать",
+    "difficulty": "added_ru_dictionary_value_needs_final_pealim_title_check",
+    "audio_url": "/audio/verbs/029.wav",
+    "audio_file": "public/audio/verbs/029.wav",
+    "audio_provider": "google_ai_studio_gemini_tts",
+    "audio_model": "gemini-3.1-flash-tts-preview",
+    "audio_voice": "Aoede",
+    "audio_prompt": "Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לגור"
+  },
+  {
+    "rank": 30,
+    "infinitive_hebrew": "לעמוד",
+    "transcription_ru": "лаамод",
+    "binyan": "стоять",
+    "difficulty": "added_ru_dictionary_value_needs_final_pealim_title_check",
+    "audio_url": "/audio/verbs/030.wav",
+    "audio_file": "public/audio/verbs/030.wav",
+    "audio_provider": "google_ai_studio_gemini_tts",
+    "audio_model": "gemini-3.1-flash-tts-preview",
+    "audio_voice": "Aoede",
+    "audio_prompt": "Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לעמוד"
   }
 ]
