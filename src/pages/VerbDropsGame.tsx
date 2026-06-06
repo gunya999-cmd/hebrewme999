@@ -3,8 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, CheckCircle2, Loader2, RotateCcw, Sparkles, Timer, Trophy, Volume2, XCircle } from "lucide-react";
 import VerbDropArtwork from "@/components/VerbDropArtwork";
-import { supabase } from "@/integrations/supabase/client";
-import { isSupabaseConfigured } from "@/lib/env";
 import { VERB_DROP_CATEGORIES, VERB_DROPS_SEED, VerbDropCard, VerbDropCategory } from "@/data/verbDrops";
 import { getWeakVerbIds, loadVerbDropsProgress, markVerbDropAnswer, VerbDropProgress } from "@/lib/verbDropsProgress";
 
@@ -22,6 +20,7 @@ interface SessionStep {
 
 const SESSION_TASK_COUNT = 14;
 const SESSION_SECONDS = 5 * 60;
+const TOP350_ID_RE = /(\d{3})$/;
 
 const HERO_WALK_VERB: VerbDropCard = {
   id: "hero-walk",
@@ -96,6 +95,19 @@ function speakWithBrowser(text: string) {
   window.speechSynthesis.speak(utterance);
 }
 
+function getVerbDropAudioNumber(verb: VerbDropCard): string | null {
+  const idMatch = TOP350_ID_RE.exec(verb.id);
+  if (idMatch) return idMatch[1];
+  if (verb.frequencyRank > 0 && verb.frequencyRank <= 350) return String(verb.frequencyRank).padStart(3, "0");
+  return null;
+}
+
+function getVerbDropAudioUrls(verb: VerbDropCard): string[] {
+  const number = getVerbDropAudioNumber(verb);
+  if (!number) return [];
+  return [`/audio/verbs/${number}.mp3`, `/audio/verbs/${number}.wav`];
+}
+
 export default function VerbDropsGame() {
   const navigate = useNavigate();
   const [topic, setTopic] = useState<TopicId | null>(null);
@@ -110,8 +122,7 @@ export default function VerbDropsGame() {
   const [score, setScore] = useState({ correct: 0, wrong: 0 });
   const [playing, setPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const audioCacheRef = useRef<Map<string, string>>(new Map());
-  const audioRequestCacheRef = useRef<Map<string, Promise<string>>>(new Map());
+  const audioCacheRef = useRef<Map<string, string[]>>(new Map());
   const audioPlayTokenRef = useRef(0);
 
   const currentStep = steps.length ? steps[currentIndex % steps.length] : undefined;
@@ -134,48 +145,23 @@ export default function VerbDropsGame() {
     return () => window.clearInterval(timer);
   }, [isFinished, steps.length, topic]);
 
-  const fetchAudioUrl = useCallback(async (verb: VerbDropCard): Promise<string> => {
+  const getCachedAudioUrls = useCallback((verb: VerbDropCard): string[] => {
     const cached = audioCacheRef.current.get(verb.id);
     if (cached) return cached;
-
-    const inFlight = audioRequestCacheRef.current.get(verb.id);
-    if (inFlight) return inFlight;
-
-    const text = stripHebrewMarks(verb.infinitive_hebrew);
-    const request = supabase.functions.invoke("tts-word", { body: { text } })
-      .then(({ data, error }) => {
-        const dataAny = data as { audio?: string; mime?: string } | null;
-        if (error || !dataAny?.audio) throw error || new Error("No audio returned from tts-word");
-
-        const binary = atob(dataAny.audio);
-        const bytes = new Uint8Array(binary.length);
-        for (let index = 0; index < binary.length; index += 1) bytes[index] = binary.charCodeAt(index);
-
-        const blob = new Blob([bytes], { type: dataAny.mime || "audio/wav" });
-        const url = URL.createObjectURL(blob);
-        audioCacheRef.current.set(verb.id, url);
-        return url;
-      })
-      .finally(() => {
-        audioRequestCacheRef.current.delete(verb.id);
-      });
-
-    audioRequestCacheRef.current.set(verb.id, request);
-    return request;
+    const urls = getVerbDropAudioUrls(verb);
+    audioCacheRef.current.set(verb.id, urls);
+    return urls;
   }, []);
 
   const warmAudioCache = useCallback((verbs: VerbDropCard[]) => {
-    if (!isSupabaseConfigured) return;
-
     const unique = verbs.filter((verb, index, arr) => arr.findIndex((item) => item.id === verb.id) === index);
     unique.slice(0, 8).forEach((verb) => {
-      if (!audioCacheRef.current.has(verb.id) && !audioRequestCacheRef.current.has(verb.id)) {
-        void fetchAudioUrl(verb).catch(() => {
-          // Prefetch is best-effort. Manual playback still has browser he-IL fallback.
-        });
-      }
+      const [primaryUrl] = getCachedAudioUrls(verb);
+      if (!primaryUrl) return;
+      const audio = new Audio(primaryUrl);
+      audio.preload = "auto";
     });
-  }, [fetchAudioUrl]);
+  }, [getCachedAudioUrls]);
 
   const prepareLetters = useCallback((verb: VerbDropCard) => {
     const letters = Array.from(stripHebrewMarks(verb.infinitive_hebrew)).map((value, index) => ({
@@ -215,55 +201,47 @@ export default function VerbDropsGame() {
     const token = audioPlayTokenRef.current + 1;
     audioPlayTokenRef.current = token;
 
-    try {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.currentTime = 0;
-        audioRef.current.onended = null;
-        audioRef.current.onerror = null;
-        audioRef.current = null;
-      }
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      audioRef.current.onended = null;
+      audioRef.current.onerror = null;
+      audioRef.current = null;
+    }
 
-      if (!isSupabaseConfigured) {
-        speakWithBrowser(text);
+    const audioUrls = getCachedAudioUrls(verb);
+    if (!audioUrls.length) {
+      speakWithBrowser(text);
+      return;
+    }
+
+    setPlaying(true);
+
+    for (const audioUrl of audioUrls) {
+      if (audioPlayTokenRef.current !== token) return;
+      try {
+        const audio = new Audio(audioUrl);
+        audio.preload = "auto";
+        audio.volume = 1;
+        audioRef.current = audio;
+        audio.onended = () => {
+          if (audioPlayTokenRef.current === token) setPlaying(false);
+        };
+        audio.onerror = () => {
+          if (audioPlayTokenRef.current === token) setPlaying(false);
+        };
+        await audio.play();
         return;
-      }
-
-      setPlaying(true);
-      let didFallback = false;
-      const fallbackTimer = window.setTimeout(() => {
-        if (audioPlayTokenRef.current !== token) return;
-        didFallback = true;
-        setPlaying(false);
-        speakWithBrowser(text);
-      }, 750);
-
-      const audioUrl = await fetchAudioUrl(verb);
-      window.clearTimeout(fallbackTimer);
-
-      if (didFallback || audioPlayTokenRef.current !== token) return;
-
-      const audio = new Audio(audioUrl);
-      audio.preload = "auto";
-      audio.volume = 1;
-      audioRef.current = audio;
-      audio.onended = () => {
-        if (audioPlayTokenRef.current === token) setPlaying(false);
-      };
-      audio.onerror = () => {
-        if (audioPlayTokenRef.current !== token) return;
-        setPlaying(false);
-        speakWithBrowser(text);
-      };
-
-      await audio.play();
-    } catch {
-      if (audioPlayTokenRef.current === token) {
-        setPlaying(false);
-        speakWithBrowser(text);
+      } catch (error) {
+        console.warn("Verb Drops generated audio unavailable; trying next source", audioUrl, error);
       }
     }
-  }, [fetchAudioUrl]);
+
+    if (audioPlayTokenRef.current === token) {
+      setPlaying(false);
+      speakWithBrowser(text);
+    }
+  }, [getCachedAudioUrls]);
 
   const goNext = useCallback(() => {
     setCurrentIndex((index) => index + 1);
