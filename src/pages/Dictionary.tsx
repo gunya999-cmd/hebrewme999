@@ -2,11 +2,11 @@ import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { UNIQUE_SEED_VERBS } from "@/data/verbs-unique";
+import { DICTIONARY_VERBS } from "@/data/dictionary-verbs";
 import { BINYAN_NAMES, Binyan } from "@/types/verb";
 import { useLearning } from "@/hooks/useLearning";
 
-const ALL_BINYANIM: Binyan[] = ["פעל", "נפעל", "פיעל", "הפעיל", "התפעל"];
+const ALL_BINYANIM: Binyan[] = ["פעל", "נפעל", "פיעל", "הפעיל", "התפעל", "פועל", "הופעל"];
 
 export default function Dictionary() {
   const navigate = useNavigate();
@@ -15,7 +15,7 @@ export default function Dictionary() {
   const { progress } = useLearning();
 
   const filtered = useMemo(() => {
-    return UNIQUE_SEED_VERBS.filter((v) => {
+    return DICTIONARY_VERBS.filter((v) => {
       const q = search.toLowerCase();
       const matchesSearch = !q || v.translation_ru.toLowerCase().includes(q) || v.transcription_ru.toLowerCase().includes(q) || v.infinitive_hebrew.includes(q) || v.root.includes(q);
       const matchesBinyan = !selectedBinyan || v.binyan === selectedBinyan;
@@ -26,7 +26,8 @@ export default function Dictionary() {
   return (
     <div className="min-h-screen bg-background pb-20">
       <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm px-4 pt-8 pb-3">
-        <h1 className="text-2xl font-black text-foreground mb-4">Словарь</h1>
+        <h1 className="text-2xl font-black text-foreground mb-1">Словарь</h1>
+        <p className="text-xs font-bold text-muted-foreground mb-4">{filtered.length} из {DICTIONARY_VERBS.length} глаголов</p>
 
         {/* Search */}
         <div className="relative mb-3">
