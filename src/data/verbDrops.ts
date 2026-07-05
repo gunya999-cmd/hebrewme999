@@ -1,13 +1,14 @@
-import { TABLE_TOP_350_VERBS } from "@/data/verbs-table-top350";
+import { VERB_DROPS_TOP_1000_ROWS } from "@/data/verbDropsTop1000";
 
 export type VerbDropCategory = "movement" | "food" | "communication" | "home" | "study" | "daily";
+export type VerbDropBinyan = "פעל" | "נפעל" | "פיעל" | "הפעיל" | "התפעל" | "פועל" | "הופעל";
 
 export interface VerbDropCard {
   id: string;
   infinitive_hebrew: string;
   transcription_ru: string;
   translation_ru: string;
-  binyan: "פעל" | "נפעל" | "פיעל" | "הפעיל" | "התפעל";
+  binyan: VerbDropBinyan;
   root: string;
   category: VerbDropCategory;
   visualType: string;
@@ -32,7 +33,7 @@ function hasAny(text: string, words: string[]): boolean {
 function getVerbDropCategory(translation: string): VerbDropCategory {
   const text = translation.toLowerCase();
 
-  if (hasAny(text, ["идти", "ходить", "приход", "выход", "вход", "возвращ", "проход", "переезж", "ехать", "ездить", "бежать", "бегать", "подним", "спуск", "двиг", "стоять", "сидеть", "лежать", "падать", "прыгать", "плавать", "плыть", "взлет", "приземл", "садиться"])) {
+  if (hasAny(text, ["идти", "ходить", "приход", "выход", "вход", "возвращ", "проход", "переезж", "ехать", "ездить", "бежать", "бегать", "подним", "спуск", "двиг", "стоять", "сидеть", "лежать", "падать", "прыгать", "плавать", "плыть", "взлет", "приземл", "садиться", "лететь", "летать"])) {
     return "movement";
   }
 
@@ -40,7 +41,7 @@ function getVerbDropCategory(translation: string): VerbDropCategory {
     return "food";
   }
 
-  if (hasAny(text, ["говор", "сказать", "слуш", "слыш", "спраш", "отвеч", "звон", "рассказ", "объяс", "просить", "сообщ", "молиться", "смешить", "смеяться"])) {
+  if (hasAny(text, ["говор", "сказать", "слуш", "слыш", "спраш", "отвеч", "звон", "рассказ", "объяс", "просить", "сообщ", "молиться", "смешить", "смеяться", "читать", "писать"])) {
     return "communication";
   }
 
@@ -48,39 +49,29 @@ function getVerbDropCategory(translation: string): VerbDropCategory {
     return "home";
   }
 
-  if (hasAny(text, ["читать", "писать", "учиться", "учить", "поним", "знать", "помнить", "думать", "решать", "провер", "считать", "изуч", "обязываться", "обязательство"])) {
+  if (hasAny(text, ["учиться", "учить", "поним", "знать", "помнить", "думать", "решать", "провер", "считать", "изуч", "обязываться", "обязательство"])) {
     return "study";
   }
 
   return "daily";
 }
 
-function getRankFromVerbId(id: string, fallback: number): number {
-  const match = id.match(/(\d{3,4})$/);
-  if (!match) return fallback;
-  return Number(match[1]);
-}
+// Full V8 set: 1000 Pealim verbs, aligned by rank with /cards/verb-drops/0001.webp ... /1000.webp.
+export const VERB_DROPS_SEED: VerbDropCard[] = VERB_DROPS_TOP_1000_ROWS.map(
+  ([frequencyRank, infinitive_hebrew, transcription_ru, translation_ru, binyan, root]) => {
+    const number = String(frequencyRank).padStart(4, "0");
 
-const SORTED_VERBS_FOR_DROPS = [...TABLE_TOP_350_VERBS].sort(
-  (a, b) => getRankFromVerbId(a.id, 9999) - getRankFromVerbId(b.id, 9999)
+    return {
+      id: `v8-${number}`,
+      infinitive_hebrew,
+      transcription_ru,
+      translation_ru,
+      binyan,
+      root,
+      category: getVerbDropCategory(translation_ru),
+      visualType: `card-${number}`,
+      frequencyRank,
+      imageSrc: `/cards/verb-drops/${number}.webp`,
+    };
+  }
 );
-
-// Uses the same authoritative numeric rank as the main dictionary.
-// Images are static public assets, so they are fetched on demand and are not bundled into JS.
-export const VERB_DROPS_SEED: VerbDropCard[] = SORTED_VERBS_FOR_DROPS.map((verb, index) => {
-  const frequencyRank = getRankFromVerbId(verb.id, index + 1);
-  const number = String(frequencyRank).padStart(4, "0");
-
-  return {
-    id: verb.id || `top350-${number}`,
-    infinitive_hebrew: verb.infinitive_hebrew,
-    transcription_ru: verb.transcription_ru,
-    translation_ru: verb.translation_ru,
-    binyan: verb.binyan,
-    root: verb.root || "",
-    category: getVerbDropCategory(verb.translation_ru),
-    visualType: `card-${number}`,
-    frequencyRank,
-    imageSrc: `/cards/verb-drops/${number}.webp`,
-  };
-});
