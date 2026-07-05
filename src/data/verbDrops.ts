@@ -30,6 +30,21 @@ function hasAny(text: string, words: string[]): boolean {
   return words.some((word) => text.includes(word));
 }
 
+function cleanTranscription(value: string): string {
+  return value.replace(/\s+/g, "").trim();
+}
+
+function cleanTranslation(value: string): string {
+  return value
+    .replace(/\s*\([^)]*\)\s*/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function cleanRoot(value: string): string {
+  return value.replace(/[\s\-–—]/g, "").trim();
+}
+
 function getVerbDropCategory(translation: string): VerbDropCategory {
   const text = translation.toLowerCase();
 
@@ -60,15 +75,16 @@ function getVerbDropCategory(translation: string): VerbDropCategory {
 export const VERB_DROPS_SEED: VerbDropCard[] = VERB_DROPS_TOP_1000_ROWS.map(
   ([frequencyRank, infinitive_hebrew, transcription_ru, translation_ru, binyan, root]) => {
     const number = String(frequencyRank).padStart(4, "0");
+    const cleanMeaning = cleanTranslation(translation_ru);
 
     return {
       id: `v8-${number}`,
       infinitive_hebrew,
-      transcription_ru,
-      translation_ru,
+      transcription_ru: cleanTranscription(transcription_ru),
+      translation_ru: cleanMeaning,
       binyan,
-      root,
-      category: getVerbDropCategory(translation_ru),
+      root: cleanRoot(root),
+      category: getVerbDropCategory(cleanMeaning),
       visualType: `card-${number}`,
       frequencyRank,
       imageSrc: `/cards/verb-drops/${number}.webp`,
