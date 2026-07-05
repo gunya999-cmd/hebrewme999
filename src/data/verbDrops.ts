@@ -56,7 +56,7 @@ function getVerbDropCategory(translation: string): VerbDropCategory {
 }
 
 function getRankFromVerbId(id: string, fallback: number): number {
-  const match = id.match(/(\d{3})$/);
+  const match = id.match(/(\d{3,4})$/);
   if (!match) return fallback;
   return Number(match[1]);
 }
@@ -66,10 +66,10 @@ const SORTED_VERBS_FOR_DROPS = [...TABLE_TOP_350_VERBS].sort(
 );
 
 // Uses the same authoritative numeric rank as the main dictionary.
-// This prevents image mismatch if source chunks are generated as 1,10,100,11...
+// Images are static public assets, so they are fetched on demand and are not bundled into JS.
 export const VERB_DROPS_SEED: VerbDropCard[] = SORTED_VERBS_FOR_DROPS.map((verb, index) => {
   const frequencyRank = getRankFromVerbId(verb.id, index + 1);
-  const number = String(frequencyRank).padStart(3, "0");
+  const number = String(frequencyRank).padStart(4, "0");
 
   return {
     id: verb.id || `top350-${number}`,
@@ -81,6 +81,6 @@ export const VERB_DROPS_SEED: VerbDropCard[] = SORTED_VERBS_FOR_DROPS.map((verb,
     category: getVerbDropCategory(verb.translation_ru),
     visualType: `card-${number}`,
     frequencyRank,
-    imageSrc: `/verb-cards/${number}.webp`,
+    imageSrc: `/cards/verb-drops/${number}.webp`,
   };
 });
