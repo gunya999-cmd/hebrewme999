@@ -38,7 +38,7 @@ export interface VerbConjugations {
   imperative: ImperativeTense;
 }
 
-export type Binyan = "פעל" | "נפעל" | "פיעל" | "הפעיל" | "התפעל";
+export type Binyan = "פעל" | "נפעל" | "פיעל" | "הפעיל" | "התפעל" | "פועל" | "הופעל";
 export type Difficulty = "easy" | "medium" | "hard";
 
 export interface Verb {
@@ -61,6 +61,8 @@ export const BINYAN_NAMES: Record<Binyan, string> = {
   "פיעל": "Пиэль",
   "הפעיל": "Хифиль",
   "התפעל": "Хитпаэль",
+  "פועל": "Пуаль",
+  "הופעל": "Хуфаль",
 };
 
 export const PERSON_LABELS: Record<string, string> = {
