@@ -2,7 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Volume2 } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { UNIQUE_SEED_VERBS } from "@/data/verbs-unique";
+import { DICTIONARY_VERBS } from "@/data/dictionary-verbs";
 import { BINYAN_NAMES, PERSON_LABELS, TENSE_LABELS, ConjugationForm, VerbConjugations } from "@/types/verb";
 import { SpeechRateSelector } from "@/components/SpeechRateSelector";
 import { playVerbAudio, speakHebrewWithBrowser } from "@/lib/verb-audio";
@@ -21,7 +21,7 @@ export default function VerbDetail() {
   const navigate = useNavigate();
   const [activeTense, setActiveTense] = useState<string>("present");
 
-  const verb = UNIQUE_SEED_VERBS.find((v) => v.id === id);
+  const verb = DICTIONARY_VERBS.find((v) => v.id === id);
   if (!verb) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
