@@ -7,6 +7,21 @@ function getDifficulty(rank: number): Difficulty {
   return "hard";
 }
 
+function cleanTranscription(value: string): string {
+  return value.replace(/\s+/g, "").trim();
+}
+
+function cleanTranslation(value: string): string {
+  return value
+    .replace(/\s*\([^)]*\)\s*/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function cleanRoot(value: string): string {
+  return value.replace(/[\s\-–—]/g, "").trim();
+}
+
 // Full V8 dictionary source: 1000 verbs aligned with the generated card/assets rank order.
 export const DICTIONARY_VERBS: Verb[] = VERB_DROPS_TOP_1000_ROWS.map(
   ([rank, infinitive_hebrew, transcription_ru, translation_ru, binyan, root]) => {
@@ -15,9 +30,9 @@ export const DICTIONARY_VERBS: Verb[] = VERB_DROPS_TOP_1000_ROWS.map(
     return {
       id: `v8-${number}`,
       infinitive_hebrew,
-      transcription_ru,
-      translation_ru,
-      root,
+      transcription_ru: cleanTranscription(transcription_ru),
+      translation_ru: cleanTranslation(translation_ru),
+      root: cleanRoot(root),
       binyan,
       difficulty: getDifficulty(rank),
     };
