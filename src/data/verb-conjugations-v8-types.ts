@@ -1,6 +1,35 @@
 import type { ConjugationForm, VerbConjugations } from "@/types/verb";
 
-export type PackedConjugationKey = "pms", "pfs", "pmp", "pfp", "pa", "ptm", "ptf", "phu", "phi", "pn", "ptmp", "ptfp", "phm", "phf", "fa", "ftm", "ftf", "fhu", "fhi", "fn", "ftmp", "ftfp", "fhm", "fhf", "ims", "ifs", "imp", "ifp";
+export type PackedConjugationKey =
+  | "pms"
+  | "pfs"
+  | "pmp"
+  | "pfp"
+  | "pa"
+  | "ptm"
+  | "ptf"
+  | "phu"
+  | "phi"
+  | "pn"
+  | "ptmp"
+  | "ptfp"
+  | "phm"
+  | "phf"
+  | "fa"
+  | "ftm"
+  | "ftf"
+  | "fhu"
+  | "fhi"
+  | "fn"
+  | "ftmp"
+  | "ftfp"
+  | "fhm"
+  | "fhf"
+  | "ims"
+  | "ifs"
+  | "imp"
+  | "ifp";
+
 export type PackedConjugationValue = readonly [hebrew: string, transcription: string];
 export type PackedVerbConjugationRow = readonly [rank: number, forms: Partial<Record<PackedConjugationKey, PackedConjugationValue>>];
 
