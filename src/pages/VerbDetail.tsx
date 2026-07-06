@@ -69,6 +69,20 @@ export default function VerbDetail() {
         </div>
       </div>
 
+      {verb.imageSrc && (
+        <div className="px-4 mt-6">
+          <div className="bg-card rounded-2xl p-3 border border-border shadow-sm">
+            <img
+              src={verb.imageSrc}
+              alt={`${verb.infinitive_hebrew} — ${verb.translation_ru}`}
+              className="w-full max-w-sm mx-auto rounded-xl"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+        </div>
+      )}
+
       {/* Tense Tabs */}
       {conjugation ? (
         <div className="px-4 mt-6">
