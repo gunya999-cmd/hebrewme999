@@ -35,6 +35,7 @@ export const DICTIONARY_VERBS: Verb[] = VERB_DROPS_TOP_1000_ROWS.map(
       root: cleanRoot(root),
       binyan,
       difficulty: getDifficulty(rank),
+      imageSrc: `/cards/verb-drops/${number}.webp`,
     };
   }
 );
