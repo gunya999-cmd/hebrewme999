@@ -294,18 +294,57 @@ export default function VerbDropsGame() {
         <div className="flex items-center gap-3 mb-6">
           <button onClick={() => navigate("/games")} className="text-muted-foreground"><ArrowLeft className="w-6 h-6" /></button>
           <div>
-            <h1 className="text-2xl font-black text-foreground">Капли глаголов</h1>
+            <h1 className="text-3xl font-black tracking-tight text-foreground">Глаголопад</h1>
             <p className="text-xs text-muted-foreground font-semibold">5 минут • глаголы • картинки • аудио</p>
           </div>
         </div>
-        <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} className="relative overflow-hidden rounded-[2.25rem] border border-white/70 bg-white/80 p-5 shadow-2xl shadow-primary/10 backdrop-blur-md mb-5">
-          <div className="absolute -top-10 -right-8 h-32 w-32 rounded-full bg-primary/15" />
-          <div className="absolute -bottom-16 -left-10 h-40 w-40 rounded-full bg-success/15" />
-          <VerbDropArtwork verb={HERO_WALK_VERB} className="h-44 mb-4 relative z-10" />
-          <div className="relative z-10">
-            <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-black text-primary"><Timer className="h-3.5 w-3.5" /> 5‑минутная сессия</div>
-            <h2 className="text-2xl font-black text-foreground">Запоминай глаголы действием</h2>
-            <p className="text-sm text-muted-foreground mt-2">Большая картинка, звук, быстрый выбор и сборка инфинитива по буквам.</p>
+        <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} className="relative overflow-hidden rounded-[2.25rem] border border-white/75 bg-white/85 shadow-2xl shadow-primary/10 backdrop-blur-md mb-5">
+          <div className="relative h-56 overflow-hidden bg-[radial-gradient(circle_at_18%_18%,_hsl(var(--primary)/0.18),_transparent_28%),radial-gradient(circle_at_88%_12%,_hsl(var(--primary)/0.20),_transparent_24%),linear-gradient(135deg,_hsl(var(--primary)/0.10),_hsl(var(--background)),_hsl(var(--success)/0.10))]">
+            <div className="absolute left-5 top-16 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-xl shadow-primary/30">
+              <Volume2 className="h-6 w-6" />
+            </div>
+
+            <div className="absolute left-20 top-7 rotate-[-8deg] rounded-2xl border border-primary/15 bg-white/90 px-5 py-4 text-center shadow-xl">
+              <div className="text-3xl">??</div>
+              <div className="mt-1 text-sm font-black text-foreground">бежать</div>
+            </div>
+
+            <div className="absolute left-10 bottom-7 rotate-[-4deg] rounded-2xl border border-primary/15 bg-white/90 px-4 py-3 text-center shadow-xl">
+              <div className="text-2xl">??</div>
+              <div className="mt-1 text-xs font-black text-foreground">прыгать</div>
+            </div>
+
+            <div className="absolute left-1/2 top-10 -translate-x-1/2">
+              <div className="relative h-32 w-32">
+                <div className="absolute left-7 top-2 h-16 w-16 rounded-full bg-primary/20" />
+                <div className="absolute left-9 top-4 text-6xl">?????</div>
+                <div className="absolute -right-6 top-4 text-primary">?</div>
+                <div className="absolute -left-5 bottom-4 text-primary/70">?</div>
+              </div>
+            </div>
+
+            <div className="absolute right-8 top-20 flex gap-1">
+              {["?", "?", "?"].map((letter) => (
+                <span key={letter} dir="rtl" className="flex h-9 w-9 items-center justify-center rounded-xl border border-primary/20 bg-white/90 font-hebrew text-xl font-black text-primary shadow-md">
+                  {letter}
+                </span>
+              ))}
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl border-2 border-dashed border-primary/25 bg-white/50" />
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl border-2 border-dashed border-primary/25 bg-white/50" />
+            </div>
+
+            <div className="absolute bottom-5 right-8 rounded-2xl bg-primary/15 px-4 py-3 shadow-inner">
+              <div className="flex gap-2">
+                <span className="rounded-lg bg-white px-2 py-1 font-black text-primary">?</span>
+                <span className="rounded-lg bg-white px-2 py-1 font-black text-primary">?</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="relative z-10 p-5 pt-4">
+            <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-black text-primary"><Timer className="h-3.5 w-3.5" /> 5-минутная игра</div>
+            <h2 className="text-2xl font-black text-foreground">Лови глаголы в действии</h2>
+            <p className="text-sm text-muted-foreground mt-2">Смотри, слушай и собирай инфинитив по буквам.</p>
           </div>
         </motion.div>
         <div className="grid grid-cols-2 gap-3">
