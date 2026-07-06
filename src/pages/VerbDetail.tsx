@@ -51,8 +51,7 @@ export default function VerbDetail() {
           <p className="text-primary-foreground/80 font-medium text-lg">{verb.transcription_ru}</p>
           <p className="text-primary-foreground/60 text-sm mt-1">{verb.translation_ru}</p>
           <div className="flex items-center justify-center gap-3 mt-4">
-            <span className="bg-primary-foreground/20 rounded-full px-3 py-1 text-xs font-bold text-primary-foreground">
-              РљРѕСЂРµРЅСЊ: <span className="font-hebrew">{verb.root}</span>
+            <span className="bg-primary-foreground/20 rounded-full px-3 py-1 text-xs font-bold text-primary-foreground">              ??????: <span className="font-hebrew">{verb.root}</span>
             </span>
             <span className="bg-primary-foreground/20 rounded-full px-3 py-1 text-xs font-bold text-primary-foreground">
               <span className="font-hebrew">{verb.binyan}</span> {BINYAN_NAMES[verb.binyan]}
@@ -61,7 +60,7 @@ export default function VerbDetail() {
           <button
             onClick={() => void playVerbAudio(verb)}
             className="mt-3 bg-primary-foreground/20 rounded-full p-2.5 mx-auto block active:scale-90 transition-transform"
-            title="РћР·РІСѓС‡РёС‚СЊ РёРЅС„РёРЅРёС‚РёРІ РіРѕР»РѕСЃРѕРј Aoede"
+            title="???????? ????????? ??????? Aoede"
           >
             <Volume2 className="w-5 h-5 text-primary-foreground" />
           </button>
@@ -70,11 +69,11 @@ export default function VerbDetail() {
       </div>
 
       {verb.imageSrc && (
-        <div className="px-4 mt-6">
-          <div className="bg-card rounded-2xl p-3 border border-border shadow-sm">
+        <div className="px-4 mt-4">
+          <div className="bg-card rounded-2xl p-2 border border-border shadow-sm max-w-[190px] mx-auto">
             <img
               src={verb.imageSrc}
-              alt={`${verb.infinitive_hebrew} вЂ” ${verb.translation_ru}`}
+              alt={`${verb.infinitive_hebrew} - ${verb.translation_ru}`}
               className="w-full max-w-[170px] mx-auto rounded-xl object-contain"
               loading="lazy"
               decoding="async"
@@ -137,7 +136,7 @@ export default function VerbDetail() {
       ) : (
         <div className="px-4 mt-6">
           <div className="bg-card rounded-2xl p-8 text-center border border-border">
-            <p className="text-muted-foreground font-medium">РЎРїСЂСЏР¶РµРЅРёСЏ Р±СѓРґСѓС‚ РґРѕР±Р°РІР»РµРЅС‹ РїРѕР·Р¶Рµ</p>
+            <p className="text-muted-foreground font-medium">????????? ????? ????????? ?????</p>
           </div>
         </div>
       )}
