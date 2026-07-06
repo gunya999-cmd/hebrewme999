@@ -1,4 +1,5 @@
-import { VERB_DROPS_TOP_1000_ROWS } from "@/data/verbDropsTop1000";
+﻿import { VERB_DROPS_TOP_1000_ROWS } from "@/data/verbDropsTop1000";
+import { VERB_CONJUGATIONS_V8_BY_ID } from "@/data/verb-conjugations-v8";
 import type { Difficulty, Verb } from "@/types/verb";
 
 function getDifficulty(rank: number): Difficulty {
@@ -22,13 +23,14 @@ function cleanRoot(value: string): string {
   return value.replace(/[\s\-–—]/g, "").trim();
 }
 
-// Full V8 dictionary source: 1000 verbs aligned with the generated card/assets rank order.
+// Full V8 dictionary source: 1000 verbs aligned with generated forms and card/assets rank order.
 export const DICTIONARY_VERBS: Verb[] = VERB_DROPS_TOP_1000_ROWS.map(
   ([rank, infinitive_hebrew, transcription_ru, translation_ru, binyan, root]) => {
     const number = String(rank).padStart(4, "0");
+    const id = `v8-${number}`;
 
     return {
-      id: `v8-${number}`,
+      id,
       infinitive_hebrew,
       transcription_ru: cleanTranscription(transcription_ru),
       translation_ru: cleanTranslation(translation_ru),
@@ -36,6 +38,7 @@ export const DICTIONARY_VERBS: Verb[] = VERB_DROPS_TOP_1000_ROWS.map(
       binyan,
       difficulty: getDifficulty(rank),
       imageSrc: `/cards/verb-drops/${number}.webp`,
+      conjugations: VERB_CONJUGATIONS_V8_BY_ID[id],
     };
   }
 );
