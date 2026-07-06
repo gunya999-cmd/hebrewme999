@@ -403,8 +403,13 @@ export default function VerbDropsGame() {
               <div className="grid grid-cols-2 gap-3">{currentStep.options.map((option) => {
                 const isSelected = selectedAnswer === option.infinitive_hebrew;
                 const isCorrect = option.infinitive_hebrew === correctText;
-                const state = result && isCorrect ? "border-success bg-success/15 text-success shadow-success/10" : result && isSelected ? "border-destructive bg-destructive/15 text-destructive shadow-destructive/10" : "border-white/80 bg-white/90 shadow-black/5";
-                return <button key={option.id} dir="rtl" onClick={() => submitAnswer(option.infinitive_hebrew)} disabled={!!result} className={`min-h-[72px] rounded-[2rem] border-2 px-4 py-3 font-hebrew text-2xl font-black shadow-xl backdrop-blur-md transition-colors ${state}`}>{option.infinitive_hebrew}</button>;
+                const state = result && isCorrect ? "border-success bg-success/15 text-success shadow-success/10" : result && isSelected ? "border-destructive bg-destructive/15 text-destructive shadow-destructive/10" : "border-white/80 bg-white/90 text-foreground shadow-black/5";
+                return (
+                  <button key={option.id} dir="rtl" onClick={() => submitAnswer(option.infinitive_hebrew)} disabled={!!result} className={`min-h-[84px] rounded-[2rem] border-2 px-4 py-3 shadow-xl backdrop-blur-md transition-colors ${state}`}>
+                    <span className="block font-hebrew text-2xl font-black">{option.infinitive_hebrew}</span>
+                    <span dir="ltr" className="mt-1 block text-xs font-bold opacity-70">{option.transcription_ru}</span>
+                  </button>
+                );
               })}</div>
             </div>
           )}
@@ -412,7 +417,8 @@ export default function VerbDropsGame() {
           {currentStep.mode === "letters" && (
             <div>
               <p className="text-center text-sm font-bold text-muted-foreground mb-1">Собери глагол по буквам</p>
-              <h2 className="text-center text-2xl font-black text-foreground mb-4">{currentStep.verb.translation_ru}</h2>
+              <h2 className="text-center text-2xl font-black text-foreground mb-1">{currentStep.verb.translation_ru}</h2>
+              <p className="text-center text-sm text-muted-foreground font-semibold mb-4">{currentStep.verb.transcription_ru}</p>
               <div dir="rtl" className="min-h-[76px] rounded-[2rem] border-2 border-dashed border-primary/30 bg-white/70 p-3 flex items-center justify-center gap-2 mb-4 shadow-inner">
                 {selectedLetters.length === 0 ? <span className="text-sm text-muted-foreground">нажми буквы снизу</span> : selectedLetters.map((letter) => <button key={letter.id} onClick={() => undoLetter(letter)} className="h-12 min-w-12 rounded-2xl bg-primary font-hebrew text-2xl font-black text-primary-foreground shadow-lg">{letter.value}</button>)}
               </div>
@@ -425,6 +431,7 @@ export default function VerbDropsGame() {
             <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className={`mt-5 rounded-2xl p-4 text-center ${result === "correct" ? "bg-success/10" : "bg-destructive/10"}`}>
               <div className="flex items-center justify-center gap-2 mb-1">{result === "correct" ? <CheckCircle2 className="w-6 h-6 text-success" /> : <XCircle className="w-6 h-6 text-destructive" />}<p className="font-black text-foreground">{result === "correct" ? "נכון!" : "Почти"}</p></div>
               <p dir="rtl" className="font-hebrew text-3xl font-black text-foreground">{correctText}</p>
+              <p className="text-sm text-muted-foreground font-semibold">{currentStep.verb.transcription_ru}</p>
               <p className="text-sm text-muted-foreground font-semibold">{currentStep.verb.translation_ru}</p>
               <button onClick={goNext} className="mt-4 w-full rounded-xl bg-primary py-3 font-bold text-primary-foreground">Следующая капля</button>
             </motion.div>
