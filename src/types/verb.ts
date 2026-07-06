@@ -32,13 +32,13 @@ export interface ImperativeTense {
 }
 
 export interface VerbConjugations {
-  present: PresentTense;
-  past: PastFutureTense;
-  future: PastFutureTense;
-  imperative: ImperativeTense;
+  present?: Partial<PresentTense>;
+  past?: Partial<PastFutureTense>;
+  future?: Partial<PastFutureTense>;
+  imperative?: Partial<ImperativeTense>;
 }
 
-export type Binyan = "פעל" | "נפעל" | "פיעל" | "הפעיל" | "התפעל";
+export type Binyan = "פעל" | "נפעל" | "פיעל" | "הפעיל" | "התפעל" | "פועל" | "הופעל";
 export type Difficulty = "easy" | "medium" | "hard";
 
 export interface Verb {
@@ -61,6 +61,8 @@ export const BINYAN_NAMES: Record<Binyan, string> = {
   "פיעל": "Пиэль",
   "הפעיל": "Хифиль",
   "התפעל": "Хитпаэль",
+  "פועל": "Пуаль",
+  "הופעל": "Хуфаль",
 };
 
 export const PERSON_LABELS: Record<string, string> = {
