@@ -51,7 +51,8 @@ export default function VerbDetail() {
           <p className="text-primary-foreground/80 font-medium text-lg">{verb.transcription_ru}</p>
           <p className="text-primary-foreground/60 text-sm mt-1">{verb.translation_ru}</p>
           <div className="flex items-center justify-center gap-3 mt-4">
-            <span className="bg-primary-foreground/20 rounded-full px-3 py-1 text-xs font-bold text-primary-foreground">              ??????: <span className="font-hebrew">{verb.root}</span>
+            <span className="bg-primary-foreground/20 rounded-full px-3 py-1 text-xs font-bold text-primary-foreground">
+              {"Корень:"} <span className="font-hebrew">{verb.root}</span>
             </span>
             <span className="bg-primary-foreground/20 rounded-full px-3 py-1 text-xs font-bold text-primary-foreground">
               <span className="font-hebrew">{verb.binyan}</span> {BINYAN_NAMES[verb.binyan]}
@@ -60,7 +61,7 @@ export default function VerbDetail() {
           <button
             onClick={() => void playVerbAudio(verb)}
             className="mt-3 bg-primary-foreground/20 rounded-full p-2.5 mx-auto block active:scale-90 transition-transform"
-            title="???????? ????????? ??????? Aoede"
+            title="Play infinitive audio"
           >
             <Volume2 className="w-5 h-5 text-primary-foreground" />
           </button>
@@ -124,7 +125,7 @@ export default function VerbDetail() {
                     <span className="font-hebrew text-foreground font-bold text-lg">{form.hebrew}</span>
                     <div className="flex gap-2 mt-0.5">
                       <span className="text-sm text-muted-foreground">{form.transcription}</span>
-                      <span className="text-sm text-muted-foreground/60">вЂ” {form.translation}</span>
+                      <span className="text-sm text-muted-foreground/60">- {form.translation}</span>
                     </div>
                   </div>
                   <Volume2 className="w-4 h-4 text-muted-foreground flex-shrink-0" />
