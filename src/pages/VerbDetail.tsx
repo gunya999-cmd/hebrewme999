@@ -75,7 +75,7 @@ export default function VerbDetail() {
             <img
               src={verb.imageSrc}
               alt={`${verb.infinitive_hebrew} вЂ” ${verb.translation_ru}`}
-              className="w-full max-w-sm mx-auto rounded-xl"
+              className="w-full max-w-[170px] mx-auto rounded-xl object-contain"
               loading="lazy"
               decoding="async"
             />
@@ -144,4 +144,5 @@ export default function VerbDetail() {
     </div>
   );
 }
+
 
