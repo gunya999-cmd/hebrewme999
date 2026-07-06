@@ -50,6 +50,7 @@ export interface Verb {
   root: string;
   binyan: Binyan;
   difficulty: Difficulty;
+  imageSrc?: string;
   pealim_url?: string;
   pealim_url_status?: string;
   conjugations?: VerbConjugations;
