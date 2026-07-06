@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from "react-router-dom";
+﻿import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Volume2 } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -25,7 +25,7 @@ export default function VerbDetail() {
   if (!verb) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <p className="text-muted-foreground">Глагол не найден</p>
+        <p className="text-muted-foreground">Р“Р»Р°РіРѕР» РЅРµ РЅР°Р№РґРµРЅ</p>
       </div>
     );
   }
@@ -52,7 +52,7 @@ export default function VerbDetail() {
           <p className="text-primary-foreground/60 text-sm mt-1">{verb.translation_ru}</p>
           <div className="flex items-center justify-center gap-3 mt-4">
             <span className="bg-primary-foreground/20 rounded-full px-3 py-1 text-xs font-bold text-primary-foreground">
-              Корень: <span className="font-hebrew">{verb.root}</span>
+              РљРѕСЂРµРЅСЊ: <span className="font-hebrew">{verb.root}</span>
             </span>
             <span className="bg-primary-foreground/20 rounded-full px-3 py-1 text-xs font-bold text-primary-foreground">
               <span className="font-hebrew">{verb.binyan}</span> {BINYAN_NAMES[verb.binyan]}
@@ -61,7 +61,7 @@ export default function VerbDetail() {
           <button
             onClick={() => void playVerbAudio(verb)}
             className="mt-3 bg-primary-foreground/20 rounded-full p-2.5 mx-auto block active:scale-90 transition-transform"
-            title="Озвучить инфинитив голосом Aoede"
+            title="РћР·РІСѓС‡РёС‚СЊ РёРЅС„РёРЅРёС‚РёРІ РіРѕР»РѕСЃРѕРј Aoede"
           >
             <Volume2 className="w-5 h-5 text-primary-foreground" />
           </button>
@@ -74,7 +74,7 @@ export default function VerbDetail() {
           <div className="bg-card rounded-2xl p-3 border border-border shadow-sm">
             <img
               src={verb.imageSrc}
-              alt={`${verb.infinitive_hebrew} — ${verb.translation_ru}`}
+              alt={`${verb.infinitive_hebrew} вЂ” ${verb.translation_ru}`}
               className="w-full max-w-sm mx-auto rounded-xl"
               loading="lazy"
               decoding="async"
@@ -125,7 +125,7 @@ export default function VerbDetail() {
                     <span className="font-hebrew text-foreground font-bold text-lg">{form.hebrew}</span>
                     <div className="flex gap-2 mt-0.5">
                       <span className="text-sm text-muted-foreground">{form.transcription}</span>
-                      <span className="text-sm text-muted-foreground/60">— {form.translation}</span>
+                      <span className="text-sm text-muted-foreground/60">вЂ” {form.translation}</span>
                     </div>
                   </div>
                   <Volume2 className="w-4 h-4 text-muted-foreground flex-shrink-0" />
@@ -137,10 +137,11 @@ export default function VerbDetail() {
       ) : (
         <div className="px-4 mt-6">
           <div className="bg-card rounded-2xl p-8 text-center border border-border">
-            <p className="text-muted-foreground font-medium">Спряжения будут добавлены позже</p>
+            <p className="text-muted-foreground font-medium">РЎРїСЂСЏР¶РµРЅРёСЏ Р±СѓРґСѓС‚ РґРѕР±Р°РІР»РµРЅС‹ РїРѕР·Р¶Рµ</p>
           </div>
         </div>
       )}
     </div>
   );
 }
+
