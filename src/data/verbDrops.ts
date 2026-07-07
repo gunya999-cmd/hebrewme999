@@ -40,19 +40,19 @@ export interface VerbDropCard {
 }
 
 export const VERB_DROP_CATEGORIES: Array<{ id: VerbDropTopic; title: string; desc: string; emoji: string }> = [
-  { id: "movement", title: "Движение", desc: "идти, приходить, ехать", emoji: "🚶" },
-  { id: "food", title: "Еда и покупки", desc: "есть, пить, покупать", emoji: "🍽️" },
-  { id: "communication", title: "Общение", desc: "говорить, слушать, звонить", emoji: "💬" },
-  { id: "home", title: "Дом", desc: "жить, спать, убирать", emoji: "🏠" },
-  { id: "study", title: "Учёба и мысли", desc: "учить, знать, понимать", emoji: "📚" },
-  { id: "work", title: "Работа и дела", desc: "работать, строить, решать", emoji: "🧰" },
-  { id: "people", title: "Люди и отношения", desc: "любить, помогать, встречать", emoji: "🤝" },
-  { id: "feelings", title: "Чувства", desc: "хотеть, бояться, радоваться", emoji: "💜" },
-  { id: "body", title: "Тело и здоровье", desc: "болеть, лечить, дышать", emoji: "🫀" },
-  { id: "money", title: "Деньги и сделки", desc: "платить, продавать, получать", emoji: "💰" },
-  { id: "nature", title: "Природа", desc: "расти, цвести, светить", emoji: "🌿" },
-  { id: "technology", title: "Техника", desc: "включать, выключать, загружать", emoji: "⚙️" },
-  { id: "daily", title: "Каждый день", desc: "частые действия вперемешку", emoji: "✨" },
+  { id: "movement", title: "Движение", desc: "идти, приходить, ехать", emoji: "לך" },
+  { id: "food", title: "Еда и покупки", desc: "есть, пить, покупать", emoji: "אכל" },
+  { id: "communication", title: "Общение", desc: "говорить, слушать, звонить", emoji: "דבר" },
+  { id: "home", title: "Дом", desc: "жить, спать, убирать", emoji: "בית" },
+  { id: "study", title: "Учёба и мысли", desc: "учить, знать, понимать", emoji: "למד" },
+  { id: "work", title: "Работа и дела", desc: "работать, строить, решать", emoji: "עשה" },
+  { id: "people", title: "Люди и отношения", desc: "любить, помогать, встречать", emoji: "עם" },
+  { id: "feelings", title: "Чувства", desc: "хотеть, бояться, радоваться", emoji: "לב" },
+  { id: "body", title: "Тело и здоровье", desc: "болеть, лечить, дышать", emoji: "גוף" },
+  { id: "money", title: "Деньги и сделки", desc: "платить, продавать, получать", emoji: "₪" },
+  { id: "nature", title: "Природа", desc: "расти, цвести, светить", emoji: "טבע" },
+  { id: "technology", title: "Техника", desc: "включать, выключать, загружать", emoji: "AI" },
+  { id: "daily", title: "Каждый день", desc: "частые действия вперемешку", emoji: "יום" },
   { id: "binyan_paal", title: "Пааль", desc: "פעל • простые активные", emoji: "פעל" },
   { id: "binyan_nifal", title: "Нифаль", desc: "נפעל • пассив и возвратность", emoji: "נפעל" },
   { id: "binyan_piel", title: "Пиэль", desc: "פיעל • усиленное действие", emoji: "פיעל" },
@@ -60,7 +60,7 @@ export const VERB_DROP_CATEGORIES: Array<{ id: VerbDropTopic; title: string; des
   { id: "binyan_hitpael", title: "Хитпаэль", desc: "התפעל • возвратные действия", emoji: "התפעל" },
   { id: "binyan_pual", title: "Пуаль", desc: "פועל • пассив Пиэль", emoji: "פועל" },
   { id: "binyan_hufal", title: "Хуфаль", desc: "הופעל • пассив Хифиль", emoji: "הופעל" },
-  { id: "all", title: "Все глаголы", desc: "смешанная тренировка", emoji: "🎮" },
+  { id: "all", title: "Все глаголы", desc: "смешанная тренировка", emoji: "1000" },
 ];
 
 function hasAny(text: string, words: string[]): boolean {
