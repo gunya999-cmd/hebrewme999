@@ -53,7 +53,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <ErrorBoundary>
-        <div className="max-w-lg mx-auto relative">
+        <div className="max-w-xl mx-auto relative">
           <Suspense fallback={<AppFallback />}>
             <Routes>
               <Route path="/" element={<Home />} />
