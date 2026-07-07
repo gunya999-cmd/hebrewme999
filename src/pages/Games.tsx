@@ -13,29 +13,29 @@ const featuredGame = {
 const games = [
   {
     id: "guess-form",
-    title: "Угадай форму",
-    desc: "Выбери правильную форму глагола из 4 вариантов",
+    title: "Тренажёр формы",
+    desc: "Выбери форму, получи объяснение и исправь ошибку",
     icon: Brain,
     path: "/games/guess-form",
   },
   {
     id: "write-form",
-    title: "Напиши форму",
-    desc: "Напечатай форму глагола на иврите вручную",
+    title: "Собери форму",
+    desc: "Собери форму из букв вместо жёсткого ручного ввода",
     icon: PenLine,
     path: "/games/write-form",
   },
   {
     id: "guess-root",
-    title: "Угадай корень",
-    desc: "Определи трёхбуквенный корень глагола",
+    title: "Найди корень",
+    desc: "Нажимай корневые буквы прямо внутри инфинитива",
     icon: Puzzle,
     path: "/games/guess-root",
   },
   {
     id: "guess-binyan",
-    title: "Угадай беньян",
-    desc: "К какой модели относится глагол?",
+    title: "Узнай модель",
+    desc: "7 беньянов с объяснением шаблонов и пассивов",
     icon: Layers,
     path: "/games/guess-binyan",
   },
@@ -65,7 +65,7 @@ export default function Games() {
           <ArrowLeft className="h-5 w-5" />
         </button>
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.3em] text-cyan-200/80">Action Lab</p>
+          <p className="text-xs font-black uppercase tracking-[0.3em] text-cyan-200/80">Игровая лаборатория</p>
           <h1 className="text-3xl font-black tracking-tight">Игры</h1>
         </div>
       </div>
