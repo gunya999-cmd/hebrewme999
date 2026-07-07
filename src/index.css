@@ -112,4 +112,14 @@
   .hebrew-glow {
     text-shadow: 0 0 22px rgba(34, 211, 238, 0.65), 0 0 48px rgba(124, 58, 237, 0.42);
   }
+
+  .text-white\/72 { color: rgba(255,255,255,0.72); }
+  .text-white\/65 { color: rgba(255,255,255,0.65); }
+  .text-white\/55 { color: rgba(255,255,255,0.55); }
+  .text-white\/16 { color: rgba(255,255,255,0.16); }
+  .bg-white\/82 { background-color: rgba(255,255,255,0.82); }
+  .bg-white\/16 { background-color: rgba(255,255,255,0.16); }
+  .bg-white\/12 { background-color: rgba(255,255,255,0.12); }
+  .shadow-slate-900\/8 { box-shadow: 0 20px 45px rgba(15, 23, 42, 0.08); }
+  .shadow-slate-900\/18 { box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18); }
 }
