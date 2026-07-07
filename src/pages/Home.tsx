@@ -232,6 +232,12 @@ export default function Home() {
             <p className="text-xs font-semibold text-muted-foreground">живое общение</p>
           </motion.button>
 
+          <motion.button whileTap={{ scale: 0.95 }} onClick={() => navigate("/street-talk")} className="glass-card col-span-2 rounded-2xl p-4 text-left">
+            <MessageCircle className="mb-2 h-6 w-6 text-primary" />
+            <p className="text-sm font-black text-foreground">Уличный разговор</p>
+            <p className="text-xs font-semibold text-muted-foreground">фразы, реакции, слэнг, спортзал, транспорт</p>
+          </motion.button>
+
           <motion.button whileTap={{ scale: 0.95 }} onClick={() => navigate("/vocabulary")} className="glass-card col-span-2 rounded-2xl p-4 text-left">
             <Languages className="mb-2 h-6 w-6 text-success" />
             <p className="text-sm font-black text-foreground">Слова и фразы</p>
