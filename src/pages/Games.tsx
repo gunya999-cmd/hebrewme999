@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Brain, PenLine, Puzzle, Layers, BookOpen, Mic, Sparkles, ArrowLeft, Gamepad2 } from "lucide-react";
+import { Brain, PenLine, Puzzle, Layers, BookOpen, Mic, Sparkles, ArrowLeft, Gamepad2, MessageCircle } from "lucide-react";
 
 const featuredGame = {
   id: "verb-drops",
@@ -38,6 +38,13 @@ const games = [
     desc: "7 беньянов с объяснением шаблонов и пассивов",
     icon: Layers,
     path: "/games/guess-binyan",
+  },
+  {
+    id: "street-talk",
+    title: "Уличный разговор",
+    desc: "Реальные фразы: улица, магазин, транспорт, спортзал, слэнг",
+    icon: MessageCircle,
+    path: "/street-talk",
   },
   {
     id: "prep-fill",
