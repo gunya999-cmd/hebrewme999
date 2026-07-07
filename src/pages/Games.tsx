@@ -2,15 +2,15 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Brain, PenLine, Puzzle, Layers, BookOpen, Mic, Sparkles, ArrowLeft, Gamepad2 } from "lucide-react";
 
+const featuredGame = {
+  id: "verb-drops",
+  title: "Глаголопад",
+  desc: "5 минут: формы, времена, лица, картинки, звук и буквы",
+  icon: Sparkles,
+  path: "/games/verb-drops",
+};
+
 const games = [
-  {
-    id: "verb-drops",
-    title: "Глаголопад",
-    desc: "5 минут: формы, времена, лица, картинки, звук и буквы",
-    icon: Sparkles,
-    path: "/games/verb-drops",
-    featured: true,
-  },
   {
     id: "guess-form",
     title: "Угадай форму",
@@ -57,7 +57,6 @@ const games = [
 
 export default function Games() {
   const navigate = useNavigate();
-  const [featured, ...rest] = games;
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_12%_0%,_rgba(124,58,237,0.25),_transparent_30%),radial-gradient(circle_at_90%_8%,_rgba(34,211,238,0.20),_transparent_28%),linear-gradient(180deg,_#080b24_0%,_#111433_34%,_hsl(var(--background))_34%,_hsl(var(--background))_100%)] pb-28 px-5 pt-8">
@@ -75,7 +74,7 @@ export default function Games() {
         initial={{ opacity: 0, y: 18, scale: 0.96 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         whileTap={{ scale: 0.97 }}
-        onClick={() => navigate(featured.path)}
+        onClick={() => navigate(featuredGame.path)}
         className="relative mb-5 w-full overflow-hidden rounded-[2.4rem] neon-panel p-5 text-left text-white"
       >
         <div className="absolute -right-10 -top-10 h-36 w-36 rounded-full bg-cyan-300/20 blur-2xl" />
@@ -83,8 +82,8 @@ export default function Games() {
         <div className="relative flex items-center justify-between gap-4">
           <div>
             <p className="text-xs font-black uppercase tracking-wide text-cyan-200/80">главная тренировка</p>
-            <h2 className="mt-1 text-3xl font-black">{featured.title}</h2>
-            <p className="mt-2 max-w-[330px] text-sm font-semibold leading-relaxed text-white/72">{featured.desc}</p>
+            <h2 className="mt-1 text-3xl font-black">{featuredGame.title}</h2>
+            <p className="mt-2 max-w-[330px] text-sm font-semibold leading-relaxed text-white/72">{featuredGame.desc}</p>
             <div className="mt-4 inline-flex items-center rounded-full bg-cyan-300 px-4 py-2 text-sm font-black text-slate-950">Запустить</div>
           </div>
           <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-[2rem] bg-white/12">
@@ -94,7 +93,7 @@ export default function Games() {
       </motion.button>
 
       <div className="grid grid-cols-2 gap-3">
-        {rest.map((game, index) => (
+        {games.map((game, index) => (
           <motion.button
             key={game.id}
             initial={{ opacity: 0, y: 16 }}
