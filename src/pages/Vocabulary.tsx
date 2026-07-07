@@ -75,11 +75,12 @@ export default function Vocabulary() {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm px-4 pt-8 pb-3">
-        <h1 className="text-2xl font-black text-foreground mb-1">Слова</h1>
+    <div className="min-h-screen bg-[radial-gradient(circle_at_18%_0%,_rgba(124,58,237,0.20),_transparent_30%),radial-gradient(circle_at_90%_10%,_rgba(34,211,238,0.16),_transparent_28%),hsl(var(--background))] pb-28">
+      <div className="sticky top-0 z-10 bg-background/85 backdrop-blur-xl px-5 pt-8 pb-3">
+        <p className="text-xs font-black uppercase tracking-[0.25em] text-primary">vocabulary</p>
+        <h1 className="text-3xl font-black text-foreground mb-1">Слова и фразы</h1>
         <p className="text-xs text-muted-foreground font-medium mb-4">
-          50 самых нужных слов и фраз • голос Мирьям
+          50 нужных слов и фраз • голос Мирьям
         </p>
 
         <div className="relative mb-3">
@@ -88,7 +89,7 @@ export default function Vocabulary() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Поиск…"
-            className="w-full bg-card border border-border rounded-xl py-2.5 pl-9 pr-4 text-sm font-medium text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+            className="w-full bg-card border border-border rounded-2xl py-3 pl-9 pr-4 text-sm font-medium text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
           />
         </div>
 
@@ -98,7 +99,7 @@ export default function Vocabulary() {
               key={c.key}
               onClick={() => setCat(c.key)}
               className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-bold transition-colors ${
-                cat === c.key ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                cat === c.key ? "bg-slate-950 text-white" : "bg-muted text-muted-foreground"
               }`}
             >
               {c.label}
@@ -107,9 +108,9 @@ export default function Vocabulary() {
         </div>
       </div>
 
-      <div className="px-4 grid grid-cols-2 gap-3">
+      <div className="px-5 grid grid-cols-2 gap-3">
         <AnimatePresence>
-          {list.map((w, i) => {
+          {list.map((w, index) => {
             const isPlaying = playingId === w.id;
             return (
               <motion.button
@@ -117,9 +118,9 @@ export default function Vocabulary() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
-                transition={{ delay: i * 0.015 }}
+                transition={{ delay: index * 0.015 }}
                 onClick={() => play(w)}
-                className="relative bg-gradient-to-br from-card to-card/60 border border-border rounded-2xl p-4 shadow-sm text-center active:scale-[0.97] transition-transform overflow-hidden"
+                className="glass-card relative overflow-hidden rounded-[1.7rem] p-4 text-center active:scale-[0.97] transition-transform"
               >
                 <div className="absolute top-2 right-2 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
                   {isPlaying ? (
@@ -129,11 +130,13 @@ export default function Vocabulary() {
                   )}
                 </div>
 
-                <div className="text-4xl mb-2 mt-1">{w.emoji}</div>
+                <div className="mx-auto mb-3 mt-1 flex h-16 w-16 items-center justify-center rounded-[1.4rem] bg-slate-950 text-cyan-200 shadow-xl shadow-slate-900/10">
+                  <span dir="rtl" className="font-hebrew text-3xl font-black">{w.hebrew.slice(0, 1)}</span>
+                </div>
 
                 <div
                   dir="rtl"
-                  className="font-hebrew text-2xl font-bold text-foreground leading-tight mb-1 min-h-[2.5rem] flex items-center justify-center"
+                  className="font-hebrew text-2xl font-black text-foreground leading-tight mb-1 min-h-[2.5rem] flex items-center justify-center"
                 >
                   {w.hebrew}
                 </div>
@@ -141,7 +144,7 @@ export default function Vocabulary() {
                 <div className="text-[11px] text-muted-foreground font-semibold tracking-wide mb-1">
                   {w.transcription}
                 </div>
-                <div className="text-sm text-foreground font-bold">{w.translation}</div>
+                <div className="text-sm text-foreground font-black">{w.translation}</div>
               </motion.button>
             );
           })}
