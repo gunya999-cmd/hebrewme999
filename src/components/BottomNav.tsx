@@ -16,7 +16,7 @@ export default function BottomNav() {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 px-3 pb-3 pointer-events-none">
-      <div className="pointer-events-auto mx-auto flex h-16 max-w-xl items-center justify-around rounded-[1.6rem] border border-white/70 bg-white/88 shadow-2xl shadow-slate-900/12 backdrop-blur-xl">
+      <div className="pointer-events-auto mx-auto flex h-16 max-w-xl items-center justify-around rounded-[1.6rem] border border-white/70 bg-white/90 shadow-2xl shadow-slate-900/10 backdrop-blur-xl">
         {tabs.map((tab) => {
           const isActive =
             tab.path === "/"
@@ -33,7 +33,7 @@ export default function BottomNav() {
               {isActive && (
                 <motion.div
                   layoutId="activeTab"
-                  className="absolute -top-2 left-1/2 h-1.5 w-9 -translate-x-1/2 rounded-full bg-primary shadow-lg shadow-primary/35"
+                  className="absolute -top-2 left-1/2 h-1.5 w-9 -translate-x-1/2 rounded-full bg-primary shadow-lg shadow-primary/30"
                   transition={{ type: "spring", stiffness: 500, damping: 30 }}
                 />
               )}
