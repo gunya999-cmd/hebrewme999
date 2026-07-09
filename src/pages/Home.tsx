@@ -226,6 +226,12 @@ export default function Home() {
             <p className="text-xs font-semibold text-muted-foreground">20 предлогов</p>
           </motion.button>
 
+          <motion.button whileTap={{ scale: 0.95 }} onClick={() => navigate("/pronoun-forms")} className="glass-card rounded-2xl p-4 text-left">
+            <Layers className="mb-2 h-6 w-6 text-primary" />
+            <p className="text-sm font-black text-foreground">Местоименные формы</p>
+            <p className="text-xs font-semibold text-muted-foreground">לי, אותי, עליו, ממך</p>
+          </motion.button>
+
           <motion.button whileTap={{ scale: 0.95 }} onClick={() => navigate("/voice-dialogue")} className="glass-card rounded-2xl p-4 text-left">
             <MessageCircle className="mb-2 h-6 w-6 text-success" />
             <p className="text-sm font-black text-foreground">Голосовой диалог</p>
