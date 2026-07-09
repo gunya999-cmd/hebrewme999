@@ -23,6 +23,7 @@ const VoiceDialogue = lazy(() => import("@/pages/VoiceDialogue"));
 const Prepositions = lazy(() => import("@/pages/Prepositions"));
 const PrepDetail = lazy(() => import("@/pages/PrepDetail"));
 const StreetTalk = lazy(() => import("@/pages/StreetTalk"));
+const PronounForms = lazy(() => import("@/pages/PronounForms"));
 const About = lazy(() => import("@/pages/About"));
 const Vocabulary = lazy(() => import("@/pages/Vocabulary"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
@@ -73,6 +74,7 @@ const App = () => (
               <Route path="/prepositions" element={<Prepositions />} />
               <Route path="/preposition/:id" element={<PrepDetail />} />
               <Route path="/street-talk" element={<StreetTalk />} />
+              <Route path="/pronoun-forms" element={<PronounForms />} />
               <Route path="/vocabulary" element={<Vocabulary />} />
               <Route path="/about" element={<About />} />
               <Route path="*" element={<NotFound />} />
