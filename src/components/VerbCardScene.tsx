@@ -24,19 +24,28 @@ export default function VerbCardScene({
   const isCombinedEnglishCard = !override;
 
   return (
-    <div className={`relative overflow-hidden bg-white ${className}`}>
-      <img
-        src={imageSrc}
-        alt={alt}
-        loading={loading}
-        decoding="async"
-        onError={onError}
-        className={
-          isCombinedEnglishCard
-            ? "absolute left-1/2 top-[48.5%] h-[190%] w-[190%] max-w-none -translate-x-1/2 -translate-y-1/2 object-cover"
-            : "h-full w-full object-contain"
-        }
-      />
+    <div
+      className={`relative flex !h-auto aspect-[1.27/1] w-full items-center justify-center overflow-hidden bg-white ${className}`}
+    >
+      {isCombinedEnglishCard ? (
+        <img
+          src={imageSrc}
+          alt={alt}
+          loading={loading}
+          decoding="async"
+          onError={onError}
+          className="absolute left-[-25.6%] top-[-42.6%] w-[151.2%] max-w-none"
+        />
+      ) : (
+        <img
+          src={imageSrc}
+          alt={alt}
+          loading={loading}
+          decoding="async"
+          onError={onError}
+          className="h-full w-full object-contain"
+        />
+      )}
     </div>
   );
 }
