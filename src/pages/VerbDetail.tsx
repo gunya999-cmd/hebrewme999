@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { DICTIONARY_VERBS } from "@/data/dictionary-verbs";
 import { BINYAN_NAMES, PERSON_LABELS, TENSE_LABELS, ConjugationForm, VerbConjugations } from "@/types/verb";
 import { SpeechRateSelector } from "@/components/SpeechRateSelector";
+import VerbCardScene from "@/components/VerbCardScene";
 import { playVerbAudio, speakHebrewWithBrowser } from "@/lib/verb-audio";
 
 const TENSES = ["present", "past", "future", "imperative"] as const;
@@ -80,13 +81,13 @@ export default function VerbDetail() {
 
       {verb.imageSrc && (
         <div className="px-5 mt-5">
-          <div className="glass-card mx-auto max-w-[230px] rounded-[2rem] p-2">
-            <img
+          <div className="glass-card mx-auto max-w-[300px] rounded-[2rem] p-2">
+            <VerbCardScene
+              verbId={verb.id}
               src={verb.imageSrc}
               alt={`${verb.infinitive_hebrew} - ${verb.translation_ru}`}
-              className="mx-auto w-full max-w-[210px] rounded-[1.5rem] object-contain"
+              className="aspect-square w-full rounded-[1.5rem]"
               loading="lazy"
-              decoding="async"
             />
           </div>
         </div>
