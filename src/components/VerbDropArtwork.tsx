@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { VerbDropCard } from "@/data/verbDrops";
 import VerbIllustration from "@/components/VerbIllustration";
+import VerbCardScene from "@/components/VerbCardScene";
 
 interface VerbDropArtworkProps {
   verb: VerbDropCard;
@@ -12,16 +13,14 @@ export default function VerbDropArtwork({ verb, className = "" }: VerbDropArtwor
 
   if (verb.imageSrc && !imageFailed) {
     return (
-      <div className={`relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-white via-primary/5 to-success/10 ${className}`}>
-        <img
-          src={verb.imageSrc}
-          alt={`${verb.infinitive_hebrew} — ${verb.translation_ru}`}
-          className="h-full w-full object-contain"
-          loading="eager"
-          decoding="async"
-          onError={() => setImageFailed(true)}
-        />
-      </div>
+      <VerbCardScene
+        verbId={verb.id}
+        src={verb.imageSrc}
+        alt={`${verb.infinitive_hebrew} — ${verb.translation_ru}`}
+        className={`rounded-[2rem] bg-gradient-to-br from-white via-primary/5 to-success/10 ${className}`}
+        loading="eager"
+        onError={() => setImageFailed(true)}
+      />
     );
   }
 
