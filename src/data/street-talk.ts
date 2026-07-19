@@ -4,6 +4,7 @@ export type StreetTalkCategory =
   | "street"
   | "shop"
   | "transport"
+  | "airport"
   | "school"
   | "work"
   | "gym"
@@ -28,6 +29,7 @@ export const STREET_TALK_CATEGORIES: Array<{ id: StreetTalkCategory; title: stri
   { id: "street", title: "Улица", desc: "дорога, прохожие", mark: "רח" },
   { id: "shop", title: "Магазин", desc: "касса, цена, очередь", mark: "₪" },
   { id: "transport", title: "Транспорт", desc: "автобус, место, выход", mark: "קו" },
+  { id: "airport", title: "Аэропорт", desc: "регистрация, посадка, багаж", mark: "✈" },
   { id: "school", title: "Школа", desc: "учитель, дети, урок", mark: "כת" },
   { id: "work", title: "Работа", desc: "офис, задачи", mark: "עב" },
   { id: "gym", title: "Спортзал", desc: "подходы, тренажёры", mark: "כח" },
@@ -73,6 +75,27 @@ export const STREET_TALK_PHRASES: StreetTalkPhrase[] = [
   { id: "st-030", category: "transport", hebrew: "איזה קו מגיע לתחנה המרכזית?", transcription: "эйзе кав магиа ле-тахана а-мерказит?", russian: "Какой автобус идёт до центральной станции?", context: "остановка", tone: "neutral" },
   { id: "st-031", category: "transport", hebrew: "הקו הזה עוצר פה?", transcription: "а-кав а-зе оцер по?", russian: "Этот автобус здесь останавливается?", context: "остановка", tone: "neutral" },
 
+  { id: "st-091", category: "airport", hebrew: "איפה דלפק הצ'ק-אין?", transcription: "эйфо дельпак а-чек-ин?", russian: "Где стойка регистрации?", context: "регистрация на рейс", tone: "neutral" },
+  { id: "st-092", category: "airport", hebrew: "הנה הדרכון שלי", transcription: "инэ а-даркон шели", russian: "Вот мой паспорт", context: "стойка регистрации, паспортный контроль", tone: "neutral" },
+  { id: "st-093", category: "airport", hebrew: "יש לי רק כבודת יד", transcription: "еш ли рак кводат яд", russian: "У меня только ручная кладь", context: "регистрация на рейс", tone: "neutral" },
+  { id: "st-094", category: "airport", hebrew: "איפה שער העלייה למטוס?", transcription: "эйфо шаар а-алия ла-матос?", russian: "Где выход на посадку?", context: "поиск гейта", tone: "neutral" },
+  { id: "st-095", category: "airport", hebrew: "מתי מתחילה העלייה למטוס?", transcription: "матай матхила а-алия ла-матос?", russian: "Когда начинается посадка?", context: "у выхода на посадку", tone: "neutral" },
+  { id: "st-096", category: "airport", hebrew: "הטיסה בזמן?", transcription: "а-тиса ба-зман?", russian: "Рейс вовремя?", context: "табло, справочная", tone: "neutral" },
+  { id: "st-097", category: "airport", hebrew: "הטיסה מתעכבת?", transcription: "а-тиса митакевет?", russian: "Рейс задерживается?", context: "табло, справочная", tone: "neutral" },
+  { id: "st-098", category: "airport", hebrew: "זה השער לטיסה לתל אביב?", transcription: "зе а-шаар ла-тиса ле-Тель-Авив?", russian: "Это выход на рейс в Тель-Авив?", context: "у гейта", tone: "neutral" },
+  { id: "st-099", category: "airport", hebrew: "איזה מושב יש לי?", transcription: "эйзе мошав еш ли?", russian: "Какое у меня место?", context: "посадочный талон, самолёт", tone: "neutral" },
+  { id: "st-100", category: "airport", hebrew: "אפשר להחליף מקום?", transcription: "эфшар леахлиф маком?", russian: "Можно поменяться местами?", context: "в самолёте", tone: "neutral" },
+  { id: "st-101", category: "airport", hebrew: "אפשר מים, בבקשה?", transcription: "эфшар маим, бевакаша?", russian: "Можно воды, пожалуйста?", context: "в самолёте", tone: "friendly" },
+  { id: "st-102", category: "airport", hebrew: "איפה השירותים?", transcription: "эйфо а-шерутим?", russian: "Где туалет?", context: "аэропорт, самолёт", tone: "neutral" },
+  { id: "st-103", category: "airport", hebrew: "אני לא מרגיש טוב", transcription: "ани ло маргиш тов", russian: "Я плохо себя чувствую", context: "в самолёте, срочная помощь", tone: "urgent" },
+  { id: "st-104", category: "airport", hebrew: "איפה איסוף המזוודות?", transcription: "эйфо исуф а-мизвадот?", russian: "Где получение багажа?", context: "после прилёта", tone: "neutral" },
+  { id: "st-105", category: "airport", hebrew: "באיזה מסוע המזוודות?", transcription: "бе-эйзе масуа а-мизвадот?", russian: "На какой ленте багаж?", context: "зал выдачи багажа", tone: "neutral" },
+  { id: "st-106", category: "airport", hebrew: "המזוודה שלי לא הגיעה", transcription: "а-мизвада шели ло игиа", russian: "Мой чемодан не прилетел", context: "розыск багажа", tone: "urgent" },
+  { id: "st-107", category: "airport", hebrew: "המזוודה שלי נפגעה", transcription: "а-мизвада шели нифгэа", russian: "Мой чемодан повреждён", context: "служба багажа", tone: "urgent" },
+  { id: "st-108", category: "airport", hebrew: "לאן צריך לפנות?", transcription: "ле-ан царих лифнот?", russian: "Куда нужно обратиться?", context: "проблема с багажом или документами", tone: "neutral" },
+  { id: "st-109", category: "airport", hebrew: "איפה תחנת המוניות?", transcription: "эйфо таханат а-мониёт?", russian: "Где стоянка такси?", context: "выход из аэропорта", tone: "neutral" },
+  { id: "st-110", category: "airport", hebrew: "אפשר לשלם באשראי?", transcription: "эфшар лешалем бе-ашрай?", russian: "Можно оплатить картой?", context: "такси из аэропорта", tone: "neutral" },
+
   { id: "st-032", category: "school", hebrew: "יש שיעורי בית?", transcription: "еш шиурей байт?", russian: "Есть домашнее задание?", context: "школа", tone: "neutral" },
   { id: "st-033", category: "school", hebrew: "באיזה כיתה אתה?", transcription: "бе-эйзе кита ата?", russian: "В каком ты классе?", context: "разговор с учеником", tone: "neutral" },
   { id: "st-034", category: "school", hebrew: "אפשר לשאול שאלה?", transcription: "эфшар лишоль шеэла?", russian: "Можно задать вопрос?", context: "урок", tone: "neutral" },
@@ -85,7 +108,7 @@ export const STREET_TALK_PHRASES: StreetTalkPhrase[] = [
   { id: "st-040", category: "work", hebrew: "נדבר אחרי הישיבה", transcription: "недабер ахарей а-ешива", russian: "Поговорим после совещания", context: "работа", tone: "neutral" },
   { id: "st-041", category: "work", hebrew: "שלח לי הודעה", transcription: "шлах ли одаа", russian: "Напиши мне сообщение", context: "работа, быт", tone: "neutral" },
   { id: "st-042", category: "work", hebrew: "אני צריך לבדוק את זה", transcription: "ани царих ливдок эт зе", russian: "Мне нужно это проверить", context: "работа", tone: "neutral" },
-  { id: "st-043", category: "work", hebrew: "זה דחוף?", transcription: "зе дахוף?", russian: "Это срочно?", context: "работа", tone: "neutral" },
+  { id: "st-043", category: "work", hebrew: "זה דחוף?", transcription: "зе дахоф?", russian: "Это срочно?", context: "работа", tone: "neutral" },
   { id: "st-044", category: "work", hebrew: "אין לי זמן לזה עכשיו", transcription: "эйн ли зман ле-зе ахшав", russian: "У меня сейчас нет на это времени", context: "работа", tone: "neutral" },
   { id: "st-045", category: "work", hebrew: "סגור", transcription: "сагур", russian: "Договорились / окей", context: "рабочий слэнг", tone: "slang" },
 
@@ -137,5 +160,5 @@ export const STREET_TALK_PHRASES: StreetTalkPhrase[] = [
   { id: "st-087", category: "boundaries", hebrew: "תירגעי", transcription: "тираги", russian: "Успокойся", context: "женщине", tone: "neutral" },
   { id: "st-088", category: "boundaries", hebrew: "אל תיגע בי", transcription: "аль тига би", russian: "Не трогай меня", context: "личные границы", tone: "urgent" },
   { id: "st-089", category: "boundaries", hebrew: "אני לא רוצה לדבר עכשיו", transcription: "ани ло роце ледабер ахшав", russian: "Я не хочу сейчас разговаривать", context: "спокойно поставить границу", tone: "neutral" },
-  { id: "st-090", category: "boundaries", hebrew: "תעזוב את זה", transcription: "таазов эт зе", russian: "Оставь это / брось это", context: "ситуация раздражения", tone: "neutral" }
+  { id: "st-090", category: "boundaries", hebrew: "תעזוב את זה", transcription: "таазов эт зе", russian: "Оставь это / брось это", context: "ситуация раздражения", tone: "neutral" },
 ];
