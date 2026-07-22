@@ -17,7 +17,7 @@ const GuessRootGame = lazy(() => import("@/pages/GuessRootGame"));
 const GuessBinyanGame = lazy(() => import("@/pages/GuessBinyanGame"));
 const PrepFillGame = lazy(() => import("@/pages/PrepFillGame"));
 const ConjugationVoice = lazy(() => import("@/pages/ConjugationVoice"));
-const VerbDropsGame = lazy(() => import("@/pages/VerbDropsGame"));
+const VerbDropsGame = lazy(() => import("@/pages/VerbDropsResponsive"));
 const AITutor = lazy(() => import("@/pages/AITutor"));
 const VoiceDialogue = lazy(() => import("@/pages/VoiceDialogue"));
 const Prepositions = lazy(() => import("@/pages/Prepositions"));
@@ -39,7 +39,7 @@ const queryClient = new QueryClient({
 
 function AppFallback() {
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-6">
+    <div className="flex min-h-screen items-center justify-center bg-background px-6">
       <div className="text-center">
         <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
         <p className="text-sm font-semibold text-muted-foreground">HebrewMe загружается…</p>
@@ -57,8 +57,8 @@ const App = () => (
         <ErrorBoundary>
           <div className="min-h-screen bg-[radial-gradient(circle_at_15%_0%,rgba(124,58,237,0.10),transparent_28%),radial-gradient(circle_at_85%_10%,rgba(34,211,238,0.08),transparent_24%),#f6faf8]">
             <BottomNav />
-            <main className="min-h-screen w-full lg:pl-24">
-              <div className="relative mx-auto min-h-screen w-full max-w-6xl overflow-hidden bg-background shadow-[0_0_80px_rgba(15,23,42,0.06)] lg:my-6 lg:min-h-[calc(100vh-3rem)] lg:rounded-[2.5rem] lg:border lg:border-white/70">
+            <main className="min-h-screen w-full xl:pl-24">
+              <div className="relative mx-auto min-h-screen w-full max-w-6xl overflow-hidden bg-background shadow-[0_0_80px_rgba(15,23,42,0.06)] md:max-w-[1100px] xl:my-6 xl:min-h-[calc(100vh-3rem)] xl:rounded-[2.5rem] xl:border xl:border-white/70">
                 <Suspense fallback={<AppFallback />}>
                   <Routes>
                     <Route path="/" element={<Home />} />
