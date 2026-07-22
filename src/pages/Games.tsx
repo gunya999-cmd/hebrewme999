@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Brain, PenLine, Puzzle, Layers, BookOpen, Mic, Sparkles, ArrowLeft, Gamepad2, MessageCircle, ArrowUpRight, Clock3 } from "lucide-react";
+import { Brain, PenLine, Puzzle, Layers, BookOpen, Mic, Sparkles, ArrowLeft, MessageCircle, ArrowUpRight, Clock3 } from "lucide-react";
 
 const featuredGame = {
   id: "verb-drops",
@@ -23,7 +23,7 @@ export default function Games() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_8%_0%,rgba(124,58,237,0.28),transparent_28%),radial-gradient(circle_at_92%_8%,rgba(34,211,238,0.22),transparent_26%),linear-gradient(180deg,#080b24_0%,#111433_31%,hsl(var(--background))_31%,hsl(var(--background))_100%)] px-5 pb-28 pt-8 md:px-8 md:pt-10 lg:px-10 lg:pb-12">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_8%_0%,rgba(124,58,237,0.28),transparent_28%),radial-gradient(circle_at_92%_8%,rgba(34,211,238,0.22),transparent_26%),linear-gradient(180deg,#080b24_0%,#111433_31%,hsl(var(--background))_31%,hsl(var(--background))_100%)] px-5 pb-28 pt-8 md:px-8 md:pb-32 md:pt-10 xl:px-10 xl:pb-12">
       <div className="mx-auto max-w-5xl">
         <div className="mb-7 flex items-center justify-between gap-4 text-white">
           <div className="flex items-center gap-3">
@@ -63,10 +63,10 @@ export default function Games() {
               </div>
             </div>
 
-            <div className="relative flex min-h-44 items-center justify-center rounded-[2rem] border border-white/15 bg-slate-950/35 p-5">
+            <div className="relative flex min-h-44 items-center justify-center rounded-[2rem] border border-white/15 bg-slate-950/35 p-5 md:min-h-56">
               <div className="absolute inset-5 rounded-[1.5rem] border border-cyan-200/20" />
               <div className="relative text-center">
-                <p dir="rtl" className="font-hebrew text-6xl font-black text-cyan-200 drop-shadow-[0_0_24px_rgba(34,211,238,0.45)]">ללכת</p>
+                <p dir="rtl" className="font-hebrew text-6xl font-black text-cyan-200 drop-shadow-[0_0_24px_rgba(34,211,238,0.45)] md:text-7xl">ללכת</p>
                 <p className="mt-2 text-xl font-black text-white">идти</p>
                 <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-black text-slate-950 transition group-hover:translate-x-1">
                   Запустить <ArrowUpRight className="h-4 w-4" />
@@ -84,7 +84,7 @@ export default function Games() {
           <div className="hidden items-center gap-2 text-xs font-bold text-muted-foreground md:flex"><Clock3 className="h-4 w-4" /> 5–10 минут</div>
         </div>
 
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 min-[980px]:grid-cols-3">
           {games.map((game, index) => (
             <motion.button
               key={game.id}
@@ -94,7 +94,7 @@ export default function Games() {
               whileHover={{ y: -5 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => navigate(game.path)}
-              className="group rounded-[1.8rem] border border-white/80 bg-white/88 p-5 text-left shadow-[0_18px_45px_rgba(15,23,42,0.07)] backdrop-blur-xl transition hover:shadow-[0_24px_60px_rgba(15,23,42,0.11)]"
+              className="group min-h-[205px] rounded-[1.8rem] border border-white/80 bg-white/88 p-5 text-left shadow-[0_18px_45px_rgba(15,23,42,0.07)] backdrop-blur-xl transition hover:shadow-[0_24px_60px_rgba(15,23,42,0.11)]"
             >
               <div className="mb-5 flex items-start justify-between gap-3">
                 <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-950 text-cyan-200 transition group-hover:scale-105">
