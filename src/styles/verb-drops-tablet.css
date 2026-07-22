@@ -1,0 +1,159 @@
+/* Tablet layout for iPad portrait and landscape. Mobile and large desktop keep their own layouts. */
+@media (min-width: 768px) and (max-width: 1279px) {
+  .verb-drops-tablet {
+    min-height: 100vh;
+    background:
+      radial-gradient(circle at 10% 0%, rgba(124, 58, 237, 0.13), transparent 30%),
+      radial-gradient(circle at 92% 8%, rgba(34, 211, 238, 0.10), transparent 28%),
+      #f7faf9;
+  }
+
+  .verb-drops-tablet > div {
+    width: 100%;
+    max-width: 1080px;
+    margin-inline: auto;
+    padding: 36px 34px 124px !important;
+  }
+
+  .verb-drops-tablet > div > div:first-child {
+    margin-bottom: 26px !important;
+  }
+
+  .verb-drops-tablet h1 {
+    font-size: clamp(2rem, 4vw, 2.75rem) !important;
+    line-height: 1 !important;
+  }
+
+  /* Landing screen: replace the stretched-phone feeling with a tablet dashboard. */
+  .verb-drops-tablet > div:has(> .grid.grid-cols-2) > div:nth-child(2) {
+    min-height: 225px;
+    margin-bottom: 24px !important;
+    padding: 30px 34px !important;
+    border-radius: 34px !important;
+    background:
+      radial-gradient(circle at 86% 20%, rgba(34, 211, 238, 0.16), transparent 28%),
+      radial-gradient(circle at 15% 90%, rgba(124, 58, 237, 0.14), transparent 30%),
+      rgba(255, 255, 255, 0.88) !important;
+  }
+
+  /* Remove the old abstract placeholder artwork from the landing hero. */
+  .verb-drops-tablet > div:has(> .grid.grid-cols-2) > div:nth-child(2) > [class*="h-44"] {
+    display: none !important;
+  }
+
+  .verb-drops-tablet > div:has(> .grid.grid-cols-2) > div:nth-child(2) > .relative.z-10 {
+    max-width: 650px;
+  }
+
+  .verb-drops-tablet > div:has(> .grid.grid-cols-2) > div:nth-child(2) h2 {
+    font-size: clamp(1.65rem, 3vw, 2.25rem) !important;
+  }
+
+  .verb-drops-tablet > div:has(> .grid.grid-cols-2) > .grid.grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 16px !important;
+  }
+
+  .verb-drops-tablet > div:has(> .grid.grid-cols-2) > .grid.grid-cols-2 > button {
+    min-height: 118px;
+    padding: 20px !important;
+    border-radius: 26px !important;
+    box-shadow: 0 16px 38px rgba(15, 23, 42, 0.07) !important;
+  }
+
+  .verb-drops-tablet > div:has(> .grid.grid-cols-2) > .grid.grid-cols-2 > button > div:first-child {
+    font-size: 2.1rem !important;
+    margin-bottom: 10px !important;
+  }
+
+  .verb-drops-tablet > div:has(> .grid.grid-cols-2) > .grid.grid-cols-2 > button p:first-of-type {
+    font-size: 1rem !important;
+  }
+
+  .verb-drops-tablet button {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  /* Active session: larger controls and calmer spacing in portrait. */
+  .verb-drops-tablet > div:not(:has(> .grid.grid-cols-2)) {
+    max-width: 860px;
+  }
+
+  .verb-drops-tablet > div:not(:has(> .grid.grid-cols-2)) > div:nth-child(2) > div > div:first-child {
+    margin-bottom: 24px !important;
+    padding: 18px !important;
+    border-radius: 34px !important;
+  }
+
+  .verb-drops-tablet > div:not(:has(> .grid.grid-cols-2)) > div:nth-child(2) > div > div:first-child [class*="h-60"] {
+    height: auto !important;
+    max-height: 430px;
+    aspect-ratio: 1 / 1;
+    margin-inline: auto;
+  }
+
+  .verb-drops-tablet > div:not(:has(> .grid.grid-cols-2)) button {
+    min-height: 52px;
+  }
+
+  .verb-drops-tablet > div:not(:has(> .grid.grid-cols-2)) .grid.grid-cols-2 {
+    gap: 16px !important;
+  }
+
+  .verb-drops-tablet > div:not(:has(> .grid.grid-cols-2)) .grid.grid-cols-2 > button {
+    min-height: 112px !important;
+    padding: 16px 18px !important;
+  }
+
+  .verb-drops-tablet > div:not(:has(> .grid.grid-cols-2)) .grid.grid-cols-5 {
+    gap: 12px !important;
+  }
+
+  .verb-drops-tablet > div:not(:has(> .grid.grid-cols-2)) .grid.grid-cols-5 > button {
+    min-height: 66px;
+    font-size: 1.8rem !important;
+  }
+}
+
+@media (min-width: 920px) and (max-width: 1279px) and (orientation: landscape) {
+  .verb-drops-tablet > div {
+    padding-inline: 42px !important;
+  }
+
+  .verb-drops-tablet > div:has(> .grid.grid-cols-2) > .grid.grid-cols-2 {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  .verb-drops-tablet > div:has(> .grid.grid-cols-2) > .grid.grid-cols-2 > button {
+    min-height: 126px;
+  }
+
+  /* Two-pane exercise layout: illustration left, task and answers right. */
+  .verb-drops-tablet > div:not(:has(> .grid.grid-cols-2)) {
+    max-width: 1040px;
+  }
+
+  .verb-drops-tablet > div:not(:has(> .grid.grid-cols-2)) > div:nth-child(2) > div {
+    display: grid;
+    grid-template-columns: minmax(330px, 0.92fr) minmax(420px, 1.08fr);
+    align-items: start;
+    gap: 26px;
+  }
+
+  .verb-drops-tablet > div:not(:has(> .grid.grid-cols-2)) > div:nth-child(2) > div > div:first-child {
+    grid-column: 1;
+    grid-row: 1 / span 4;
+    position: sticky;
+    top: 24px;
+    margin-bottom: 0 !important;
+  }
+
+  .verb-drops-tablet > div:not(:has(> .grid.grid-cols-2)) > div:nth-child(2) > div > div:not(:first-child) {
+    grid-column: 2;
+  }
+
+  .verb-drops-tablet > div:not(:has(> .grid.grid-cols-2)) > div:nth-child(2) > div > div:first-child [class*="h-60"] {
+    max-height: 470px;
+  }
+}
