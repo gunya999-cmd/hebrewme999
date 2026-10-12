@@ -25,7 +25,7 @@ interface Scenario {
   greet: string;
 }
 
-const CORRECTION = ` חשוב מאוד: כאשר התלמיד טועה, תקני אותו בעדינות. פתחי תמיד באחת מהצורות: «נכון לומר…», «עדיף לומר…» או «נכון להגיד…», מיד אחר כך אמרי את הצורה הנכונה המלאה ואז המשיכי בשאלה קצרה. אסור להשתמש ברוסית או באנגלית גם בזמן התיקון.`;
+const CORRECTION = ` חשוב: בשיחה חופשית אל תקטעי את התלמיד על כל שגיאה. תקני רק שגיאות שמשנות משמעות או חוזרות כמה פעמים, ובסוף התור, במשפט קצר ובעברית פשוטה. אם התלמיד מבקש הסבר, הסבירי את התיקון. אל תטעני שאת יודעת לזהות שגיאת הגייה ללא ראיה מספקת מהאודיו.`;
 
 const SCENARIOS: Scenario[] = [
   {
@@ -124,7 +124,7 @@ export default function AITutor() {
           className="relative"
         >
           <div className="absolute inset-0 -m-4 rounded-full bg-gradient-to-tr from-orange-400/40 via-pink-400/30 to-amber-300/40 blur-2xl" />
-          <MiriamAvatar3D size={336} speaking showRing={false} />
+          <MiriamAvatar3D size={336} speaking={false} showRing={false} />
           <motion.span
             className="absolute -bottom-1 -right-1 w-10 h-10 rounded-full bg-green-500 border-4 border-white dark:border-background flex items-center justify-center text-base"
             animate={{ scale: [1, 1.1, 1] }}
