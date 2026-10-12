@@ -706,7 +706,7 @@ export default function VoiceDialogue() {
               speechConfig: {
                 voiceConfig: {
                   prebuiltVoiceConfig: {
-                    voiceName: "Aoede",
+                    // Sulafat: warm female voice; Hebrew availability is documented for Cloud TTS.\n                    // Live API support and actual audio quality still require device verification.\n                    voiceName: "Sulafat",
                   },
                 },
               },
