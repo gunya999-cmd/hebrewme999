@@ -4,6 +4,7 @@ import { ArrowLeft, Mic, Sparkles, MessageCircle, CheckCircle2, Phone } from "lu
 import { Button } from "@/components/ui/button";
 import miriamAvatar from "@/assets/miriam-avatar.png";
 import { MiriamAvatar3D } from "@/components/MiriamAvatar3D";
+import { LESSONS, lessonPrompt, type Lesson } from "@/lib/miriamCurriculum";
 
 /* ── Loora-style AI tutor landing ──
  * Inspired by loora.ai: big avatar, warm gradient, scenario cards.
@@ -105,6 +106,20 @@ export default function AITutor() {
     });
   };
 
+  const startLesson = (lesson: Lesson) => {
+    navigate("/voice-dialogue", {
+      state: {
+        level: lesson.level === "A1" ? "beginner" : lesson.level === "A2" ? "intermediate" : "advanced",
+        autoStart: true,
+        customInstruction: lessonPrompt(lesson),
+        customGreet: lesson.level === "A1"
+          ? `Начни урок «${lesson.title}»: объясни цель одной короткой фразой на русском, затем переходи к ивриту.`
+          : `התחילי את השיעור: ${lesson.objective}. שאלי שאלה ראשונה.`,
+        customTitle: `Мирьям · ${lesson.level} · ${lesson.title}`,
+      },
+    });
+  };
+
   return (
     <div className="min-h-screen pb-24 bg-gradient-to-b from-orange-50 via-amber-50 to-background dark:from-orange-950/40 dark:via-background dark:to-background">
       {/* Header */}
@@ -174,6 +189,26 @@ export default function AITutor() {
           Позвонить Мирьям
         </motion.button>
       </div>
+
+      {/* Structured curriculum */}
+      <section className="px-4 pb-7" aria-label="Программа обучения">
+        <h3 className="text-lg font-bold mb-2">Программа обучения A1–B2</h3>
+        <p className="text-sm text-muted-foreground mb-4">Уроки по 7–10 минут: объяснение, диалог, практика и проверка знаний.</p>
+        {(["A1", "A2", "B1", "B2"] as const).map(level => (
+          <div key={level} className="mb-4">
+            <h4 className="font-semibold mb-2">{level}</h4>
+            <div className="grid gap-2">
+              {LESSONS.filter(lesson => lesson.level === level).map(lesson => (
+                <button key={lesson.id} onClick={() => startLesson(lesson)}
+                  className="text-left rounded-xl border border-border bg-card p-3 hover:border-primary/60">
+                  <span className="font-semibold text-sm">{lesson.title}</span>
+                  <span className="block text-xs text-muted-foreground">{lesson.minutes} мин · {lesson.objective}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        ))}
+      </section>
 
       {/* Scenarios */}
       <div className="px-4">
