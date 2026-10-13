@@ -9,6 +9,25 @@ export function readProgress(): Progress {
   } catch { /* storage unavailable */ }
   return { attempts: [], reviews: [] };
 }
+export function writeProgress(progress: Progress): void {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+}
+export function mergeProgress(local: Progress, remote: Progress): Progress {
+  const attempts = new Map<string, Attempt>();
+  for (const attempt of [...remote.attempts, ...local.attempts]) {
+    const id = [attempt.lessonId, attempt.at, attempt.userTurns].join(":");
+    attempts.set(id, attempt);
+  }
+  const reviews = new Map<string, ReviewItem>();
+  for (const review of [...remote.reviews, ...local.reviews]) {
+    const previous = reviews.get(review.term);
+    if (!previous || review.dueAt > previous.dueAt) reviews.set(review.term, review);
+  }
+  return {
+    attempts: [...attempts.values()].sort((a, b) => a.at - b.at).slice(-100),
+    reviews: [...reviews.values()],
+  };
+}
 export function saveAttempt(lessonId: string, userTurns: number, vocabulary: string[]): Progress {
   const current = readProgress();
   const reviews = [...current.reviews];
