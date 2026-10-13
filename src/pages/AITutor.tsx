@@ -194,6 +194,19 @@ export default function AITutor() {
         </motion.button>
       </div>
 
+      <section className="px-4 pb-6">
+        <h3 className="font-bold text-lg">Повторение слов</h3>
+        <p className="text-sm text-muted-foreground mb-3">Занятий: {progress.attempts.length}. Слов к повторению: {dueTerms(progress).length}.</p>
+        {dueTerms(progress).slice(0, 5).map(item => (
+          <div key={item.term} className="rounded-xl border p-3 mb-2 bg-card">
+            <p dir="rtl" lang="he" className="font-hebrew text-xl mb-2">{item.term}</p>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={() => setProgress(reviewTerm(item.term, false))}>Ещё учить</Button>
+              <Button size="sm" onClick={() => setProgress(reviewTerm(item.term, true))}>Помню</Button>
+            </div>
+          </div>
+        ))}
+      </section>
       {/* Structured curriculum */}
       <section className="px-4 pb-7" aria-label="Программа обучения">
         <h3 className="text-lg font-bold mb-2">Программа обучения A1–B2</h3>
