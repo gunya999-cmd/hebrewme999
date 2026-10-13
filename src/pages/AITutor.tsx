@@ -1,4 +1,6 @@
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { readProgress, dueTerms, reviewTerm } from "@/lib/miriamProgress";
 import { motion } from "framer-motion";
 import { ArrowLeft, Mic, Sparkles, MessageCircle, CheckCircle2, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -93,6 +95,7 @@ const FEATURES = [
 
 export default function AITutor() {
   const navigate = useNavigate();
+  const [progress, setProgress] = useState(readProgress);
 
   const start = (s: Scenario) => {
     navigate("/voice-dialogue", {
@@ -116,6 +119,7 @@ export default function AITutor() {
           ? `Начни урок «${lesson.title}»: объясни цель одной короткой фразой на русском, затем переходи к ивриту.`
           : `התחילי את השיעור: ${lesson.objective}. שאלי שאלה ראשונה.`,
         customTitle: `Мирьям · ${lesson.level} · ${lesson.title}`,
+        lessonId: lesson.id,
       },
     });
   };
