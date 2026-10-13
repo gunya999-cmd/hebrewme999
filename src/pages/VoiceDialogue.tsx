@@ -924,6 +924,15 @@ export default function VoiceDialogue() {
 
   /* ── Disconnect ── */
   const endSession = useCallback(() => {
+    const lesson = LESSONS.find(item => item.id === routeState?.lessonId);
+    if (lesson && !lessonSavedRef.current) {
+      lessonSavedRef.current = true;
+      try {
+        saveAttempt(lesson.id, transcriptRef.current.filter(line => line.speaker === "user").length, lesson.vocabulary);
+      } catch (error) {
+        console.warn("Miriam progress save failed", error);
+      }
+    }
     if (retryTimerRef.current) {
       window.clearTimeout(retryTimerRef.current);
       retryTimerRef.current = null;
