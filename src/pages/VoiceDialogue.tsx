@@ -8,6 +8,8 @@ import { MicDiagnostics } from "@/components/MicDiagnostics";
 import { getSpeechRate } from "@/hooks/useSpeechRate";
 import { getSupabaseAuthHeaders, getSupabaseFunctionUrl, isSupabaseConfigured, SUPABASE_CONFIG_ERROR } from "@/lib/env";
 import { SpeechRateSelector } from "@/components/SpeechRateSelector";
+import { saveAttempt } from "@/lib/miriamProgress";
+import { LESSONS } from "@/lib/miriamCurriculum";
 
 /* ── Types ── */
 type Level = "beginner" | "intermediate" | "advanced";
@@ -201,6 +203,7 @@ export default function VoiceDialogue() {
     customInstruction?: string;
     customGreet?: string;
     customTitle?: string;
+    lessonId?: string;
   } | null;
   const [level, setLevel] = useState<Level | null>(routeState?.level ?? null);
   const customInstructionRef = useRef<string | undefined>(routeState?.customInstruction);
@@ -211,6 +214,9 @@ export default function VoiceDialogue() {
   const [muted, setMuted] = useState(false);
   const [aiSpeaking, setAiSpeaking] = useState(false);
   const [transcript, setTranscript] = useState<TranscriptLine[]>([]);
+  const transcriptRef = useRef<TranscriptLine[]>([]);
+  const lessonSavedRef = useRef(false);
+  useEffect(() => { transcriptRef.current = transcript; }, [transcript]);
   const [error, setError] = useState<string | null>(null);
   const [currentAiText, setCurrentAiText] = useState("");
   const [currentUserText, setCurrentUserText] = useState("");
