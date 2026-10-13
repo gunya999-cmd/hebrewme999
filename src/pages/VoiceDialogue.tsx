@@ -967,7 +967,7 @@ export default function VoiceDialogue() {
     setConnected(false);
     setAiSpeaking(false);
     setConnecting(false);
-  }, [clearSilenceWatchdog, interruptPlayback, sendAudioStreamEnd, stopSpeechRecognition, stopVoiceActivityMonitor]);
+  }, [clearSilenceWatchdog, interruptPlayback, sendAudioStreamEnd, stopSpeechRecognition, stopVoiceActivityMonitor, routeState?.lessonId]);
 
   /* ── Toggle mute ── */
   const toggleMute = useCallback(() => {
