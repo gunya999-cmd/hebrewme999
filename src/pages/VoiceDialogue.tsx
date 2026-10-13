@@ -861,6 +861,13 @@ export default function VoiceDialogue() {
       };
 
       ws.onclose = (e) => {
+        const lesson = LESSONS.find(item => item.id === routeState?.lessonId);
+        if (lesson && !lessonSavedRef.current) {
+          lessonSavedRef.current = true;
+          try {
+            saveAttempt(lesson.id, transcriptRef.current.filter(line => line.speaker === "user").length, lesson.vocabulary);
+          } catch (error) { console.warn("Lesson progress save failed", error); }
+        }
         console.info("[Gemini] WebSocket closed:", e.code, e.reason || "(no reason)");
         clearSilenceWatchdog();
         awaitingModelReplyRef.current = false;
