@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { readProgress, writeProgress, mergeProgress, type Progress } from "./miriamProgress";
+import { readProgress, writeProgress, mergeProgress, useProgressOwner, type Progress } from "./miriamProgress";
 
 type CloudRow = { user_id: string; progress: Progress; updated_at: string };
 type ProgressClient = {
@@ -34,7 +34,8 @@ export async function pushCloudProgress(): Promise<boolean> {
 
 export async function syncCloudProgress(): Promise<Progress | null> {
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return null;
+  if (!user) { useProgressOwner(null); return null; }
+  useProgressOwner(user.id);
   const remote = await loadCloudProgress();
   const merged = remote ? mergeProgress(readProgress(), remote) : readProgress();
   const { error } = await client.from("miriam_learning_progress").upsert(
