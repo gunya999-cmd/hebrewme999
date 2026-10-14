@@ -106,7 +106,9 @@ export default function AITutor() {
     let active = true;
     syncCloudProgress().then(result => { if (active) setProgress(result ?? readProgress()); }).catch(error => console.warn("Miriam cloud sync unavailable", error));
     const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
-      void syncCloudProgress().then(result => { if (active) setProgress(result ?? readProgress()); }).catch(error => console.warn("Miriam auth sync unavailable", error));
+      window.setTimeout(() => {
+        if (active) void syncCloudProgress().then(result => { if (active) setProgress(result ?? readProgress()); }).catch(error => console.warn("Miriam auth sync unavailable", error));
+      }, 0);
     });
     return () => { active = false; subscription.unsubscribe(); };
   }, []);
