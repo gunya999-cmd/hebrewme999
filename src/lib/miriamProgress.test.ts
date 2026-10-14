@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { mergeProgress, type Progress } from "./miriamProgress";
+import { mergeProgress, readProgress, saveAttempt, reviewTerm, dueTerms, type Progress } from "./miriamProgress";
 
 describe("Miriam progress merge", () => {
   it("keeps distinct lesson attempts from both devices", () => {
@@ -16,5 +16,21 @@ describe("Miriam progress merge", () => {
     const newer = { ...old, dueAt: 259200200, intervalDays: 3, repetitions: 2 };
     const result = mergeProgress({ attempts: [], reviews: [old] }, { attempts: [], reviews: [newer] });
     expect(result.reviews).toEqual([newer]);
+  });
+});
+
+describe("local lesson persistence", () => {
+  it("stores lesson attempts and vocabulary locally", () => {
+    localStorage.clear();
+    const progress = saveAttempt("lesson-a", 3, ["שלום"]);
+    expect(progress.attempts).toHaveLength(1);
+    expect(readProgress().reviews[0].term).toBe("שלום");
+  });
+  it("updates spaced repetition after review", () => {
+    localStorage.clear();
+    saveAttempt("lesson-a", 2, ["שלום"]);
+    const updated = reviewTerm("שלום", false);
+    expect(updated.reviews[0].repetitions).toBe(0);
+    expect(dueTerms(updated)).toHaveLength(0);
   });
 });
