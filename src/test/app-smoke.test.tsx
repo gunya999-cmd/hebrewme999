@@ -11,8 +11,8 @@ describe("HebrewMe route smoke tests", () => {
   it("renders the home dashboard", async () => {
     window.history.pushState({}, "", "/");
     render(<App />);
-    expect(await screen.findByText(/Иврит Глаголы/i)).toBeInTheDocument();
-    expect(await screen.findByText(/Начать урок/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Иврит/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Начать 5 минут/i)).toBeInTheDocument();
   });
 
   it("renders the games screen from a direct route", async () => {
