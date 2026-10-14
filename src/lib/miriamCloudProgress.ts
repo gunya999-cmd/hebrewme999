@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { readProgress, type Progress } from "./miriamProgress";
+import { readProgress, writeProgress, mergeProgress, type Progress } from "./miriamProgress";
 
 type CloudRow = { user_id: string; progress: Progress; updated_at: string };
 type ProgressClient = {
