@@ -6,6 +6,8 @@ on:
       - 'src/pages/VoiceDialogue.tsx'
       - 'src/components/MiriamAvatar3D.tsx'
       - 'src/pages/AITutor.tsx'
+      - 'src/lib/miriam*.ts'
+      - 'supabase/migrations/*miriam*'
       - '.github/workflows/miriam-voice.yml'
   workflow_dispatch:
 
