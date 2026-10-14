@@ -10,6 +10,7 @@ on:
       - 'src/test/app-smoke.test.tsx'
       - 'tests/browser/miriam.spec.ts'
       - 'playwright.miriam.config.ts'
+      - 'functions/api/gemini-live.ts'
       - '.github/workflows/miriam-voice.yml'
   workflow_dispatch:
 
