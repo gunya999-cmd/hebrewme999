@@ -2,13 +2,6 @@ import { nextReview, type ReviewItem } from "./miriamCurriculum";
 export type Attempt = { lessonId: string; at: number; userTurns: number };
 export type Progress = { attempts: Attempt[]; reviews: ReviewItem[] };
 const STORAGE_KEY = "miriam-learning-v1";
-const LAST_USER_KEY = "miriam-learning-owner-v1";
-export function useProgressOwner(userId: string | null): void {
-  const previous = localStorage.getItem(LAST_USER_KEY);
-  const owner = userId ?? "guest";
-  if (previous && previous !== owner) localStorage.removeItem(STORAGE_KEY);
-  localStorage.setItem(LAST_USER_KEY, owner);
-}
 export function readProgress(): Progress {
   try {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
