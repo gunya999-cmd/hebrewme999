@@ -18,7 +18,7 @@ export async function onRequest(context: Context): Promise<Response> {
   const response = await fetch(upstream, {
     headers: {
       Upgrade: "websocket",
-      Authorization: `Bearer ${env.GOOGLE_AI_API_KEY}`,
+      "x-goog-api-key": env.GOOGLE_AI_API_KEY,
     },
   });
   if (response.status !== 101 || !response.webSocket) {
