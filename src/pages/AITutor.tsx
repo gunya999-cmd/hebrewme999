@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { syncCloudProgress } from "@/lib/miriamCloudProgress";
 import { readProgress, dueTerms, reviewTerm } from "@/lib/miriamProgress";
 import { motion } from "framer-motion";
 import { ArrowLeft, Mic, Sparkles, MessageCircle, CheckCircle2, Phone } from "lucide-react";
@@ -96,6 +97,11 @@ const FEATURES = [
 export default function AITutor() {
   const navigate = useNavigate();
   const [progress, setProgress] = useState(readProgress);
+  useEffect(() => {
+    let active = true;
+    syncCloudProgress().then(result => { if (active && result) setProgress(result); }).catch(error => console.warn("Miriam cloud sync unavailable", error));
+    return () => { active = false; };
+  }, []);
 
   const start = (s: Scenario) => {
     navigate("/voice-dialogue", {
