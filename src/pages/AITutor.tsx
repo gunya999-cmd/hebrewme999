@@ -97,6 +97,10 @@ const FEATURES = [
 export default function AITutor() {
   const navigate = useNavigate();
   const [progress, setProgress] = useState(readProgress);
+  const handleReview = (term: string, correct: boolean) => {
+    setProgress(reviewTerm(term, correct));
+    void syncCloudProgress().catch(error => console.warn("Miriam review sync unavailable", error));
+  };
   useEffect(() => {
     let active = true;
     syncCloudProgress().then(result => { if (active && result) setProgress(result); }).catch(error => console.warn("Miriam cloud sync unavailable", error));
@@ -207,8 +211,8 @@ export default function AITutor() {
           <div key={item.term} className="rounded-xl border p-3 mb-2 bg-card">
             <p dir="rtl" lang="he" className="font-hebrew text-xl mb-2">{item.term}</p>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={() => setProgress(reviewTerm(item.term, false))}>Ещё учить</Button>
-              <Button size="sm" onClick={() => setProgress(reviewTerm(item.term, true))}>Помню</Button>
+              <Button variant="outline" size="sm" onClick={() => handleReview(item.term, false)}>Ещё учить</Button>
+              <Button size="sm" onClick={() => handleReview(item.term, true)}>Помню</Button>
             </div>
           </div>
         ))}
