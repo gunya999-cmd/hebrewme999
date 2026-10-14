@@ -863,7 +863,7 @@ export default function VoiceDialogue() {
 
       ws.onclose = (e) => {
         const lesson = LESSONS.find(item => item.id === routeState?.lessonId);
-        if (lesson && !lessonSavedRef.current) {
+        if (lesson && !lessonSavedRef.current && e.code !== 1000 && retryCountRef.current >= MAX_RETRIES) {
           lessonSavedRef.current = true;
           try {
             saveAttempt(lesson.id, transcriptRef.current.filter(line => line.speaker === "user").length, lesson.vocabulary);
