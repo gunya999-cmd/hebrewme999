@@ -31,3 +31,17 @@ export async function pushCloudProgress(): Promise<boolean> {
   if (error) throw new Error(error.message);
   return true;
 }
+
+export async function syncCloudProgress(): Promise<Progress | null> {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+  const remote = await loadCloudProgress();
+  const merged = remote ? mergeProgress(readProgress(), remote) : readProgress();
+  const { error } = await client.from("miriam_learning_progress").upsert(
+    { user_id: user.id, progress: merged },
+    { onConflict: "user_id" },
+  );
+  if (error) throw new Error(error.message);
+  writeProgress(merged);
+  return merged;
+}
