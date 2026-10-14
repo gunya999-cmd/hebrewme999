@@ -1,7 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
-import { syncCloudProgress } from "@/lib/miriamCloudProgress";
-import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
 import { readProgress, dueTerms, reviewTerm } from "@/lib/miriamProgress";
 import { motion } from "framer-motion";
 import { ArrowLeft, Mic, Sparkles, MessageCircle, CheckCircle2, Phone } from "lucide-react";
@@ -100,18 +98,7 @@ export default function AITutor() {
   const [progress, setProgress] = useState(readProgress);
   const handleReview = (term: string, correct: boolean) => {
     setProgress(reviewTerm(term, correct));
-    void syncCloudProgress().catch(error => console.warn("Miriam review sync unavailable", error));
   };
-  useEffect(() => {
-    let active = true;
-    syncCloudProgress().then(result => { if (active) setProgress(result ?? readProgress()); }).catch(error => console.warn("Miriam cloud sync unavailable", error));
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
-      window.setTimeout(() => {
-        if (active) void syncCloudProgress().then(result => { if (active) setProgress(result ?? readProgress()); }).catch(error => console.warn("Miriam auth sync unavailable", error));
-      }, 0);
-    });
-    return () => { active = false; subscription.unsubscribe(); };
-  }, []);
 
   const start = (s: Scenario) => {
     navigate("/voice-dialogue", {
