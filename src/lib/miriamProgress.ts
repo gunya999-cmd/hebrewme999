@@ -21,7 +21,7 @@ export function mergeProgress(local: Progress, remote: Progress): Progress {
   const reviews = new Map<string, ReviewItem>();
   for (const review of [...remote.reviews, ...local.reviews]) {
     const previous = reviews.get(review.term);
-    if (!previous || review.dueAt > previous.dueAt) reviews.set(review.term, review);
+    if (!previous || review.dueAt - review.intervalDays * 86400000 > previous.dueAt - previous.intervalDays * 86400000) reviews.set(review.term, review);
   }
   return {
     attempts: [...attempts.values()].sort((a, b) => a.at - b.at).slice(-100),
