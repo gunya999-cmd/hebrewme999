@@ -7,7 +7,7 @@ on:
       - 'src/components/MiriamAvatar3D.tsx'
       - 'src/pages/AITutor.tsx'
       - 'src/lib/miriam*.ts'
-      - 'supabase/migrations/*miriam*'
+      - 'src/test/app-smoke.test.tsx'
       - '.github/workflows/miriam-voice.yml'
   workflow_dispatch:
 
