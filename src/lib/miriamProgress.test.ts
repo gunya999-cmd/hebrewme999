@@ -11,9 +11,9 @@ describe("Miriam progress merge", () => {
     const attempt = { lessonId: "a1-cafe", at: 100, userTurns: 3 };
     expect(mergeProgress({ attempts: [attempt], reviews: [] }, { attempts: [attempt], reviews: [] }).attempts).toHaveLength(1);
   });
-  it("retains the review with later due date", () => {
-    const old = { term: "שלום", dueAt: 100, intervalDays: 1, repetitions: 1 };
-    const newer = { ...old, dueAt: 200, intervalDays: 3, repetitions: 2 };
+  it("retains the most recently practiced review", () => {
+    const old = { term: "שלום", dueAt: 86400100, intervalDays: 1, repetitions: 1 };
+    const newer = { ...old, dueAt: 259200200, intervalDays: 3, repetitions: 2 };
     const result = mergeProgress({ attempts: [], reviews: [old] }, { attempts: [], reviews: [newer] });
     expect(result.reviews).toEqual([newer]);
   });
