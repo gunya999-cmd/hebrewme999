@@ -1,5 +1,5 @@
 // Cloudflare Pages: Hebrew -> Russian translation without Supabase/Lovable.
-interface Env { GOOGLE_AI_API_KEY?: string }
+interface Env { GOOGLE_AI_API_KEY?: string; MIRIAM_TRANSLATION_ENABLED?: string }
 interface Context { request: Request; env: Env }
 const json = (body: object, status = 200) => new Response(JSON.stringify(body), {
   status, headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },
@@ -8,6 +8,7 @@ export async function onRequestPost({ request, env }: Context): Promise<Response
   if (request.headers.get("Origin") && new URL(request.headers.get("Origin")!).host !== new URL(request.url).host) {
     return json({ error: "Origin not allowed" }, 403);
   }
+  if (env.MIRIAM_TRANSLATION_ENABLED !== "true") return json({ error: "Translation rollout disabled" }, 503);
   if (!env.GOOGLE_AI_API_KEY) return json({ error: "Translation not configured" }, 503);
   let body: { text?: unknown };
   try { body = await request.json(); } catch { return json({ error: "Invalid JSON" }, 400); }
