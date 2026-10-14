@@ -9,7 +9,6 @@ import { getSpeechRate } from "@/hooks/useSpeechRate";
 import { getSupabaseAuthHeaders, getSupabaseFunctionUrl, isSupabaseConfigured, SUPABASE_CONFIG_ERROR } from "@/lib/env";
 import { SpeechRateSelector } from "@/components/SpeechRateSelector";
 import { saveAttempt } from "@/lib/miriamProgress";
-import { syncCloudProgress } from "@/lib/miriamCloudProgress";
 import { LESSONS } from "@/lib/miriamCurriculum";
 
 /* ── Types ── */
@@ -867,7 +866,6 @@ export default function VoiceDialogue() {
           lessonSavedRef.current = true;
           try {
             saveAttempt(lesson.id, transcriptRef.current.filter(line => line.speaker === "user").length, lesson.vocabulary);
-            void syncCloudProgress().catch(error => console.warn("Lesson cloud sync unavailable", error));
           } catch (error) { console.warn("Lesson progress save failed", error); }
         }
         console.info("[Gemini] WebSocket closed:", e.code, e.reason || "(no reason)");
@@ -938,7 +936,6 @@ export default function VoiceDialogue() {
       lessonSavedRef.current = true;
       try {
         saveAttempt(lesson.id, transcriptRef.current.filter(line => line.speaker === "user").length, lesson.vocabulary);
-        void syncCloudProgress().catch(error => console.warn("Lesson sync unavailable", error));
       } catch (error) {
         console.warn("Miriam progress save failed", error);
       }
