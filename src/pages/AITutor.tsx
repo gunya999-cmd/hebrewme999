@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { syncCloudProgress } from "@/lib/miriamCloudProgress";
+import { supabase } from "@/integrations/supabase/client";
 import { readProgress, dueTerms, reviewTerm } from "@/lib/miriamProgress";
 import { motion } from "framer-motion";
 import { ArrowLeft, Mic, Sparkles, MessageCircle, CheckCircle2, Phone } from "lucide-react";
@@ -103,8 +104,11 @@ export default function AITutor() {
   };
   useEffect(() => {
     let active = true;
-    syncCloudProgress().then(result => { if (active && result) setProgress(result); }).catch(error => console.warn("Miriam cloud sync unavailable", error));
-    return () => { active = false; };
+    syncCloudProgress().then(result => { if (active) setProgress(result ?? readProgress()); }).catch(error => console.warn("Miriam cloud sync unavailable", error));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
+      void syncCloudProgress().then(result => { if (active) setProgress(result ?? readProgress()); }).catch(error => console.warn("Miriam auth sync unavailable", error));
+    });
+    return () => { active = false; subscription.unsubscribe(); };
   }, []);
 
   const start = (s: Scenario) => {
