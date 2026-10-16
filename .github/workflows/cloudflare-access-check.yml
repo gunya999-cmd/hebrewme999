@@ -102,6 +102,41 @@ jobs:
           NODE
           echo "No deployment, settings, secrets or Access policies were modified."
 
+      - name: Audit Pages deployment metadata (no secrets)
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          response=$(mktemp)
+          status=$(curl --silent --show-error --max-time 20 --output "$response" \
+            --write-out '%{http_code}' -H "Authorization: Bearer $CF_TOKEN" \
+            -H "Accept: application/json" \
+            "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/pages/projects/hebrewme999")
+          if [[ "$status" != "200" ]]; then
+            echo "::error::Cannot inspect Pages deployment metadata (HTTP $status)"
+            exit 1
+          fi
+          node - "$response" <<'NODE'
+          const fs=require("fs");
+          const data=JSON.parse(fs.readFileSync(process.argv[2],"utf8"));
+          if (!data.success || data.result?.name!=="hebrewme999") process.exit(1);
+          const project=data.result;
+          console.log("Pages build configuration (safe metadata):");
+          console.log("production_branch:", project.production_branch||"(unset)");
+          console.log("build_command:", project.build_config?.build_command||"(unset)");
+          console.log("destination_dir:", project.build_config?.destination_dir||"(unset)");
+          console.log("root_dir:", project.build_config?.root_dir||"(unset)");
+          console.log("source_type:", project.source?.type||"(unset)");
+          for (const [name, deployment] of [["latest",project.latest_deployment],["production",project.canonical_deployment]]) {
+            console.log(name+"_deployment_id:", deployment?.id||"(none)");
+            console.log(name+"_deployment_branch:", deployment?.deployment_trigger?.metadata?.branch||"(unknown)");
+            console.log(name+"_deployment_environment:", deployment?.environment||"(unknown)");
+            console.log(name+"_deployment_status:", deployment?.latest_stage?.status||"(unknown)");
+          }
+          NODE
+
       - name: Diagnose anonymous production API routing
         shell: bash
         run: |
