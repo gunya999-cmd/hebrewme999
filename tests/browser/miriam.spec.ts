@@ -38,7 +38,11 @@ for (const status of [401, 503]) {
 }
 
 test("voice setup, PCM exchange and translations use only same-origin routes", async ({ page }) => {
-  const messages: Record<string, any>[] = [];
+  const messages: Array<{
+    setup?: { model: string; generationConfig: { responseModalities: string[] } };
+    clientContent?: unknown;
+    realtimeInput?: { audio?: { mimeType: string; data: string } };
+  }> = [];
   const requests: string[] = [];
   page.on("request", req => requests.push(req.url()));
   await page.addInitScript(() => {

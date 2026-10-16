@@ -73,6 +73,16 @@ Coordinate tombstone deployment and revocation/rotation of that key after the
 new route passes staging checks. Account credentials and service access were
 not available in this session; do not claim this external remediation is done.
 
+## Package manager
+
+Use npm and the root `package-lock.json`. The obsolete root `bun.lock` and
+`bun.lockb` were removed: a frozen Bun install reproducibly rejected the newly
+added server dependencies, while a clean `npm ci` passed. The archived nested
+project is unchanged. GitHub Actions run #52 passed all 10 Chromium/iPad-WebKit
+cases (including mocked PCM and translation), plus the server and build checks.
+The new Pages build initially failed; dashboard logs remain needed to confirm
+whether the package-manager mismatch caused that deployment failure.
+
 ## Reproducible checks
 
 ```sh
