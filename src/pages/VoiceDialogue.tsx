@@ -6,7 +6,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { MiriamAvatar3D } from "@/components/MiriamAvatar3D";
 import { MicDiagnostics } from "@/components/MicDiagnostics";
 import { getSpeechRate } from "@/hooks/useSpeechRate";
-import { getSupabaseAuthHeaders, getSupabaseFunctionUrl, isSupabaseConfigured, SUPABASE_CONFIG_ERROR } from "@/lib/env";
+import { getMiriamVoiceModel, miriamWebSocketUrl, translateToRussian } from "@/lib/miriamApi";
 import { SpeechRateSelector } from "@/components/SpeechRateSelector";
 import { saveAttempt } from "@/lib/miriamProgress";
 import { LESSONS } from "@/lib/miriamCurriculum";
@@ -174,25 +174,6 @@ function getMicrophoneErrorMessage(err: unknown): string {
   }
 }
 
-/* ── Translate helper ── */
-async function translateToRussian(text: string): Promise<string> {
-  try {
-    if (!isSupabaseConfigured) return "";
-    const resp = await fetch(getSupabaseFunctionUrl("ai-dialogue"), {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...getSupabaseAuthHeaders(),
-      },
-      body: JSON.stringify({ action: "translate", text }),
-    });
-    if (!resp.ok) return "";
-    const data = await resp.json();
-    return data.translation || "";
-  } catch {
-    return "";
-  }
-}
 export default function VoiceDialogue() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -635,12 +616,16 @@ export default function VoiceDialogue() {
     setError(null);
 
     try {
-      if (!isSupabaseConfigured) {
-        throw new Error(SUPABASE_CONFIG_ERROR);
-      }
       if (!navigator.mediaDevices?.getUserMedia) {
         throw new Error("Браузер не поддерживает доступ к микрофону. Откройте приложение в Chrome, Edge или Safari по HTTPS.");
       }
+
+      // Resume audio in the tap handler for iOS. Configuration contains only a
+      // model name; fail before opening the microphone if preview is disabled.
+      const audioCtx = createRealtimeAudioContext();
+      audioCtxRef.current = audioCtx;
+      await audioCtx.resume();
+      const model = await getMiriamVoiceModel();
 
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
@@ -654,22 +639,6 @@ export default function VoiceDialogue() {
       });
       streamRef.current = stream;
 
-      // Get API key after mic permission to preserve user gesture chain
-      const configResp = await fetch(getSupabaseFunctionUrl("gemini-voice-config"), {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...getSupabaseAuthHeaders(),
-        },
-        body: JSON.stringify({}),
-      });
-      if (!configResp.ok) throw new Error("Не удалось получить конфигурацию");
-      const { apiKey } = await configResp.json();
-
-      // Create audio context
-      const audioCtx = createRealtimeAudioContext();
-      audioCtxRef.current = audioCtx;
-      await audioCtx.resume();
       const inputSampleRate = Math.round(audioCtx.sampleRate);
 
       // Setup AudioWorklet
@@ -695,9 +664,7 @@ export default function VoiceDialogue() {
       startVoiceActivityMonitor();
 
       // Connect WebSocket to Gemini Live API (native audio)
-      const model = "gemini-2.5-flash-native-audio-preview-09-2025";
-      const wsUrl = `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent?key=${apiKey}`;
-      const ws = new WebSocket(wsUrl);
+      const ws = new WebSocket(miriamWebSocketUrl());
       wsRef.current = ws;
 
       ws.onopen = () => {

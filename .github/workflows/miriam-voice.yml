@@ -10,7 +10,15 @@ on:
       - 'src/test/app-smoke.test.tsx'
       - 'tests/browser/miriam.spec.ts'
       - 'playwright.miriam.config.ts'
-      - 'functions/api/gemini-live.ts'
+      - 'functions/**'
+      - 'server/**'
+      - 'tests/functions/**'
+      - 'src/lib/miriamApi*'
+      - 'supabase/functions/gemini-voice-config/**'
+      - 'vitest*.ts'
+      - 'tsconfig.functions.json'
+      - 'package*.json'
+      - 'wrangler.toml'
       - '.github/workflows/miriam-voice.yml'
   workflow_dispatch:
 
@@ -25,6 +33,9 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci
+      - run: npm run check:functions
+      - run: npm run test:functions
+      - run: npx wrangler pages functions build --outdir=/tmp/miriam-functions
       - run: npm run build
       - run: npm test -- --run
 

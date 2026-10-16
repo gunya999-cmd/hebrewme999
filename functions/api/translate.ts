@@ -1,23 +1,46 @@
 // Cloudflare Pages: Hebrew -> Russian translation without Supabase/Lovable.
-interface Env { GOOGLE_AI_API_KEY?: string; MIRIAM_TRANSLATION_ENABLED?: string }
-interface Context { request: Request; env: Env }
-const json = (body: object, status = 200) => new Response(JSON.stringify(body), {
-  status, headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },
-});
-export async function onRequestPost({ request, env }: Context): Promise<Response> {
-  if (request.headers.get("Origin") && new URL(request.headers.get("Origin")!).host !== new URL(request.url).host) {
-    return json({ error: "Origin not allowed" }, 403);
-  }
+import { checkOrigin, json, requireAccess, type MiriamContext } from "../../server/miriamSecurity";
+
+export async function onRequestPost(context: MiriamContext): Promise<Response> {
+  const { request, env } = context;
+  const originDenied = checkOrigin(request, true);
+  if (originDenied) return originDenied;
   if (env.MIRIAM_TRANSLATION_ENABLED !== "true") return json({ error: "Translation rollout disabled" }, 503);
   if (!env.GOOGLE_AI_API_KEY) return json({ error: "Translation not configured" }, 503);
+  const accessDenied = await requireAccess(context);
+  if (accessDenied) return accessDenied;
+  if (request.headers.get("Content-Type")?.split(";")[0].trim().toLowerCase() !== "application/json") {
+    return json({ error: "JSON required" }, 415);
+  }
   let body: { text?: unknown };
-  try { body = await request.json(); } catch { return json({ error: "Invalid JSON" }, 400); }
-  if (typeof body.text !== "string" || !body.text.trim() || body.text.length > 2000) {
+  // Bound actual streamed bytes too: Content-Length alone can be forged/absent.
+  const reader = request.body?.getReader();
+  if (!reader) return json({ error: "Invalid JSON" }, 400);
+  try {
+    let raw = "";
+    let bytes = 0;
+    const decoder = new TextDecoder();
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      bytes += value.byteLength;
+      if (bytes > 16384) {
+        await reader.cancel();
+        return json({ error: "Request too large" }, 413);
+      }
+      raw += decoder.decode(value, { stream: true });
+    }
+    body = JSON.parse(raw + decoder.decode());
+  } catch { return json({ error: "Invalid JSON" }, 400); }
+  finally { reader.releaseLock(); }
+  if (!body || typeof body.text !== "string" || !body.text.trim() || body.text.length > 2000) {
     return json({ error: "Text must be 1-2000 characters" }, 400);
   }
   try {
     const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent", {
       method: "POST",
+      signal: AbortSignal.timeout(15000),
+      redirect: "error",
       headers: { "Content-Type": "application/json", "x-goog-api-key": env.GOOGLE_AI_API_KEY },
       body: JSON.stringify({
         systemInstruction: { parts: [{ text: "Translate Hebrew into natural Russian. Return only the translation, no commentary." }] },

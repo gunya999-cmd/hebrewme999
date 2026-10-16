@@ -1,29 +1,30 @@
 // Cloudflare Pages Function: keep the Gemini key server-side.
 // Set GOOGLE_AI_API_KEY as an encrypted Cloudflare Pages secret.
 // Browser connects to /api/gemini-live with a WebSocket upgrade.
-interface Env { GOOGLE_AI_API_KEY?: string; MIRIAM_VOICE_PROXY_ENABLED?: string }
-interface Context { request: Request; env: Env }
+import { checkOrigin, json, voiceAccess, type MiriamContext } from "../../server/miriamSecurity";
 const upstream = "https://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent";
 
-export async function onRequest(context: Context): Promise<Response> {
+export async function onRequest(context: MiriamContext): Promise<Response> {
   const { request, env } = context;
   if (request.method !== "GET" || request.headers.get("Upgrade")?.toLowerCase() !== "websocket") {
-    return new Response("WebSocket upgrade required", { status: 426 });
+    return json({ error: "WebSocket upgrade required" }, 426);
   }
-  if (env.MIRIAM_VOICE_PROXY_ENABLED !== "true") return new Response("Voice proxy rollout disabled", { status: 503 });
-  if (!env.GOOGLE_AI_API_KEY) return new Response("Voice service not configured", { status: 503 });
-  const origin = request.headers.get("Origin");
-  if (origin && new URL(origin).host !== new URL(request.url).host) {
-    return new Response("Origin not allowed", { status: 403 });
+  const denied = checkOrigin(request, true) || await voiceAccess(context);
+  if (denied) return denied;
+  try {
+    const response = await fetch(upstream, {
+      headers: {
+        Upgrade: "websocket",
+        "x-goog-api-key": env.GOOGLE_AI_API_KEY!,
+      },
+      signal: AbortSignal.timeout(10000),
+      redirect: "error",
+    });
+    if (response.status !== 101 || !response.webSocket) {
+      return json({ error: "Voice upstream unavailable" }, 502);
+    }
+    return new Response(null, { status: 101, webSocket: response.webSocket });
+  } catch {
+    return json({ error: "Voice upstream unavailable" }, 502);
   }
-  const response = await fetch(upstream, {
-    headers: {
-      Upgrade: "websocket",
-      "x-goog-api-key": env.GOOGLE_AI_API_KEY,
-    },
-  });
-  if (response.status !== 101 || !response.webSocket) {
-    return new Response("Voice upstream unavailable", { status: 502 });
-  }
-  return new Response(null, { status: 101, webSocket: response.webSocket });
 }
