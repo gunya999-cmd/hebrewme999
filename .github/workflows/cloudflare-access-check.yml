@@ -35,6 +35,7 @@ jobs:
             --header "Authorization: Bearer $CF_TOKEN" \
             "https://api.cloudflare.com/client/v4/user/tokens/verify")
           if [[ "$token_status" != "200" ]]; then
+            node -e 'const fs=require("fs"); try { const d=JSON.parse(fs.readFileSync(process.argv[1],"utf8")); console.log("Cloudflare error codes: "+(d.errors||[]).map(e=>e.code).filter(x=>x!==undefined).join(", ")); } catch { console.log("Cloudflare returned a non-JSON error."); }' "$token_response"
             echo "::error::Token verification failed (HTTP $token_status)."
             exit 1
           fi
