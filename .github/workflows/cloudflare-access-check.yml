@@ -29,6 +29,7 @@ jobs:
           fi
           echo "::add-mask::$CF_TOKEN"
           echo "::add-mask::$CF_ACCOUNT_ID"
+          echo "Checking current GitHub Actions Cloudflare credentials."
           token_response=$(mktemp)
           token_status=$(curl --silent --show-error --max-time 20 \
             --output "$token_response" --write-out '%{http_code}' \
