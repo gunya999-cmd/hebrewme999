@@ -101,3 +101,27 @@ jobs:
           console.log("No environment values or secrets were printed.");
           NODE
           echo "No deployment, settings, secrets or Access policies were modified."
+
+      - name: Probe public endpoints for accidental anonymous access
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://hebrewme999.pages.dev"
+          # No secrets, no cookies, and no authenticated browser session.
+          for endpoint in /api/voice-config /api/translate; do
+            if [[ "$endpoint" == "/api/translate" ]]; then
+              status=$(curl --silent --show-error --max-time 20 --output /dev/null \
+                --write-out '%{http_code}' -X POST \
+                -H "Origin: $base" -H "Content-Type: application/json" \
+                --data '{"text":"שלום"}' "$base$endpoint")
+            else
+              status=$(curl --silent --show-error --max-time 20 --output /dev/null \
+                --write-out '%{http_code}' "$base$endpoint")
+            fi
+            echo "$endpoint anonymous HTTP $status"
+            if [[ "$status" == "200" ]]; then
+              echo "::error::Unexpected anonymous HTTP 200 from $endpoint"
+              exit 1
+            fi
+          done
+          echo "No anonymous success detected; this does not replace authenticated end-to-end tests."
