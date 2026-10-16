@@ -70,4 +70,34 @@ jobs:
             }
             console.log("Cloudflare credentials validated for Pages project hebrewme999.");
           ' "$response"
+          # Inspect only variable names/types, never values.
+          project_response=$(mktemp)
+          project_status=$(curl --silent --show-error --max-time 20 \
+            --output "$project_response" --write-out '%{http_code}' \
+            --header "Authorization: Bearer $CF_TOKEN" \
+            --header "Accept: application/json" \
+            "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/pages/projects/hebrewme999")
+          if [[ "$project_status" != "200" ]]; then
+            echo "::error::Cannot audit Pages project settings (HTTP $project_status)."
+            exit 1
+          fi
+          node - "$project_response" <<'NODE'
+          const fs = require("fs");
+          const data = JSON.parse(fs.readFileSync(process.argv[2], "utf8"));
+          if (!data.success || data.result?.name !== "hebrewme999") process.exit(1);
+          for (const stage of ["preview", "production"]) {
+            const deployment = data.result.deployment_configs?.[stage];
+            const vars = deployment?.env_vars ?? {};
+            console.log(stage + " environment (presence only):");
+            for (const name of [
+              "GOOGLE_AI_API_KEY", "MIRIAM_ACCESS_TEAM_DOMAIN", "MIRIAM_ACCESS_AUD",
+              "MIRIAM_LIVE_MODEL", "MIRIAM_VOICE_PROXY_ENABLED", "MIRIAM_TRANSLATION_ENABLED"
+            ]) {
+              const entry = vars[name];
+              const present = !!entry && (entry.value !== undefined || entry.type === "secret_text");
+              console.log("  " + name + ": " + (present ? "configured" : "not configured"));
+            }
+          }
+          console.log("No environment values or secrets were printed.");
+          NODE
           echo "No deployment, settings, secrets or Access policies were modified."
