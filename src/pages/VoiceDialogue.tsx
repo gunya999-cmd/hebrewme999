@@ -177,24 +177,14 @@ function getMicrophoneErrorMessage(err: unknown): string {
 /* ── Translate helper ── */
 async function translateToRussian(text: string): Promise<string> {
   try {
-    // Prefer same-origin Cloudflare; preserve the current service during staged rollout.
-    const cloudflare = await fetch("/api/translate", {
+    // Cloudflare is opt-in; never fall back to a second paid provider on an error.
+    const response = await fetch("/api/translate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text }),
     });
-    if (cloudflare.ok) {
-      const data = await cloudflare.json();
-      if (typeof data.translation === "string") return data.translation;
-    }
-    if (!isSupabaseConfigured) return "";
-    const legacy = await fetch(getSupabaseFunctionUrl("ai-dialogue"), {
-      method: "POST",
-      headers: { "Content-Type": "application/json", ...getSupabaseAuthHeaders() },
-      body: JSON.stringify({ action: "translate", text }),
-    });
-    if (!legacy.ok) return "";
-    const data = await legacy.json();
+    if (!response.ok) return "";
+    const data = await response.json();
     return typeof data.translation === "string" ? data.translation : "";
   } catch {
     return "";
