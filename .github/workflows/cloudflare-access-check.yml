@@ -1,0 +1,43 @@
+name: HebrewMe Cloudflare access check
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/miriam-v2
+    paths:
+      - '.github/workflows/cloudflare-access-check.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify-cloudflare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Verify scoped Cloudflare credentials and Pages project
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "$CF_TOKEN" || -z "$CF_ACCOUNT_ID" ]]; then
+            echo "::error::CLOUDFLARE_API_TOKEN or CLOUDFLARE_ACCOUNT_ID is missing"
+            exit 1
+          fi
+          echo "::add-mask::$CF_TOKEN"
+          echo "::add-mask::$CF_ACCOUNT_ID"
+          response=$(mktemp)
+          status=$(curl --silent --show-error --location --max-time 20 \
+            --output "$response" --write-out '%{http_code}' \
+            --header "Authorization: Bearer $CF_TOKEN" \
+            --header "Accept: application/json" \
+            "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/pages/projects/hebrewme999")
+          if [[ "$status" != "200" ]]; then
+            echo "::error::Cloudflare Pages project lookup failed (HTTP $status). Check account ID and token scope."
+            exit 1
+          fi
+          node -e 'const fs=require("fs"); const data=JSON.parse(fs.readFileSync(process.argv[1],"utf8")); if(!data.success || data.result?.name!=="hebrewme999") process.exit(1); console.log("Cloudflare credentials validated for Pages project hebrewme999.");' "$response"
+          echo "No deployment, settings, secrets or Access policies were modified."
