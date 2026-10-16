@@ -125,7 +125,7 @@ jobs:
           const headers=fs.readFileSync(headersPath,"utf8");
           const body=fs.readFileSync(bodyPath,"utf8").slice(0,4096);
           const contentType=(headers.match(/^content-type:\\s*([^\\r\\n]+)/im)||[])[1]||"unknown";
-          const html=/text\\/html/i.test(contentType)||/^\\s*<!doctype html/i.test(body);
+          const html=contentType.toLowerCase().includes("text/html") || body.trimStart().toLowerCase().startsWith("<!doctype html");
           console.log(endpoint+": HTTP "+status+", content-type="+contentType+", SPA HTML fallback="+html);
           if (status==="200" && !html) {
             console.error("Unexpected anonymous HTTP 200 from API endpoint");
