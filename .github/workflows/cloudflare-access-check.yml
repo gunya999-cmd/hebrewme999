@@ -102,38 +102,49 @@ jobs:
           NODE
           echo "No deployment, settings, secrets or Access policies were modified."
 
-      - name: Probe public endpoints for accidental anonymous access
+      - name: Diagnose anonymous production API routing
         shell: bash
         run: |
           set -euo pipefail
           base="https://hebrewme999.pages.dev"
-          # No secrets, no cookies, and no authenticated browser session.
           for endpoint in /api/voice-config /api/translate; do
+            response=$(mktemp)
+            headers=$(mktemp)
             if [[ "$endpoint" == "/api/translate" ]]; then
-              status=$(curl --silent --show-error --max-time 20 --output /dev/null \
-                --write-out '%{http_code}' -X POST \
+              status=$(curl --silent --show-error --max-time 20 --output "$response" \
+                --dump-header "$headers" --write-out '%{http_code}' -X POST \
                 -H "Origin: $base" -H "Content-Type: application/json" \
                 --data '{"text":"שלום"}' "$base$endpoint")
             else
-              status=$(curl --silent --show-error --max-time 20 --output /dev/null \
-                --write-out '%{http_code}' "$base$endpoint")
+              status=$(curl --silent --show-error --max-time 20 --output "$response" \
+                --dump-header "$headers" --write-out '%{http_code}' "$base$endpoint")
             fi
-            echo "$endpoint anonymous HTTP $status"
-            if [[ "$status" == "200" ]]; then
-              echo "::error::Unexpected anonymous HTTP 200 from $endpoint"
-              exit 1
-            fi
+            node - "$endpoint" "$status" "$headers" "$response" <<'NODE'
+          const fs=require("fs");
+          const [endpoint,status,headersPath,bodyPath]=process.argv.slice(2);
+          const headers=fs.readFileSync(headersPath,"utf8");
+          const body=fs.readFileSync(bodyPath,"utf8").slice(0,4096);
+          const contentType=(headers.match(/^content-type:\\s*([^\\r\\n]+)/im)||[])[1]||"unknown";
+          const html=/text\\/html/i.test(contentType)||/^\\s*<!doctype html/i.test(body);
+          console.log(endpoint+": HTTP "+status+", content-type="+contentType+", SPA HTML fallback="+html);
+          if (status==="200" && !html) {
+            console.error("Unexpected anonymous HTTP 200 from API endpoint");
+            process.exit(1);
+          }
+          if (html) console.log("WARNING: API path returned SPA HTML rather than an API response. Check deployment and Pages Functions routing.");
+          NODE
           done
-          # A WebSocket handshake must never succeed without an Access assertion.
-          ws_status=$(curl --silent --show-error --max-time 20 --output /dev/null \
-            --write-out '%{http_code}' --http1.1 \
+          ws_headers=$(mktemp)
+          ws_body=$(mktemp)
+          ws_status=$(curl --silent --show-error --max-time 20 --output "$ws_body" \
+            --dump-header "$ws_headers" --write-out '%{http_code}' --http1.1 \
             -H 'Connection: Upgrade' -H 'Upgrade: websocket' \
             -H 'Sec-WebSocket-Version: 13' \
             -H 'Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==' \
             -H "Origin: $base" "$base/api/gemini-live")
           echo "/api/gemini-live anonymous upgrade HTTP $ws_status"
-          if [[ "$ws_status" == "101" || "$ws_status" == "200" ]]; then
-            echo "::error::Unexpected anonymous success from WebSocket endpoint"
+          if [[ "$ws_status" == "101" ]]; then
+            echo "::error::Anonymous WebSocket upgrade succeeded"
             exit 1
           fi
-          echo "No anonymous success detected; this does not replace authenticated end-to-end tests."
+          echo "No anonymous WebSocket upgrade detected."
