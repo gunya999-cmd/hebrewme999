@@ -30,14 +30,28 @@ jobs:
           echo "::add-mask::$CF_TOKEN"
           echo "::add-mask::$CF_ACCOUNT_ID"
           response=$(mktemp)
-          status=$(curl --silent --show-error --location --max-time 20 \
+          status=$(curl --silent --show-error --max-time 20 \
             --output "$response" --write-out '%{http_code}' \
             --header "Authorization: Bearer $CF_TOKEN" \
             --header "Accept: application/json" \
-            "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/pages/projects/hebrewme999")
+            "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/pages/projects")
           if [[ "$status" != "200" ]]; then
-            echo "::error::Cloudflare Pages project lookup failed (HTTP $status). Check account ID and token scope."
+            echo "::error::Cloudflare Pages projects list failed (HTTP $status). Verify token permissions and account."
             exit 1
           fi
-          node -e 'const fs=require("fs"); const data=JSON.parse(fs.readFileSync(process.argv[1],"utf8")); if(!data.success || data.result?.name!=="hebrewme999") process.exit(1); console.log("Cloudflare credentials validated for Pages project hebrewme999.");' "$response"
+          node -e '
+            const fs = require("fs");
+            const data = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
+            if (!data.success || !Array.isArray(data.result)) {
+              console.error("Cloudflare did not return a valid Pages project list.");
+              process.exit(1);
+            }
+            const names = data.result.map(project => project.name);
+            if (!names.includes("hebrewme999")) {
+              console.error("Expected Pages project hebrewme999 was not found in the selected account.");
+              console.log("Pages projects visible to this token: " + (names.join(", ") || "(none)"));
+              process.exit(1);
+            }
+            console.log("Cloudflare credentials validated for Pages project hebrewme999.");
+          ' "$response"
           echo "No deployment, settings, secrets or Access policies were modified."
