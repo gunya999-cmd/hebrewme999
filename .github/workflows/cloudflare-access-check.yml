@@ -5,16 +5,32 @@ on:
   pull_request:
     paths:
       - '.github/workflows/cloudflare-access-check.yml'
+      - 'scripts/cloudflare-preview-audit.mjs'
   push:
     branches:
       - feature/miriam-v2
     paths:
       - '.github/workflows/cloudflare-access-check.yml'
+      - 'scripts/cloudflare-preview-audit.mjs'
 
 permissions:
   contents: read
 
 jobs:
+  audit-cloudflare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Read Pages and Access configuration without exposing values
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: node scripts/cloudflare-preview-audit.mjs
+
   verify-cloudflare:
     runs-on: ubuntu-latest
     timeout-minutes: 20
