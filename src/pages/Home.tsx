@@ -11,7 +11,7 @@ const floatingLetters = ["ל", "ה", "ת", "פ", "ע", "ל", "נ", "מ", "כ"];
 
 const fastModes = [
   { label: "5 минут", path: "/games/verb-drops" },
-  { label: "Повторение ошибок", path: "/games/verb-drops" },
+  { label: "Глаголопад", path: "/games/verb-drops" },
   { label: "Аудиотренировка", path: "/games/conjugation-voice" },
   { label: "Тренировка форм", path: "/games/guess-form" },
   { label: "Корни", path: "/games/guess-root" },
