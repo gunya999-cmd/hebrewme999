@@ -166,7 +166,7 @@ jobs:
             process.exit(1);
           }
           const url=new URL(deployment.url);
-          if (url.protocol!=="https:" || !/^[a-z0-9-]+\\.hebrewme999\\.pages\\.dev$/.test(url.hostname)) process.exit(1);
+          if (url.protocol!=="https:" || !url.hostname.endsWith(".hebrewme999.pages.dev") || url.hostname.split(".").length!==4) process.exit(1);
           process.stdout.write(url.origin);
           NODE
           )
