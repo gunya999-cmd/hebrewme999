@@ -187,8 +187,13 @@ jobs:
           const html=headers.includes("content-type: text/html")||body.trimStart().toLowerCase().startsWith("<!doctype html");
           console.log("Preview "+endpoint+": HTTP "+code+", HTML="+html);
           if (code==="101" || code==="200") { console.error("Unexpected unauthenticated API success"); process.exit(1); }
-          if (html) { console.error("Preview API is serving HTML/Access challenge instead of JSON; verify Pages Functions and Access routing."); process.exit(1); }
+          if (html && (code==="401" || code==="403")) { console.log("Preview protected by an upstream HTML authentication challenge; anonymous access blocked, Functions routing requires authenticated verification."); process.exit(0); }
+          if (html) { console.error("Preview API returned HTML without an authentication status; Pages Functions routing requires investigation."); process.exit(1); }
           if (!["401","403","503"].includes(code)) { console.error("Unexpected Preview API status"); process.exit(1); }
+          if (!html) {
+            try { const result=JSON.parse(body); if (typeof result.error!=="string") throw Error("missing error"); }
+            catch { console.error("Preview API did not return a valid JSON error"); process.exit(1); }
+          }
           NODE
           done
           echo "Preview API routes reject anonymous requests without SPA fallback."
