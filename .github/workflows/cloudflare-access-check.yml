@@ -201,7 +201,25 @@ jobs:
               code=$(curl --silent --show-error --max-time 20 \
                 --output "$body" --dump-header "$headers" --write-out '%{http_code}' "$preview_host$endpoint")
             fi
-            node - "$endpoint" "$code" "$headers" "$body" <<'NODE'
+            # Pages deployment may take time to propagate to the public edge.
+          # Retry only a transient HTML 404, not authentication or API failures.
+          if [[ "$code" == "404" ]] && grep -Eiq '<!doctype html|<html' "$body"; then
+            for attempt in {1..12}; do
+              sleep 5
+              if [[ "$endpoint" == "/api/translate" ]]; then
+                code=$(curl --silent --show-error --max-time 20 -X POST \
+                  -H "Origin: $preview_host" -H "Content-Type: application/json" \
+                  --data '{"text":"שלום"}' --output "$body" --dump-header "$headers" \
+                  --write-out '%{http_code}' "$preview_host$endpoint")
+              else
+                code=$(curl --silent --show-error --max-time 20 \
+                  --output "$body" --dump-header "$headers" --write-out '%{http_code}' "$preview_host$endpoint")
+              fi
+              echo "Preview $endpoint propagation check $attempt: HTTP $code"
+              if [[ "$code" != "404" ]] || ! grep -Eiq '<!doctype html|<html' "$body"; then break; fi
+            done
+          fi
+          node - "$endpoint" "$code" "$headers" "$body" <<'NODE'
           const fs=require("fs");
           const [endpoint,code,headersPath,bodyPath]=process.argv.slice(2);
           const headers=fs.readFileSync(headersPath,"utf8").toLowerCase();
