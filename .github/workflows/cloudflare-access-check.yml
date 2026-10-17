@@ -106,6 +106,13 @@ jobs:
               console.log("  " + name + ": " + (present ? "configured" : "not configured"));
             }
           }
+          const preview=data.result.deployment_configs?.preview?.env_vars ?? {};
+          const required=["GOOGLE_AI_API_KEY","MIRIAM_ACCESS_TEAM_DOMAIN","MIRIAM_ACCESS_AUD","MIRIAM_LIVE_MODEL","MIRIAM_VOICE_PROXY_ENABLED","MIRIAM_TRANSLATION_ENABLED"];
+          const missing=required.filter(name=>!preview[name] || (preview[name].value===undefined && preview[name].type!=="secret_text"));
+          if(missing.length) {
+            console.error("::error::Preview voice configuration is incomplete; missing bindings: "+missing.join(", "));
+            process.exitCode=1;
+          }
           console.log("No environment values or secrets were printed.");
           NODE
           echo "No deployment, settings, secrets or Access policies were modified."
