@@ -11,8 +11,8 @@ describe("HebrewMe route smoke tests", () => {
   it("renders the home dashboard", async () => {
     window.history.pushState({}, "", "/");
     render(<App />);
-    expect(await screen.findByText(/Иврит Глаголы/i)).toBeInTheDocument();
-    expect(await screen.findByText(/Начать урок/i)).toBeInTheDocument();
+    expect(await screen.findByText(/через действия/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Начать 5 минут/i)).toBeInTheDocument();
   });
 
   it("renders the games screen from a direct route", async () => {
@@ -25,6 +25,6 @@ describe("HebrewMe route smoke tests", () => {
     window.history.pushState({}, "", "/ai-tutor");
     render(<App />);
     expect(await screen.findByText(/AI Репетитор/i)).toBeInTheDocument();
-    expect(await screen.findByText(/Позвонить Мирьям/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Позвонить Ракель/i)).toBeInTheDocument();
   });
 });

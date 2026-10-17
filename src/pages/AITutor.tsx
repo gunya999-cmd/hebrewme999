@@ -1,9 +1,12 @@
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { readProgress, dueTerms, reviewTerm } from "@/lib/miriamProgress";
 import { motion } from "framer-motion";
 import { ArrowLeft, Mic, Sparkles, MessageCircle, CheckCircle2, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import miriamAvatar from "@/assets/miriam-avatar.png";
 import { MiriamAvatar3D } from "@/components/MiriamAvatar3D";
+import { LESSONS, lessonPrompt, type Lesson } from "@/lib/miriamCurriculum";
 
 /* ── Loora-style AI tutor landing ──
  * Inspired by loora.ai: big avatar, warm gradient, scenario cards.
@@ -25,13 +28,13 @@ interface Scenario {
   greet: string;
 }
 
-const CORRECTION = ` חשוב מאוד: כאשר התלמיד טועה, תקני אותו בעדינות. פתחי תמיד באחת מהצורות: «נכון לומר…», «עדיף לומר…» או «נכון להגיד…», מיד אחר כך אמרי את הצורה הנכונה המלאה ואז המשיכי בשאלה קצרה. אסור להשתמש ברוסית או באנגלית גם בזמן התיקון.`;
+const CORRECTION = ` חשוב: בשיחה חופשית אל תקטעי את התלמיד על כל שגיאה. תקני רק שגיאות שמשנות משמעות או חוזרות כמה פעמים, ובסוף התור, במשפט קצר ובעברית פשוטה. אם התלמיד מבקש הסבר, הסבירי את התיקון. אל תטעני שאת יודעת לזהות שגיאת הגייה ללא ראיה מספקת מהאודיו.`;
 
 const SCENARIOS: Scenario[] = [
   {
     id: "free", emoji: "💬", title: "Свободный разговор", titleHe: "שיחה חופשית",
     desc: "Просто поговори со мной на любую тему", level: "beginner",
-    instruction: `את מרים, מורה לעברית מתל אביב. דברי רק בעברית, פשוט וחם, משפטים קצרים. עודדי את התלמיד לדבר, שאלי שאלות פתוחות.${CORRECTION}`,
+    instruction: `את רחל, מורה לעברית מתל אביב. דברי רק בעברית, פשוט וחם, משפטים קצרים. עודדי את התלמיד לדבר, שאלי שאלות פתוחות.${CORRECTION}`,
     greet: "ברכי אותי בקצרה ושאלי איך אני מרגיש היום.",
   },
   {
@@ -86,12 +89,16 @@ const SCENARIOS: Scenario[] = [
 
 const FEATURES = [
   { icon: Mic, text: "Говори со мной голосом — я отвечаю как живой собеседник" },
-  { icon: CheckCircle2, text: "Мгновенно поправлю произношение и грамматику" },
+  { icon: CheckCircle2, text: "Помогу замечать ошибки и практиковать правильные фразы" },
   { icon: Sparkles, text: "Каждый раз новый разговор по выбранной ситуации" },
 ];
 
 export default function AITutor() {
   const navigate = useNavigate();
+  const [progress, setProgress] = useState(readProgress);
+  const handleReview = (term: string, correct: boolean) => {
+    setProgress(reviewTerm(term, correct));
+  };
 
   const start = (s: Scenario) => {
     navigate("/voice-dialogue", {
@@ -100,7 +107,22 @@ export default function AITutor() {
         autoStart: true,
         customInstruction: s.instruction,
         customGreet: s.greet,
-        customTitle: `Мирьям · ${s.title}`,
+        customTitle: `Ракель · ${s.title}`,
+      },
+    });
+  };
+
+  const startLesson = (lesson: Lesson) => {
+    navigate("/voice-dialogue", {
+      state: {
+        level: lesson.level === "A1" ? "beginner" : lesson.level === "A2" ? "intermediate" : "advanced",
+        autoStart: true,
+        customInstruction: lessonPrompt(lesson),
+        customGreet: lesson.level === "A1"
+          ? `Начни урок «${lesson.title}»: объясни цель одной короткой фразой на русском, затем переходи к ивриту.`
+          : `התחילי את השיעור: ${lesson.objective}. שאלי שאלה ראשונה.`,
+        customTitle: `Ракель · ${lesson.level} · ${lesson.title}`,
+        lessonId: lesson.id,
       },
     });
   };
@@ -124,7 +146,7 @@ export default function AITutor() {
           className="relative"
         >
           <div className="absolute inset-0 -m-4 rounded-full bg-gradient-to-tr from-orange-400/40 via-pink-400/30 to-amber-300/40 blur-2xl" />
-          <MiriamAvatar3D size={336} speaking showRing={false} />
+          <MiriamAvatar3D size={336} speaking={false} showRing={false} />
           <motion.span
             className="absolute -bottom-1 -right-1 w-10 h-10 rounded-full bg-green-500 border-4 border-white dark:border-background flex items-center justify-center text-base"
             animate={{ scale: [1, 1.1, 1] }}
@@ -140,7 +162,7 @@ export default function AITutor() {
           transition={{ delay: 0.1 }}
           className="mt-5 text-2xl font-extrabold text-foreground"
         >
-          Я Мирьям —<br />твой AI-репетитор иврита
+          Я Ракель —<br />твой AI-репетитор иврита
         </motion.h2>
         <p className="mt-2 text-sm text-muted-foreground max-w-sm">
           Понимаешь иврит, но не можешь говорить? Будем практиковаться каждый день — голосом, в реальном диалоге.
@@ -171,9 +193,42 @@ export default function AITutor() {
           className="mt-6 w-full max-w-sm flex items-center justify-center gap-2 py-4 rounded-2xl bg-gradient-to-r from-orange-500 to-pink-500 text-white font-bold shadow-lg shadow-orange-500/30"
         >
           <Phone className="w-5 h-5" />
-          Позвонить Мирьям
+          Позвонить Ракель
         </motion.button>
       </div>
+
+      <section className="px-4 pb-6">
+        <h3 className="font-bold text-lg">Повторение слов</h3>
+        <p className="text-sm text-muted-foreground mb-3">Занятий: {progress.attempts.length}. Слов к повторению: {dueTerms(progress).length}.</p>
+        {dueTerms(progress).slice(0, 5).map(item => (
+          <div key={item.term} className="rounded-xl border p-3 mb-2 bg-card">
+            <p dir="rtl" lang="he" className="font-hebrew text-xl mb-2">{item.term}</p>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={() => handleReview(item.term, false)}>Ещё учить</Button>
+              <Button size="sm" onClick={() => handleReview(item.term, true)}>Помню</Button>
+            </div>
+          </div>
+        ))}
+      </section>
+      {/* Structured curriculum */}
+      <section className="px-4 pb-7" aria-label="Программа обучения">
+        <h3 className="text-lg font-bold mb-2">Программа обучения A1–B2</h3>
+        <p className="text-sm text-muted-foreground mb-4">Уроки по 7–10 минут: объяснение, диалог, практика и проверка знаний.</p>
+        {(["A1", "A2", "B1", "B2"] as const).map(level => (
+          <div key={level} className="mb-4">
+            <h4 className="font-semibold mb-2">{level}</h4>
+            <div className="grid gap-2">
+              {LESSONS.filter(lesson => lesson.level === level).map(lesson => (
+                <button key={lesson.id} onClick={() => startLesson(lesson)}
+                  className="text-left rounded-xl border border-border bg-card p-3 hover:border-primary/60">
+                  <span className="font-semibold text-sm">{lesson.title}</span>
+                  <span className="block text-xs text-muted-foreground">{lesson.minutes} мин · {lesson.objective}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        ))}
+      </section>
 
       {/* Scenarios */}
       <div className="px-4">
@@ -207,7 +262,7 @@ export default function AITutor() {
         </div>
 
         <p className="text-center text-xs text-muted-foreground mt-6 px-6">
-          Нажми на ситуацию — Мирьям сразу позвонит и начнёт разговор на иврите.
+          Нажми на ситуацию — Ракель сразу позвонит и начнёт разговор на иврите.
         </p>
       </div>
     </div>

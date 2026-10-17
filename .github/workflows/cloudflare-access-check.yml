@@ -1,0 +1,317 @@
+name: HebrewMe Cloudflare access check
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/cloudflare-access-check.yml'
+      - 'scripts/cloudflare-preview-audit.mjs'
+      - 'scripts/cloudflare-preview-prepare.mjs'
+  push:
+    branches:
+      - feature/miriam-v2
+    paths:
+      - '.github/workflows/cloudflare-access-check.yml'
+      - 'scripts/cloudflare-preview-audit.mjs'
+      - 'scripts/cloudflare-preview-prepare.mjs'
+
+permissions:
+  contents: read
+
+jobs:
+  audit-cloudflare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Read Pages and Access configuration without exposing values
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: node scripts/cloudflare-preview-audit.mjs
+      - name: Keep Preview rollout disabled and preserve Production settings
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: node scripts/cloudflare-preview-prepare.mjs
+
+  verify-cloudflare:
+    needs: audit-cloudflare
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Verify scoped Cloudflare credentials and Pages project
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "$CF_TOKEN" || -z "$CF_ACCOUNT_ID" ]]; then
+            echo "::error::CLOUDFLARE_API_TOKEN or CLOUDFLARE_ACCOUNT_ID is missing"
+            exit 1
+          fi
+          echo "::add-mask::$CF_TOKEN"
+          echo "::add-mask::$CF_ACCOUNT_ID"
+          echo "Rechecking GitHub Actions Cloudflare credentials after Account ID update."
+          token_response=$(mktemp)
+          token_status=$(curl --silent --show-error --max-time 20 \
+            --output "$token_response" --write-out '%{http_code}' \
+            --header "Authorization: Bearer $CF_TOKEN" \
+            "https://api.cloudflare.com/client/v4/user/tokens/verify")
+          if [[ "$token_status" != "200" ]]; then
+            node -e 'const fs=require("fs"); try { const d=JSON.parse(fs.readFileSync(process.argv[1],"utf8")); console.log("Cloudflare error codes: "+(d.errors||[]).map(e=>e.code).filter(x=>x!==undefined).join(", ")); } catch { console.log("Cloudflare returned a non-JSON error."); }' "$token_response"
+            echo "::error::Token verification failed (HTTP $token_status)."
+            exit 1
+          fi
+          node -e 'const fs=require("fs"); const d=JSON.parse(fs.readFileSync(process.argv[1],"utf8")); if (!d.success || d.result?.status !== "active") process.exit(1); console.log("Cloudflare API token is active.")' "$token_response"
+          if [[ ! "$CF_ACCOUNT_ID" =~ ^[a-fA-F0-9]{32}$ ]]; then
+            echo "::error::Account ID must contain exactly 32 hexadecimal characters."
+            exit 1
+          fi
+          response=$(mktemp)
+          status=$(curl --silent --show-error --max-time 20 \
+            --output "$response" --write-out '%{http_code}' \
+            --header "Authorization: Bearer $CF_TOKEN" \
+            --header "Accept: application/json" \
+            "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/pages/projects")
+          if [[ "$status" != "200" ]]; then
+            echo "::error::Cloudflare Pages projects list failed (HTTP $status). Verify token permissions and account."
+            exit 1
+          fi
+          node -e '
+            const fs = require("fs");
+            const data = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
+            if (!data.success || !Array.isArray(data.result)) {
+              console.error("Cloudflare did not return a valid Pages project list.");
+              process.exit(1);
+            }
+            const names = data.result.map(project => project.name);
+            if (!names.includes("hebrewme999")) {
+              console.error("Expected Pages project hebrewme999 was not found in the selected account.");
+              console.log("Pages projects visible to this token: " + (names.join(", ") || "(none)"));
+              process.exit(1);
+            }
+            console.log("Cloudflare credentials validated for Pages project hebrewme999.");
+          ' "$response"
+          # Inspect only variable names/types, never values.
+          project_response=$(mktemp)
+          project_status=$(curl --silent --show-error --max-time 20 \
+            --output "$project_response" --write-out '%{http_code}' \
+            --header "Authorization: Bearer $CF_TOKEN" \
+            --header "Accept: application/json" \
+            "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/pages/projects/hebrewme999")
+          if [[ "$project_status" != "200" ]]; then
+            echo "::error::Cannot audit Pages project settings (HTTP $project_status)."
+            exit 1
+          fi
+          node - "$project_response" <<'NODE'
+          const fs = require("fs");
+          const data = JSON.parse(fs.readFileSync(process.argv[2], "utf8"));
+          if (!data.success || data.result?.name !== "hebrewme999") process.exit(1);
+          for (const stage of ["preview", "production"]) {
+            const deployment = data.result.deployment_configs?.[stage];
+            const vars = deployment?.env_vars ?? {};
+            console.log(stage + " environment (presence only):");
+            for (const name of [
+              "GOOGLE_AI_API_KEY", "MIRIAM_ACCESS_TEAM_DOMAIN", "MIRIAM_ACCESS_AUD",
+              "MIRIAM_LIVE_MODEL", "MIRIAM_VOICE_PROXY_ENABLED", "MIRIAM_TRANSLATION_ENABLED"
+            ]) {
+              const entry = vars[name];
+              const present = !!entry && (entry.value !== undefined || entry.type === "secret_text");
+              console.log("  " + name + ": " + (present ? "configured" : "not configured"));
+            }
+          }
+          const preview=data.result.deployment_configs?.preview?.env_vars ?? {};
+          const required=["GOOGLE_AI_API_KEY","MIRIAM_ACCESS_TEAM_DOMAIN","MIRIAM_ACCESS_AUD","MIRIAM_LIVE_MODEL","MIRIAM_VOICE_PROXY_ENABLED","MIRIAM_TRANSLATION_ENABLED"];
+          const missing=required.filter(name=>!preview[name] || (preview[name].value===undefined && preview[name].type!=="secret_text"));
+          if(missing.length) {
+            console.error("::error::Preview voice configuration is incomplete; missing bindings: "+missing.join(", "));
+            process.exitCode=1;
+          }
+          console.log("No environment values or secrets were printed.");
+          NODE
+          echo "No deployment, settings, secrets or Access policies were modified."
+
+      - name: Audit Pages deployment metadata (no secrets)
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          response=$(mktemp)
+          status=$(curl --silent --show-error --max-time 20 --output "$response" \
+            --write-out '%{http_code}' -H "Authorization: Bearer $CF_TOKEN" \
+            -H "Accept: application/json" \
+            "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/pages/projects/hebrewme999")
+          if [[ "$status" != "200" ]]; then
+            echo "::error::Cannot inspect Pages deployment metadata (HTTP $status)"
+            exit 1
+          fi
+          node - "$response" <<'NODE'
+          const fs=require("fs");
+          const data=JSON.parse(fs.readFileSync(process.argv[2],"utf8"));
+          if (!data.success || data.result?.name!=="hebrewme999") process.exit(1);
+          const project=data.result;
+          console.log("Pages build configuration (safe metadata):");
+          console.log("production_branch:", project.production_branch||"(unset)");
+          console.log("build_command:", project.build_config?.build_command||"(unset)");
+          console.log("destination_dir:", project.build_config?.destination_dir||"(unset)");
+          console.log("root_dir:", project.build_config?.root_dir||"(unset)");
+          console.log("source_type:", project.source?.type||"(unset)");
+          console.log("preview_aliases_count:", Array.isArray(project.latest_deployment?.aliases)?project.latest_deployment.aliases.length:0);
+          for (const [name, deployment] of [["latest",project.latest_deployment],["production",project.canonical_deployment]]) {
+            console.log(name+"_deployment_id:", deployment?.id||"(none)");
+            console.log(name+"_deployment_branch:", deployment?.deployment_trigger?.metadata?.branch||"(unknown)");
+            console.log(name+"_deployment_environment:", deployment?.environment||"(unknown)");
+            console.log(name+"_deployment_status:", deployment?.latest_stage?.status||"(unknown)");
+          }
+          NODE
+
+      - name: Deploy branch Preview with Pages Functions
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm ci
+          npm run check:functions
+          npm run test:functions
+          npm run build
+          npx wrangler pages functions build --outdir=/tmp/hebrewme-functions
+          npx wrangler pages deploy dist --project-name hebrewme999 --branch feature/miriam-v2 --commit-hash "$GITHUB_SHA"
+
+      - name: Probe deployed Preview API routes
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          response=$(mktemp)
+          status=$(curl --silent --show-error --max-time 20 --output "$response" \
+            --write-out '%{http_code}' -H "Authorization: Bearer $CF_TOKEN" \
+            "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/pages/projects/hebrewme999")
+          if [[ "$status" != "200" ]]; then
+            echo "::error::Unable to locate Preview deployment (HTTP $status)"
+            exit 1
+          fi
+          preview_host=$(node - "$response" <<'NODE'
+          const fs=require("fs");
+          const data=JSON.parse(fs.readFileSync(process.argv[2],"utf8"));
+          const deployment=data.result?.latest_deployment;
+          const branch=deployment?.deployment_trigger?.metadata?.branch;
+          if (!data.success || !deployment?.url || branch!=="feature/miriam-v2" || deployment.environment!=="preview") {
+            console.error("Latest deployment is not a confirmed feature/miriam-v2 Preview; refusing to probe an unrelated deployment.");
+            process.exit(1);
+          }
+          const url=new URL(deployment.url);
+          if (url.protocol!=="https:" || !url.hostname.endsWith(".hebrewme999.pages.dev") || url.hostname.split(".").length!==4) process.exit(1);
+          process.stdout.write(url.origin);
+          NODE
+          )
+          for endpoint in /api/voice-config /api/translate; do
+            body=$(mktemp)
+            headers=$(mktemp)
+            if [[ "$endpoint" == "/api/translate" ]]; then
+              code=$(curl --silent --show-error --max-time 20 -X POST \
+                -H "Origin: $preview_host" -H "Content-Type: application/json" \
+                --data '{"text":"שלום"}' --output "$body" --dump-header "$headers" \
+                --write-out '%{http_code}' "$preview_host$endpoint")
+            else
+              code=$(curl --silent --show-error --max-time 20 \
+                --output "$body" --dump-header "$headers" --write-out '%{http_code}' "$preview_host$endpoint")
+            fi
+            # Pages deployment may take time to propagate to the public edge.
+          # Retry only a transient HTML 404, not authentication or API failures.
+          if [[ "$code" == "404" ]] && grep -Eiq '<!doctype html|<html' "$body"; then
+            for attempt in {1..12}; do
+              sleep 5
+              if [[ "$endpoint" == "/api/translate" ]]; then
+                code=$(curl --silent --show-error --max-time 20 -X POST \
+                  -H "Origin: $preview_host" -H "Content-Type: application/json" \
+                  --data '{"text":"שלום"}' --output "$body" --dump-header "$headers" \
+                  --write-out '%{http_code}' "$preview_host$endpoint")
+              else
+                code=$(curl --silent --show-error --max-time 20 \
+                  --output "$body" --dump-header "$headers" --write-out '%{http_code}' "$preview_host$endpoint")
+              fi
+              echo "Preview $endpoint propagation check $attempt: HTTP $code"
+              if [[ "$code" != "404" ]] || ! grep -Eiq '<!doctype html|<html' "$body"; then break; fi
+            done
+          fi
+          node - "$endpoint" "$code" "$headers" "$body" <<'NODE'
+          const fs=require("fs");
+          const [endpoint,code,headersPath,bodyPath]=process.argv.slice(2);
+          const headers=fs.readFileSync(headersPath,"utf8").toLowerCase();
+          const body=fs.readFileSync(bodyPath,"utf8").slice(0,2048);
+          const html=headers.includes("content-type: text/html")||body.trimStart().toLowerCase().startsWith("<!doctype html");
+          console.log("Preview "+endpoint+": HTTP "+code+", HTML="+html);
+          if (code==="101" || code==="200") { console.error("Unexpected unauthenticated API success"); process.exit(1); }
+          if (html && (code==="401" || code==="403")) { console.log("Preview protected by an upstream HTML authentication challenge; anonymous access blocked, Functions routing requires authenticated verification."); process.exit(0); }
+          if (html) { console.error("Preview API returned HTML without an authentication status; Pages Functions routing requires investigation."); process.exit(1); }
+          if (!["401","403","503"].includes(code)) { console.error("Unexpected Preview API status"); process.exit(1); }
+          if (!html) {
+            try { const result=JSON.parse(body); if (typeof result.error!=="string") throw Error("missing error"); }
+            catch { console.error("Preview API did not return a valid JSON error"); process.exit(1); }
+          }
+          NODE
+          done
+          echo "Preview API routes reject anonymous requests without SPA fallback."
+
+      - name: Diagnose anonymous production API routing
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://hebrewme999.pages.dev"
+          for endpoint in /api/voice-config /api/translate; do
+            response=$(mktemp)
+            headers=$(mktemp)
+            if [[ "$endpoint" == "/api/translate" ]]; then
+              status=$(curl --silent --show-error --max-time 20 --output "$response" \
+                --dump-header "$headers" --write-out '%{http_code}' -X POST \
+                -H "Origin: $base" -H "Content-Type: application/json" \
+                --data '{"text":"שלום"}' "$base$endpoint")
+            else
+              status=$(curl --silent --show-error --max-time 20 --output "$response" \
+                --dump-header "$headers" --write-out '%{http_code}' "$base$endpoint")
+            fi
+            node - "$endpoint" "$status" "$headers" "$response" <<'NODE'
+          const fs=require("fs");
+          const [endpoint,status,headersPath,bodyPath]=process.argv.slice(2);
+          const headers=fs.readFileSync(headersPath,"utf8");
+          const body=fs.readFileSync(bodyPath,"utf8").slice(0,4096);
+          const contentType=(headers.split("\\n").find(line=>line.toLowerCase().startsWith("content-type:"))||"").split(":").slice(1).join(":").trim()||"unknown";
+          const html=contentType.toLowerCase().includes("text/html") || body.trimStart().toLowerCase().startsWith("<!doctype html");
+          console.log(endpoint+": HTTP "+status+", content-type="+contentType+", SPA HTML fallback="+html);
+          if (status==="200" && !html) {
+            console.error("Unexpected anonymous HTTP 200 from API endpoint");
+            process.exit(1);
+          }
+          if (html) console.log("NOTICE: Production API path serves SPA HTML; feature Functions are not yet confirmed deployed to production.");
+          NODE
+          done
+          ws_headers=$(mktemp)
+          ws_body=$(mktemp)
+          ws_status=$(curl --silent --show-error --max-time 20 --output "$ws_body" \
+            --dump-header "$ws_headers" --write-out '%{http_code}' --http1.1 \
+            -H 'Connection: Upgrade' -H 'Upgrade: websocket' \
+            -H 'Sec-WebSocket-Version: 13' \
+            -H 'Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==' \
+            -H "Origin: $base" "$base/api/gemini-live")
+          echo "/api/gemini-live anonymous upgrade HTTP $ws_status"
+          if [[ "$ws_status" == "101" ]]; then
+            echo "::error::Anonymous WebSocket upgrade succeeded"
+            exit 1
+          fi
+          echo "No anonymous WebSocket upgrade detected."

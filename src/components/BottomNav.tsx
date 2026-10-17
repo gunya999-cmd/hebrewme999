@@ -7,7 +7,7 @@ const tabs = [
   { path: "/dictionary", icon: BookOpen, label: "Глаголы" },
   { path: "/games/verb-drops", icon: Sparkles, label: "Глаголопад" },
   { path: "/games", icon: Gamepad2, label: "Игры" },
-  { path: "/ai-tutor", icon: Bot, label: "Мирьям" },
+  { path: "/ai-tutor", icon: Bot, label: "Ракель" },
 ];
 
 export default function BottomNav() {

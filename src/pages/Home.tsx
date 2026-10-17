@@ -10,12 +10,12 @@ const BINYAN_COUNT = 7;
 const floatingLetters = ["ל", "ה", "ת", "פ", "ע", "ל", "נ", "מ", "כ"];
 
 const fastModes = [
-  "5 минут",
-  "10 новых",
-  "Только ошибки",
-  "Только аудио",
-  "Только картинки",
-  "По беньянам",
+  { label: "5 минут", path: "/games/verb-drops" },
+  { label: "Глаголопад", path: "/games/verb-drops" },
+  { label: "Аудиотренировка", path: "/games/conjugation-voice" },
+  { label: "Тренировка форм", path: "/games/guess-form" },
+  { label: "Корни", path: "/games/guess-root" },
+  { label: "Беньяны", path: "/games/guess-binyan" },
 ];
 
 const binyanCards = [
@@ -181,8 +181,8 @@ export default function Home() {
           </div>
           <div className="flex gap-2 overflow-x-auto pb-1">
             {fastModes.map((mode) => (
-              <button key={mode} onClick={() => navigate("/games/verb-drops")} className="shrink-0 rounded-full border border-white/70 bg-white/85 px-4 py-2 text-sm font-black text-foreground shadow-sm backdrop-blur-xl">
-                {mode}
+              <button key={mode.label} onClick={() => navigate(mode.path)} className="shrink-0 rounded-full border border-white/70 bg-white/85 px-4 py-2 text-sm font-black text-foreground shadow-sm backdrop-blur-xl">
+                {mode.label}
               </button>
             ))}
           </div>
@@ -211,7 +211,7 @@ export default function Home() {
           <motion.button whileTap={{ scale: 0.95 }} onClick={() => navigate("/games/conjugation-voice")} className="glass-card rounded-2xl p-4 text-left">
             <Mic className="mb-2 h-6 w-6 text-primary" />
             <p className="text-sm font-black text-foreground">Спряжение голосом</p>
-            <p className="text-xs font-semibold text-muted-foreground">тренажёр с Мирьям</p>
+            <p className="text-xs font-semibold text-muted-foreground">тренажёр с Ракель</p>
           </motion.button>
 
           <motion.button whileTap={{ scale: 0.95 }} onClick={() => navigate("/ai-tutor")} className="glass-card rounded-2xl p-4 text-left">

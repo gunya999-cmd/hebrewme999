@@ -6,8 +6,10 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { MiriamAvatar3D } from "@/components/MiriamAvatar3D";
 import { MicDiagnostics } from "@/components/MicDiagnostics";
 import { getSpeechRate } from "@/hooks/useSpeechRate";
-import { getSupabaseAuthHeaders, getSupabaseFunctionUrl, isSupabaseConfigured, SUPABASE_CONFIG_ERROR } from "@/lib/env";
+import { getMiriamVoiceModel, miriamWebSocketUrl, translateToRussian } from "@/lib/miriamApi";
 import { SpeechRateSelector } from "@/components/SpeechRateSelector";
+import { saveAttempt } from "@/lib/miriamProgress";
+import { LESSONS } from "@/lib/miriamCurriculum";
 
 /* ── Types ── */
 type Level = "beginner" | "intermediate" | "advanced";
@@ -26,15 +28,15 @@ const LEVELS: { id: Level; label: string; emoji: string; desc: string }[] = [
 
 // כלל תיקון שגיאות — חובה לכל הרמות:
 // אם התלמיד טועה (דקדוק, הגייה, בחירת מילה, מין/מספר/זמן הפועל, מילת יחס),
-// מרים חייבת לתקן בעדינות. תמיד פתחי את התיקון באחת מהפתיחות הבאות בעברית בלבד:
+// רחל חייבת לתקן בעדינות. תמיד פתחי את התיקון באחת מהפתיחות הבאות בעברית בלבד:
 // «נכון לומר…», «עדיף לומר…», או «נכון להגיד…». מיד אחרי הפתיחה — אִמרי את הצורה הנכונה במלואה,
 // ואז המשיכי את השיחה בשאלה קצרה. אל תשתמשי באנגלית או ברוסית כשאת מתקנת.
-const CORRECTION_RULE = ` חשוב מאוד: כאשר התלמיד טועה (בדקדוק, בהגייה, בבחירת מילה, במין/מספר/זמן הפועל או במילת יחס) — תקני אותו תמיד, אך בעדינות. פתחי את התיקון באחת מהצורות הבאות בעברית בלבד: «נכון לומר…», «עדיף לומר…» או «נכון להגיד…», ומיד אחר כך אמרי את הצורה הנכונה המלאה. אחרי התיקון המשיכי את השיחה בשאלה קצרה. אם המשפט נכון — אל תתקני, רק עודדי והמשיכי. אסור להשתמש ברוסית או באנגלית גם בזמן התיקון.`;
+const CORRECTION_RULE = ` חשוב: אל תקטעי את התלמיד על כל טעות. בשיחה חופשית תקני בקצרה רק טעות שמשנה משמעות או טעות שחוזרת, לאחר שהתלמיד סיים לדבר. אם התלמיד מבקש תרגול דקדוק, אפשר לתקן בתדירות גבוהה יותר. אל תציגי ניחוש על הגייה כעובדה כאשר האודיו אינו ברור. לאחר תיקון, שאלי שאלה קצרה והמשיכי בשיחה.`;
 
 const LEVEL_INSTRUCTIONS: Record<Level, string> = {
-  beginner: `את מרים, מורה לעברית מתל אביב. דברי רק בעברית! אסור לדבר ברוסית או באנגלית. השתמשי במשפטים פשוטים מאוד של 3-5 מילים. דברי לאט וברור. נושאים: ברכות, מספרים, צבעים, אוכל, משפחה. תמיד שאלי שאלות פשוטות כדי להמשיך את השיחה. אם התלמיד לא מבין - חזרי על המשפט לאט יותר והוסיפי רמז בעברית פשוטה. היי חמה ומעודדת.${CORRECTION_RULE}`,
-  intermediate: `את מרים, מורה לעברית מתל אביב. דברי רק בעברית! אסור לדבר ברוסית או באנגלית. השתמשי במשפטים של 5-10 מילים. נושאים: קניות, טיולים, עבודה, תחביבים. שאלי שאלות פתוחות כדי שהתלמיד יבנה משפטים בעצמו. תקני טעויות בעדינות. ספרי עובדות מעניינות על ישראל.${CORRECTION_RULE}`,
-  advanced: `את מרים, מורה לעברית מתל אביב. דברי רק בעברית! אסור לדבר ברוסית או באנגלית. דברי בעברית טבעית כמו עם דובר שפת אם. השתמשי בסלנג, ביטויים ומטפורות. נושאים: תרבות, חדשות, פילוסופיה, הומור ושיחה יומיומית בישראל. עודדי תשובות מפורטות וויכוח. תקני טעויות סגנוניות.${CORRECTION_RULE}`,
+  beginner: `את רחל, מורה לעברית מתל אביב. דברי רק בעברית! אסור לדבר ברוסית או באנגלית. השתמשי במשפטים פשוטים מאוד של 3-5 מילים. דברי לאט וברור. נושאים: ברכות, מספרים, צבעים, אוכל, משפחה. תמיד שאלי שאלות פשוטות כדי להמשיך את השיחה. אם התלמיד לא מבין - חזרי על המשפט לאט יותר והוסיפי רמז בעברית פשוטה. היי חמה ומעודדת.${CORRECTION_RULE}`,
+  intermediate: `את רחל, מורה לעברית מתל אביב. דברי רק בעברית! אסור לדבר ברוסית או באנגלית. השתמשי במשפטים של 5-10 מילים. נושאים: קניות, טיולים, עבודה, תחביבים. שאלי שאלות פתוחות כדי שהתלמיד יבנה משפטים בעצמו. תקני טעויות בעדינות. ספרי עובדות מעניינות על ישראל.${CORRECTION_RULE}`,
+  advanced: `את רחל, מורה לעברית מתל אביב. דברי רק בעברית! אסור לדבר ברוסית או באנגלית. דברי בעברית טבעית כמו עם דובר שפת אם. השתמשי בסלנג, ביטויים ומטפורות. נושאים: תרבות, חדשות, פילוסופיה, הומור ושיחה יומיומית בישראל. עודדי תשובות מפורטות וויכוח. תקני טעויות סגנוניות.${CORRECTION_RULE}`,
 };
 
 type AudioWindow = Window & typeof globalThis & { webkitAudioContext?: typeof AudioContext };
@@ -172,26 +174,6 @@ function getMicrophoneErrorMessage(err: unknown): string {
   }
 }
 
-/* ── Translate helper ── */
-async function translateToRussian(text: string): Promise<string> {
-  try {
-    if (!isSupabaseConfigured) return "";
-    const resp = await fetch(getSupabaseFunctionUrl("ai-dialogue"), {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...getSupabaseAuthHeaders(),
-      },
-      body: JSON.stringify({ action: "translate", text }),
-    });
-    if (!resp.ok) return "";
-    const data = await resp.json();
-    return data.translation || "";
-  } catch {
-    return "";
-  }
-}
-
 export default function VoiceDialogue() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -201,6 +183,7 @@ export default function VoiceDialogue() {
     customInstruction?: string;
     customGreet?: string;
     customTitle?: string;
+    lessonId?: string;
   } | null;
   const [level, setLevel] = useState<Level | null>(routeState?.level ?? null);
   const customInstructionRef = useRef<string | undefined>(routeState?.customInstruction);
@@ -211,6 +194,9 @@ export default function VoiceDialogue() {
   const [muted, setMuted] = useState(false);
   const [aiSpeaking, setAiSpeaking] = useState(false);
   const [transcript, setTranscript] = useState<TranscriptLine[]>([]);
+  const transcriptRef = useRef<TranscriptLine[]>([]);
+  const lessonSavedRef = useRef(false);
+  useEffect(() => { transcriptRef.current = transcript; }, [transcript]);
   const [error, setError] = useState<string | null>(null);
   const [currentAiText, setCurrentAiText] = useState("");
   const [currentUserText, setCurrentUserText] = useState("");
@@ -630,12 +616,16 @@ export default function VoiceDialogue() {
     setError(null);
 
     try {
-      if (!isSupabaseConfigured) {
-        throw new Error(SUPABASE_CONFIG_ERROR);
-      }
       if (!navigator.mediaDevices?.getUserMedia) {
         throw new Error("Браузер не поддерживает доступ к микрофону. Откройте приложение в Chrome, Edge или Safari по HTTPS.");
       }
+
+      // Resume audio in the tap handler for iOS. Configuration contains only a
+      // model name; fail before opening the microphone if preview is disabled.
+      const audioCtx = createRealtimeAudioContext();
+      audioCtxRef.current = audioCtx;
+      await audioCtx.resume();
+      const model = await getMiriamVoiceModel();
 
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
@@ -649,22 +639,6 @@ export default function VoiceDialogue() {
       });
       streamRef.current = stream;
 
-      // Get API key after mic permission to preserve user gesture chain
-      const configResp = await fetch(getSupabaseFunctionUrl("gemini-voice-config"), {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...getSupabaseAuthHeaders(),
-        },
-        body: JSON.stringify({}),
-      });
-      if (!configResp.ok) throw new Error("Не удалось получить конфигурацию");
-      const { apiKey } = await configResp.json();
-
-      // Create audio context
-      const audioCtx = createRealtimeAudioContext();
-      audioCtxRef.current = audioCtx;
-      await audioCtx.resume();
       const inputSampleRate = Math.round(audioCtx.sampleRate);
 
       // Setup AudioWorklet
@@ -690,9 +664,7 @@ export default function VoiceDialogue() {
       startVoiceActivityMonitor();
 
       // Connect WebSocket to Gemini Live API (native audio)
-      const model = "gemini-2.5-flash-native-audio-preview-09-2025";
-      const wsUrl = `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent?key=${apiKey}`;
-      const ws = new WebSocket(wsUrl);
+      const ws = new WebSocket(miriamWebSocketUrl());
       wsRef.current = ws;
 
       ws.onopen = () => {
@@ -706,7 +678,7 @@ export default function VoiceDialogue() {
               speechConfig: {
                 voiceConfig: {
                   prebuiltVoiceConfig: {
-                    voiceName: "Aoede",
+                    // Sulafat: warm female voice; Hebrew availability is documented for Cloud TTS.\n                    // Live API support and actual audio quality still require device verification.\n                    voiceName: "Sulafat",
                   },
                 },
               },
@@ -855,6 +827,13 @@ export default function VoiceDialogue() {
       };
 
       ws.onclose = (e) => {
+        const lesson = LESSONS.find(item => item.id === routeState?.lessonId);
+        if (lesson && !lessonSavedRef.current && e.code !== 1000 && retryCountRef.current >= MAX_RETRIES && transcriptRef.current.some(line => line.speaker === "user")) {
+          try {
+            saveAttempt(lesson.id, transcriptRef.current.filter(line => line.speaker === "user").length, lesson.vocabulary);
+            lessonSavedRef.current = true;
+          } catch (error) { console.warn("Lesson progress save failed", error); }
+        }
         console.info("[Gemini] WebSocket closed:", e.code, e.reason || "(no reason)");
         clearSilenceWatchdog();
         awaitingModelReplyRef.current = false;
@@ -918,6 +897,15 @@ export default function VoiceDialogue() {
 
   /* ── Disconnect ── */
   const endSession = useCallback(() => {
+    const lesson = LESSONS.find(item => item.id === routeState?.lessonId);
+    if (lesson && !lessonSavedRef.current && transcriptRef.current.some(line => line.speaker === "user")) {
+      try {
+        saveAttempt(lesson.id, transcriptRef.current.filter(line => line.speaker === "user").length, lesson.vocabulary);
+        lessonSavedRef.current = true;
+      } catch (error) {
+        console.warn("Miriam progress save failed", error);
+      }
+    }
     if (retryTimerRef.current) {
       window.clearTimeout(retryTimerRef.current);
       retryTimerRef.current = null;
@@ -952,7 +940,7 @@ export default function VoiceDialogue() {
     setConnected(false);
     setAiSpeaking(false);
     setConnecting(false);
-  }, [clearSilenceWatchdog, interruptPlayback, sendAudioStreamEnd, stopSpeechRecognition, stopVoiceActivityMonitor]);
+  }, [clearSilenceWatchdog, interruptPlayback, sendAudioStreamEnd, stopSpeechRecognition, stopVoiceActivityMonitor, routeState?.lessonId]);
 
   /* ── Toggle mute ── */
   const toggleMute = useCallback(() => {
@@ -1019,10 +1007,10 @@ export default function VoiceDialogue() {
             </div>
           </motion.div>
           <div className="text-center">
-            <h2 className="text-xl font-bold text-foreground">Мирьям</h2>
+            <h2 className="text-xl font-bold text-foreground">Ракель</h2>
             <p className="text-sm text-muted-foreground mt-1">Голосовой диалог на иврите в реальном времени</p>
             <p className="text-xs text-muted-foreground mt-2 max-w-xs">
-              Говорите с Мирьям голосом только на иврите. Можно перебивать в любой момент. Перевод на русский появляется в текстовом окне.
+              Говорите с Ракель голосом только на иврите. Можно перебивать в любой момент. Перевод на русский появляется в текстовом окне.
             </p>
           </div>
           <div className="w-full max-w-sm space-y-3">
@@ -1078,7 +1066,7 @@ export default function VoiceDialogue() {
           </div>
           <div>
             <h1 className="text-sm font-bold text-foreground">
-              {customTitle || `Мирьям — ${LEVELS.find(l => l.id === level)?.label}`}
+              {customTitle || `Ракель — ${LEVELS.find(l => l.id === level)?.label}`}
             </h1>
             <p className="text-xs text-muted-foreground">
               {connecting ? "Подключение..." : connected ? (aiSpeaking ? "🗣 Говорит..." : speechStatus === "hearing" ? "🎙 Слышу вас..." : "🎧 Слушает...") : "Отключено"}
@@ -1129,7 +1117,7 @@ export default function VoiceDialogue() {
             >
               <div className={`max-w-[85%] ${line.speaker === "user" ? "items-end" : "items-start"} flex flex-col gap-0.5`}>
                 {line.speaker === "miriam" && (
-                  <span className="text-xs text-muted-foreground font-medium ml-1">Мирьям</span>
+                  <span className="text-xs text-muted-foreground font-medium ml-1">Ракель</span>
                 )}
                 <div className={`rounded-2xl px-4 py-2.5 text-sm space-y-1 ${
                   line.speaker === "user"
@@ -1158,7 +1146,7 @@ export default function VoiceDialogue() {
         {currentAiText && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex justify-start">
             <div className="max-w-[85%] flex flex-col gap-0.5">
-              <span className="text-xs text-muted-foreground font-medium ml-1">Мирьям</span>
+              <span className="text-xs text-muted-foreground font-medium ml-1">Ракель</span>
               <div className="rounded-2xl rounded-bl-md px-4 py-2.5 text-sm bg-card border border-border text-foreground space-y-1">
                 <p dir="rtl" lang="he" className="font-hebrew text-base leading-snug text-right">
                   {currentAiText}
@@ -1193,7 +1181,7 @@ export default function VoiceDialogue() {
                 animate={{ rotate: 360 }}
                 transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
               />
-              <p className="text-sm text-muted-foreground">Подключение к Мирьям...</p>
+              <p className="text-sm text-muted-foreground">Подключение к Ракель...</p>
             </div>
           </div>
         )}
@@ -1229,7 +1217,7 @@ export default function VoiceDialogue() {
               onClick={() => startSession(level)}
             >
               <Phone className="w-5 h-5" />
-              Позвонить Мирьям
+              Позвонить Ракель
             </Button>
           ) : null}
         </div>
