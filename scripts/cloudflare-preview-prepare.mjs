@@ -26,15 +26,16 @@ for (const name of ['MIRIAM_VOICE_PROXY_ENABLED', 'MIRIAM_TRANSLATION_ENABLED'])
   if (!vars[name]) changes[name] = { type: 'plain_text', value: 'false' };
 }
 // The documented PATCH merges supplied env entries; omitted secrets are preserved.
-if (before.deployment_configs?.preview?.fail_open !== false || Object.keys(changes).length) {
-  await call('PATCH', { deployment_configs: { preview: { fail_open: false, env_vars: changes } } });
+if (Object.keys(changes).length) {
+  await call('PATCH', { deployment_configs: { preview: { env_vars: changes } } });
 }
 const after = await call('GET');
-if (after.deployment_configs?.preview?.fail_open !== false) throw new Error('Preview fail-closed verification failed');
+for (const name of Object.keys(changes)) if (after.deployment_configs?.preview?.env_vars?.[name]?.value !== 'false') throw new Error('Disabled Preview flag verification failed');
 for (const name of Object.keys(vars)) {
   const next = after.deployment_configs?.preview?.env_vars?.[name];
   if (!next || next.type !== vars[name].type) throw new Error('Existing Preview binding was not preserved');
 }
 if (JSON.stringify(before.deployment_configs?.production) !== JSON.stringify(after.deployment_configs?.production)) throw new Error('Production config changed unexpectedly');
-console.log('Pages write permission confirmed. Preview fail-closed verified. Missing rollout flags saved as false.');
+console.log('Preview rollout flags verified; missing flags saved as false.');
+console.log('Cloudflare requires matching fail_open values for Preview and Production; shared setting left unchanged pending Production cutover.');
 console.log('Existing Preview bindings preserved. Production configuration unchanged. No secret values printed.');
