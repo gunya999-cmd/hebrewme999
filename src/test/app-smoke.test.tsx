@@ -25,6 +25,6 @@ describe("HebrewMe route smoke tests", () => {
     window.history.pushState({}, "", "/ai-tutor");
     render(<App />);
     expect(await screen.findByText(/AI Репетитор/i)).toBeInTheDocument();
-    expect(await screen.findByText(/Позвонить Мирьям/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Позвонить Ракель/i)).toBeInTheDocument();
   });
 });
