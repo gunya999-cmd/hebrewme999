@@ -138,6 +138,61 @@ jobs:
           }
           NODE
 
+      - name: Probe deployed Preview API routes
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          response=$(mktemp)
+          status=$(curl --silent --show-error --max-time 20 --output "$response" \
+            --write-out '%{http_code}' -H "Authorization: Bearer $CF_TOKEN" \
+            "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/pages/projects/hebrewme999")
+          if [[ "$status" != "200" ]]; then
+            echo "::error::Unable to locate Preview deployment (HTTP $status)"
+            exit 1
+          fi
+          preview_host=$(node - "$response" <<'NODE'
+          const fs=require("fs");
+          const data=JSON.parse(fs.readFileSync(process.argv[2],"utf8"));
+          const deployment=data.result?.latest_deployment;
+          const branch=deployment?.deployment_trigger?.metadata?.branch;
+          if (!data.success || !deployment?.url || branch!=="feature/miriam-v2" || deployment.environment!=="preview") {
+            console.error("Latest deployment is not a confirmed feature/miriam-v2 Preview; refusing to probe an unrelated deployment.");
+            process.exit(1);
+          }
+          const url=new URL(deployment.url);
+          if (url.protocol!=="https:" || !/^[a-z0-9-]+\\.hebrewme999\\.pages\\.dev$/.test(url.hostname)) process.exit(1);
+          process.stdout.write(url.origin);
+          NODE
+          )
+          for endpoint in /api/voice-config /api/translate; do
+            body=$(mktemp)
+            headers=$(mktemp)
+            if [[ "$endpoint" == "/api/translate" ]]; then
+              code=$(curl --silent --show-error --max-time 20 -X POST \
+                -H "Origin: $preview_host" -H "Content-Type: application/json" \
+                --data '{"text":"שלום"}' --output "$body" --dump-header "$headers" \
+                --write-out '%{http_code}' "$preview_host$endpoint")
+            else
+              code=$(curl --silent --show-error --max-time 20 \
+                --output "$body" --dump-header "$headers" --write-out '%{http_code}' "$preview_host$endpoint")
+            fi
+            node - "$endpoint" "$code" "$headers" "$body" <<'NODE'
+          const fs=require("fs");
+          const [endpoint,code,headersPath,bodyPath]=process.argv.slice(2);
+          const headers=fs.readFileSync(headersPath,"utf8").toLowerCase();
+          const body=fs.readFileSync(bodyPath,"utf8").slice(0,2048);
+          const html=headers.includes("content-type: text/html")||body.trimStart().toLowerCase().startsWith("<!doctype html");
+          console.log("Preview "+endpoint+": HTTP "+code+", HTML="+html);
+          if (code==="101" || code==="200") { console.error("Unexpected unauthenticated API success"); process.exit(1); }
+          if (html) { console.error("Preview API is serving HTML/Access challenge instead of JSON; verify Pages Functions and Access routing."); process.exit(1); }
+          if (!["401","403","503"].includes(code)) { console.error("Unexpected Preview API status"); process.exit(1); }
+          NODE
+          done
+          echo "Preview API routes reject anonymous requests without SPA fallback."
+
       - name: Diagnose anonymous production API routing
         shell: bash
         run: |
