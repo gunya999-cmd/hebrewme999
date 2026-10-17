@@ -34,7 +34,7 @@ const SCENARIOS: Scenario[] = [
   {
     id: "free", emoji: "💬", title: "Свободный разговор", titleHe: "שיחה חופשית",
     desc: "Просто поговори со мной на любую тему", level: "beginner",
-    instruction: `את מרים, מורה לעברית מתל אביב. דברי רק בעברית, פשוט וחם, משפטים קצרים. עודדי את התלמיד לדבר, שאלי שאלות פתוחות.${CORRECTION}`,
+    instruction: `את רחל, מורה לעברית מתל אביב. דברי רק בעברית, פשוט וחם, משפטים קצרים. עודדי את התלמיד לדבר, שאלי שאלות פתוחות.${CORRECTION}`,
     greet: "ברכי אותי בקצרה ושאלי איך אני מרגיש היום.",
   },
   {
@@ -107,7 +107,7 @@ export default function AITutor() {
         autoStart: true,
         customInstruction: s.instruction,
         customGreet: s.greet,
-        customTitle: `Мирьям · ${s.title}`,
+        customTitle: `Ракель · ${s.title}`,
       },
     });
   };
@@ -121,7 +121,7 @@ export default function AITutor() {
         customGreet: lesson.level === "A1"
           ? `Начни урок «${lesson.title}»: объясни цель одной короткой фразой на русском, затем переходи к ивриту.`
           : `התחילי את השיעור: ${lesson.objective}. שאלי שאלה ראשונה.`,
-        customTitle: `Мирьям · ${lesson.level} · ${lesson.title}`,
+        customTitle: `Ракель · ${lesson.level} · ${lesson.title}`,
         lessonId: lesson.id,
       },
     });
@@ -162,7 +162,7 @@ export default function AITutor() {
           transition={{ delay: 0.1 }}
           className="mt-5 text-2xl font-extrabold text-foreground"
         >
-          Я Мирьям —<br />твой AI-репетитор иврита
+          Я Ракель —<br />твой AI-репетитор иврита
         </motion.h2>
         <p className="mt-2 text-sm text-muted-foreground max-w-sm">
           Понимаешь иврит, но не можешь говорить? Будем практиковаться каждый день — голосом, в реальном диалоге.
@@ -193,7 +193,7 @@ export default function AITutor() {
           className="mt-6 w-full max-w-sm flex items-center justify-center gap-2 py-4 rounded-2xl bg-gradient-to-r from-orange-500 to-pink-500 text-white font-bold shadow-lg shadow-orange-500/30"
         >
           <Phone className="w-5 h-5" />
-          Позвонить Мирьям
+          Позвонить Ракель
         </motion.button>
       </div>
 
@@ -262,7 +262,7 @@ export default function AITutor() {
         </div>
 
         <p className="text-center text-xs text-muted-foreground mt-6 px-6">
-          Нажми на ситуацию — Мирьям сразу позвонит и начнёт разговор на иврите.
+          Нажми на ситуацию — Ракель сразу позвонит и начнёт разговор на иврите.
         </p>
       </div>
     </div>
