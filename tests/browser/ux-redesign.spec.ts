@@ -47,3 +47,23 @@ test("home and tutor fit a narrow phone without horizontal document overflow", a
     expect(sizing.content, route + " should not overflow horizontally").toBeLessThanOrEqual(sizing.viewport + 1);
   }
 });
+
+
+test("dictionary filters and empty state are usable with touch and keyboard", async ({ page }) => {
+  await page.goto("/dictionary");
+  const search = page.getByRole("searchbox", { name: "Найти глагол" });
+  await expect(search).toBeVisible();
+  await search.fill("zxq-no-such-verb-123");
+  await expect(page.getByRole("heading", { name: "Ничего не найдено" })).toBeVisible();
+  await page.getByRole("button", { name: "Сбросить фильтры" }).click();
+  await expect(search).toHaveValue("");
+  await expect(page.getByRole("button", { name: "Все" })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByText(/^Найдено \d+ из \d+$/)).toBeVisible();
+});
+
+test("games catalog offers a direct route to grammar practice", async ({ page }) => {
+  await page.goto("/games");
+  await expect(page.getByRole("heading", { name: "Игры и практика" })).toBeVisible();
+  await page.getByRole("button", { name: /Узнай модель/ }).click();
+  await expect(page).toHaveURL(/\/games\/guess-binyan$/);
+});
