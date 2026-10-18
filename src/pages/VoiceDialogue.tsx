@@ -8,6 +8,8 @@ import { MicDiagnostics } from "@/components/MicDiagnostics";
 import { getSpeechRate } from "@/hooks/useSpeechRate";
 import { getSupabaseAuthHeaders, getSupabaseFunctionUrl, isSupabaseConfigured, SUPABASE_CONFIG_ERROR } from "@/lib/env";
 import { SpeechRateSelector } from "@/components/SpeechRateSelector";
+import { LESSONS } from "@/lib/miriamCurriculum";
+import { saveAttempt } from "@/lib/miriamProgress";
 
 /* ── Types ── */
 type Level = "beginner" | "intermediate" | "advanced";
@@ -26,15 +28,15 @@ const LEVELS: { id: Level; label: string; emoji: string; desc: string }[] = [
 
 // כלל תיקון שגיאות — חובה לכל הרמות:
 // אם התלמיד טועה (דקדוק, הגייה, בחירת מילה, מין/מספר/זמן הפועל, מילת יחס),
-// מרים חייבת לתקן בעדינות. תמיד פתחי את התיקון באחת מהפתיחות הבאות בעברית בלבד:
+// רחל חייבת לתקן בעדינות. תמיד פתחי את התיקון באחת מהפתיחות הבאות בעברית בלבד:
 // «נכון לומר…», «עדיף לומר…», או «נכון להגיד…». מיד אחרי הפתיחה — אִמרי את הצורה הנכונה במלואה,
 // ואז המשיכי את השיחה בשאלה קצרה. אל תשתמשי באנגלית או ברוסית כשאת מתקנת.
 const CORRECTION_RULE = ` חשוב מאוד: כאשר התלמיד טועה (בדקדוק, בהגייה, בבחירת מילה, במין/מספר/זמן הפועל או במילת יחס) — תקני אותו תמיד, אך בעדינות. פתחי את התיקון באחת מהצורות הבאות בעברית בלבד: «נכון לומר…», «עדיף לומר…» או «נכון להגיד…», ומיד אחר כך אמרי את הצורה הנכונה המלאה. אחרי התיקון המשיכי את השיחה בשאלה קצרה. אם המשפט נכון — אל תתקני, רק עודדי והמשיכי. אסור להשתמש ברוסית או באנגלית גם בזמן התיקון.`;
 
 const LEVEL_INSTRUCTIONS: Record<Level, string> = {
-  beginner: `את מרים, מורה לעברית מתל אביב. דברי רק בעברית! אסור לדבר ברוסית או באנגלית. השתמשי במשפטים פשוטים מאוד של 3-5 מילים. דברי לאט וברור. נושאים: ברכות, מספרים, צבעים, אוכל, משפחה. תמיד שאלי שאלות פשוטות כדי להמשיך את השיחה. אם התלמיד לא מבין - חזרי על המשפט לאט יותר והוסיפי רמז בעברית פשוטה. היי חמה ומעודדת.${CORRECTION_RULE}`,
-  intermediate: `את מרים, מורה לעברית מתל אביב. דברי רק בעברית! אסור לדבר ברוסית או באנגלית. השתמשי במשפטים של 5-10 מילים. נושאים: קניות, טיולים, עבודה, תחביבים. שאלי שאלות פתוחות כדי שהתלמיד יבנה משפטים בעצמו. תקני טעויות בעדינות. ספרי עובדות מעניינות על ישראל.${CORRECTION_RULE}`,
-  advanced: `את מרים, מורה לעברית מתל אביב. דברי רק בעברית! אסור לדבר ברוסית או באנגלית. דברי בעברית טבעית כמו עם דובר שפת אם. השתמשי בסלנג, ביטויים ומטפורות. נושאים: תרבות, חדשות, פילוסופיה, הומור ושיחה יומיומית בישראל. עודדי תשובות מפורטות וויכוח. תקני טעויות סגנוניות.${CORRECTION_RULE}`,
+  beginner: `את רחל, מורה לעברית מתל אביב. דברי רק בעברית! אסור לדבר ברוסית או באנגלית. השתמשי במשפטים פשוטים מאוד של 3-5 מילים. דברי לאט וברור. נושאים: ברכות, מספרים, צבעים, אוכל, משפחה. תמיד שאלי שאלות פשוטות כדי להמשיך את השיחה. אם התלמיד לא מבין - חזרי על המשפט לאט יותר והוסיפי רמז בעברית פשוטה. היי חמה ומעודדת.${CORRECTION_RULE}`,
+  intermediate: `את רחל, מורה לעברית מתל אביב. דברי רק בעברית! אסור לדבר ברוסית או באנגלית. השתמשי במשפטים של 5-10 מילים. נושאים: קניות, טיולים, עבודה, תחביבים. שאלי שאלות פתוחות כדי שהתלמיד יבנה משפטים בעצמו. תקני טעויות בעדינות. ספרי עובדות מעניינות על ישראל.${CORRECTION_RULE}`,
+  advanced: `את רחל, מורה לעברית מתל אביב. דברי רק בעברית! אסור לדבר ברוסית או באנגלית. דברי בעברית טבעית כמו עם דובר שפת אם. השתמשי בסלנג, ביטויים ומטפורות. נושאים: תרבות, חדשות, פילוסופיה, הומור ושיחה יומיומית בישראל. עודדי תשובות מפורטות וויכוח. תקני טעויות סגנוניות.${CORRECTION_RULE}`,
 };
 
 type AudioWindow = Window & typeof globalThis & { webkitAudioContext?: typeof AudioContext };
@@ -201,6 +203,7 @@ export default function VoiceDialogue() {
     customInstruction?: string;
     customGreet?: string;
     customTitle?: string;
+    lessonId?: string;
   } | null;
   const [level, setLevel] = useState<Level | null>(routeState?.level ?? null);
   const customInstructionRef = useRef<string | undefined>(routeState?.customInstruction);
@@ -211,6 +214,7 @@ export default function VoiceDialogue() {
   const [muted, setMuted] = useState(false);
   const [aiSpeaking, setAiSpeaking] = useState(false);
   const [transcript, setTranscript] = useState<TranscriptLine[]>([]);
+  const lessonSavedRef = useRef(false);
   const [error, setError] = useState<string | null>(null);
   const [currentAiText, setCurrentAiText] = useState("");
   const [currentUserText, setCurrentUserText] = useState("");
@@ -918,6 +922,13 @@ export default function VoiceDialogue() {
 
   /* ── Disconnect ── */
   const endSession = useCallback(() => {
+    const lesson = LESSONS.find(item => item.id === routeState?.lessonId);
+    if (lesson && !lessonSavedRef.current && transcript.some(line => line.speaker === "user")) {
+      try {
+        saveAttempt(lesson.id, transcript.filter(line => line.speaker === "user").length, lesson.vocabulary);
+        lessonSavedRef.current = true;
+      } catch (error) { console.warn("Lesson progress save failed", error); }
+    }
     if (retryTimerRef.current) {
       window.clearTimeout(retryTimerRef.current);
       retryTimerRef.current = null;
@@ -952,7 +963,7 @@ export default function VoiceDialogue() {
     setConnected(false);
     setAiSpeaking(false);
     setConnecting(false);
-  }, [clearSilenceWatchdog, interruptPlayback, sendAudioStreamEnd, stopSpeechRecognition, stopVoiceActivityMonitor]);
+  }, [clearSilenceWatchdog, interruptPlayback, sendAudioStreamEnd, stopSpeechRecognition, stopVoiceActivityMonitor, routeState?.lessonId, transcript]);
 
   /* ── Toggle mute ── */
   const toggleMute = useCallback(() => {
@@ -1019,10 +1030,10 @@ export default function VoiceDialogue() {
             </div>
           </motion.div>
           <div className="text-center">
-            <h2 className="text-xl font-bold text-foreground">Мирьям</h2>
+            <h2 className="text-xl font-bold text-foreground">Ракель</h2>
             <p className="text-sm text-muted-foreground mt-1">Голосовой диалог на иврите в реальном времени</p>
             <p className="text-xs text-muted-foreground mt-2 max-w-xs">
-              Говорите с Мирьям голосом только на иврите. Можно перебивать в любой момент. Перевод на русский появляется в текстовом окне.
+              Говорите с Ракель голосом только на иврите. Можно перебивать в любой момент. Перевод на русский появляется в текстовом окне.
             </p>
           </div>
           <div className="w-full max-w-sm space-y-3">
@@ -1062,12 +1073,12 @@ export default function VoiceDialogue() {
 
   /* ── Active dialogue screen ── */
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="flex h-[100dvh] min-h-0 flex-col overflow-hidden bg-background">
       {/* Header */}
-      <div className="px-4 pt-4 pb-3 border-b border-border flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="relative">
-            <MiriamAvatar3D size={88} speaking={aiSpeaking} showRing={false} />
+      <div className="flex shrink-0 items-center justify-between border-b border-border px-4 pb-3 pt-4">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="relative shrink-0">
+            <MiriamAvatar3D size={56} speaking={aiSpeaking} showRing={false} />
             {aiSpeaking && (
               <motion.div
                 className="absolute inset-0 rounded-full border-2 border-primary pointer-events-none"
@@ -1076,9 +1087,9 @@ export default function VoiceDialogue() {
               />
             )}
           </div>
-          <div>
-            <h1 className="text-sm font-bold text-foreground">
-              {customTitle || `Мирьям — ${LEVELS.find(l => l.id === level)?.label}`}
+          <div className="min-w-0">
+            <h1 className="max-w-[190px] truncate text-sm font-bold text-foreground sm:max-w-none">
+              {customTitle || `Ракель — ${LEVELS.find(l => l.id === level)?.label}`}
             </h1>
             <p className="text-xs text-muted-foreground">
               {connecting ? "Подключение..." : connected ? (aiSpeaking ? "🗣 Говорит..." : speechStatus === "hearing" ? "🎙 Слышу вас..." : "🎧 Слушает...") : "Отключено"}
@@ -1095,14 +1106,9 @@ export default function VoiceDialogue() {
           <Settings2 className="w-5 h-5" />
         </Button>
       </div>
-      <div className="px-4 py-2 border-b border-border flex justify-end"><SpeechRateSelector variant="compact" /></div>
+      <div className="flex shrink-0 justify-end border-b border-border px-4 py-2"><SpeechRateSelector variant="compact" /></div>
 
-      {/* Hero 3D avatar — lip-syncs with Miriam's voice playback */}
-      {connected && (
-        <div className="flex justify-center pt-4 pb-2">
-          <MiriamAvatar3D size={360} speaking={aiSpeaking} />
-        </div>
-      )}
+      {/* Compact speaking avatar in the header leaves space for the dialogue. */}
       <MicDiagnostics
         open={diagOpen}
         onOpenChange={setDiagOpen}
@@ -1112,13 +1118,13 @@ export default function VoiceDialogue() {
 
       {/* Error */}
       {error && (
-        <div className="mx-4 mt-2 p-3 rounded-xl bg-destructive/10 text-destructive text-sm">
+        <div role="alert" className="mx-4 mt-2 rounded-xl bg-destructive/10 p-3 text-sm text-destructive">
           {error}
         </div>
       )}
 
       {/* Transcript — Russian translation only */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
+      <div ref={scrollRef} aria-label="История диалога" className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 py-4">
         <AnimatePresence>
           {transcript.map((line) => (
             <motion.div
@@ -1129,7 +1135,7 @@ export default function VoiceDialogue() {
             >
               <div className={`max-w-[85%] ${line.speaker === "user" ? "items-end" : "items-start"} flex flex-col gap-0.5`}>
                 {line.speaker === "miriam" && (
-                  <span className="text-xs text-muted-foreground font-medium ml-1">Мирьям</span>
+                  <span className="text-xs text-muted-foreground font-medium ml-1">Ракель</span>
                 )}
                 <div className={`rounded-2xl px-4 py-2.5 text-sm space-y-1 ${
                   line.speaker === "user"
@@ -1158,7 +1164,7 @@ export default function VoiceDialogue() {
         {currentAiText && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex justify-start">
             <div className="max-w-[85%] flex flex-col gap-0.5">
-              <span className="text-xs text-muted-foreground font-medium ml-1">Мирьям</span>
+              <span className="text-xs text-muted-foreground font-medium ml-1">Ракель</span>
               <div className="rounded-2xl rounded-bl-md px-4 py-2.5 text-sm bg-card border border-border text-foreground space-y-1">
                 <p dir="rtl" lang="he" className="font-hebrew text-base leading-snug text-right">
                   {currentAiText}
@@ -1193,14 +1199,14 @@ export default function VoiceDialogue() {
                 animate={{ rotate: 360 }}
                 transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
               />
-              <p className="text-sm text-muted-foreground">Подключение к Мирьям...</p>
+              <p className="text-sm text-muted-foreground">Подключение к Ракель...</p>
             </div>
           </div>
         )}
       </div>
 
       {/* Bottom controls */}
-      <div className="px-4 pb-24 pt-4 border-t border-border bg-background">
+      <div className="shrink-0 border-t border-border bg-background px-4 pb-24 pt-3">
         <div className="flex items-center justify-center gap-4">
           {connected ? (
             <>
@@ -1209,6 +1215,8 @@ export default function VoiceDialogue() {
                 variant={muted ? "destructive" : "outline"}
                 className="w-14 h-14 rounded-full"
                 onClick={toggleMute}
+                aria-label={muted ? "Включить микрофон" : "Выключить микрофон"}
+                title={muted ? "Включить микрофон" : "Выключить микрофон"}
               >
                 {muted ? <MicOff className="w-6 h-6" /> : <Mic className="w-6 h-6" />}
               </Button>
@@ -1218,6 +1226,8 @@ export default function VoiceDialogue() {
                 variant="destructive"
                 className="w-16 h-16 rounded-full"
                 onClick={endSession}
+                aria-label="Завершить разговор"
+                title="Завершить разговор"
               >
                 <PhoneOff className="w-7 h-7" />
               </Button>
@@ -1229,7 +1239,7 @@ export default function VoiceDialogue() {
               onClick={() => startSession(level)}
             >
               <Phone className="w-5 h-5" />
-              Позвонить Мирьям
+              Позвонить Ракель
             </Button>
           ) : null}
         </div>
