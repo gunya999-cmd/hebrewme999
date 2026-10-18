@@ -1050,12 +1050,12 @@ export default function VoiceDialogue() {
 
   /* ── Active dialogue screen ── */
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="flex h-[100dvh] min-h-0 flex-col overflow-hidden bg-background">
       {/* Header */}
-      <div className="px-4 pt-4 pb-3 border-b border-border flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="relative">
-            <MiriamAvatar3D size={88} speaking={aiSpeaking} showRing={false} />
+      <div className="flex shrink-0 items-center justify-between border-b border-border px-4 pb-3 pt-4">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="relative shrink-0">
+            <MiriamAvatar3D size={56} speaking={aiSpeaking} showRing={false} />
             {aiSpeaking && (
               <motion.div
                 className="absolute inset-0 rounded-full border-2 border-primary pointer-events-none"
@@ -1064,8 +1064,8 @@ export default function VoiceDialogue() {
               />
             )}
           </div>
-          <div>
-            <h1 className="text-sm font-bold text-foreground">
+          <div className="min-w-0">
+            <h1 className="max-w-[190px] truncate text-sm font-bold text-foreground sm:max-w-none">
               {customTitle || `Ракель — ${LEVELS.find(l => l.id === level)?.label}`}
             </h1>
             <p className="text-xs text-muted-foreground">
@@ -1083,14 +1083,9 @@ export default function VoiceDialogue() {
           <Settings2 className="w-5 h-5" />
         </Button>
       </div>
-      <div className="px-4 py-2 border-b border-border flex justify-end"><SpeechRateSelector variant="compact" /></div>
+      <div className="flex shrink-0 justify-end border-b border-border px-4 py-2"><SpeechRateSelector variant="compact" /></div>
 
-      {/* Hero 3D avatar — lip-syncs with Miriam's voice playback */}
-      {connected && (
-        <div className="flex justify-center pt-4 pb-2">
-          <MiriamAvatar3D size={360} speaking={aiSpeaking} />
-        </div>
-      )}
+      {/* Keep the animated avatar in the header; reserve the main area for readable dialogue. */}
       <MicDiagnostics
         open={diagOpen}
         onOpenChange={setDiagOpen}
@@ -1100,13 +1095,13 @@ export default function VoiceDialogue() {
 
       {/* Error */}
       {error && (
-        <div className="mx-4 mt-2 p-3 rounded-xl bg-destructive/10 text-destructive text-sm">
+        <div role="alert" className="mx-4 mt-2 rounded-xl bg-destructive/10 p-3 text-sm text-destructive">
           {error}
         </div>
       )}
 
       {/* Transcript — Russian translation only */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
+      <div ref={scrollRef} aria-label="История диалога" className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 py-4">
         <AnimatePresence>
           {transcript.map((line) => (
             <motion.div
@@ -1188,7 +1183,7 @@ export default function VoiceDialogue() {
       </div>
 
       {/* Bottom controls */}
-      <div className="px-4 pb-24 pt-4 border-t border-border bg-background">
+      <div className="shrink-0 border-t border-border bg-background px-4 pb-24 pt-3">
         <div className="flex items-center justify-center gap-4">
           {connected ? (
             <>
@@ -1197,6 +1192,8 @@ export default function VoiceDialogue() {
                 variant={muted ? "destructive" : "outline"}
                 className="w-14 h-14 rounded-full"
                 onClick={toggleMute}
+                aria-label={muted ? "Включить микрофон" : "Выключить микрофон"}
+                title={muted ? "Включить микрофон" : "Выключить микрофон"}
               >
                 {muted ? <MicOff className="w-6 h-6" /> : <Mic className="w-6 h-6" />}
               </Button>
@@ -1206,6 +1203,8 @@ export default function VoiceDialogue() {
                 variant="destructive"
                 className="w-16 h-16 rounded-full"
                 onClick={endSession}
+                aria-label="Завершить разговор"
+                title="Завершить разговор"
               >
                 <PhoneOff className="w-7 h-7" />
               </Button>
