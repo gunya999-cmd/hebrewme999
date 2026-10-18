@@ -2,9 +2,8 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { readProgress, dueTerms, reviewTerm } from "@/lib/miriamProgress";
 import { motion } from "framer-motion";
-import { ArrowLeft, Mic, Sparkles, MessageCircle, CheckCircle2, Phone } from "lucide-react";
+import { ArrowLeft, Sparkles, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import miriamAvatar from "@/assets/miriam-avatar.png";
 import { MiriamAvatar3D } from "@/components/MiriamAvatar3D";
 import { LESSONS, lessonPrompt, type Lesson } from "@/lib/miriamCurriculum";
 
@@ -96,6 +95,7 @@ const FEATURES = [
 export default function AITutor() {
   const navigate = useNavigate();
   const [progress, setProgress] = useState(readProgress);
+  const [selectedLevel, setSelectedLevel] = useState<Lesson["level"]>("A1");
   const handleReview = (term: string, correct: boolean) => {
     setProgress(reviewTerm(term, correct));
   };
@@ -127,143 +127,118 @@ export default function AITutor() {
     });
   };
 
+  const due = dueTerms(progress);
+  const lessonAttempts = new Set(progress.attempts.map(attempt => attempt.lessonId));
+  const levels = ["A1", "A2", "B1", "B2"] as const;
+  const currentLessons = LESSONS.filter(lesson => lesson.level === selectedLevel);
+
   return (
-    <div className="min-h-screen pb-24 bg-gradient-to-b from-orange-50 via-amber-50 to-background dark:from-orange-950/40 dark:via-background dark:to-background">
-      {/* Header */}
-      <div className="px-4 pt-5 pb-2 flex items-center gap-3">
-        <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
-          <ArrowLeft className="w-5 h-5" />
-        </Button>
-        <h1 className="text-base font-bold text-foreground">AI Репетитор</h1>
-      </div>
+    <div className="min-h-screen bg-[#f5f7fc] pb-28 text-slate-900">
+      <div className="mx-auto max-w-5xl px-4 pb-10 pt-5 sm:px-8 sm:pt-8">
+        <header className="flex items-center gap-3">
+          <button type="button" onClick={() => navigate("/")} aria-label="Вернуться на главную" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-800 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-indigo-400/60">
+            <ArrowLeft aria-hidden="true" className="h-5 w-5" />
+          </button>
+          <div>
+            <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-indigo-700">HebrewMe</p>
+            <h1 className="text-xl font-extrabold">AI Репетитор</h1>
+          </div>
+        </header>
 
-      {/* Hero */}
-      <div className="px-6 pt-4 pb-8 flex flex-col items-center text-center">
-        <motion.div
-          initial={{ scale: 0.85, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ type: "spring", stiffness: 180, damping: 18 }}
-          className="relative"
-        >
-          <div className="absolute inset-0 -m-4 rounded-full bg-gradient-to-tr from-orange-400/40 via-pink-400/30 to-amber-300/40 blur-2xl" />
-          <MiriamAvatar3D size={336} speaking={false} showRing={false} />
-          <motion.span
-            className="absolute -bottom-1 -right-1 w-10 h-10 rounded-full bg-green-500 border-4 border-white dark:border-background flex items-center justify-center text-base"
-            animate={{ scale: [1, 1.1, 1] }}
-            transition={{ duration: 1.6, repeat: Infinity }}
-          >
-            🎙
-          </motion.span>
-        </motion.div>
+        <section className="mt-6 overflow-hidden rounded-[2rem] border border-indigo-100 bg-white shadow-[0_16px_55px_rgba(28,39,75,0.08)]" aria-labelledby="tutor-title">
+          <div className="grid items-center gap-4 p-5 sm:p-8 md:grid-cols-[1fr_auto] md:gap-8">
+            <div className="min-w-0">
+              <span className="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1.5 text-xs font-bold text-indigo-800"><Sparkles aria-hidden="true" className="h-4 w-4" /> Разговорная практика</span>
+              <h2 id="tutor-title" className="mt-4 text-2xl font-extrabold leading-tight sm:text-3xl">Привет, я Ракель</h2>
+              <p className="mt-3 max-w-md text-sm leading-relaxed text-slate-600 sm:text-base">Выбирай урок или жизненную ситуацию. Мы будем разговаривать на иврите, а сложные моменты разберём по ходу.</p>
+              <div className="mt-4 flex flex-wrap gap-2 text-xs font-semibold text-slate-700">
+                <span className="rounded-full bg-slate-100 px-3 py-1.5">Уроки A1–B2</span>
+                <span className="rounded-full bg-slate-100 px-3 py-1.5">Разговор голосом</span>
+                <span className="rounded-full bg-slate-100 px-3 py-1.5">Повторение слов</span>
+              </div>
+              <button type="button" onClick={() => start(SCENARIOS[0])} className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-indigo-700 px-6 text-sm font-extrabold text-white transition hover:bg-indigo-800 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-indigo-400/60 sm:w-auto">
+                <Phone aria-hidden="true" className="h-5 w-5" /> Позвонить Ракель
+              </button>
+              <p className="mt-2 text-xs text-slate-500">Для разговора потребуется доступ к микрофону и подключение к голосовому сервису.</p>
+            </div>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="order-first mx-auto flex max-w-full justify-center md:order-last" aria-label="Аватар Ракель">
+              <MiriamAvatar3D size={190} speaking={false} showRing={false} />
+            </motion.div>
+          </div>
+        </section>
 
-        <motion.h2
-          initial={{ y: 10, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.1 }}
-          className="mt-5 text-2xl font-extrabold text-foreground"
-        >
-          Я Ракель —<br />твой AI-репетитор иврита
-        </motion.h2>
-        <p className="mt-2 text-sm text-muted-foreground max-w-sm">
-          Понимаешь иврит, но не можешь говорить? Будем практиковаться каждый день — голосом, в реальном диалоге.
-        </p>
-
-        {/* Features list — Loora-style bullets */}
-        <ul className="mt-5 w-full max-w-sm space-y-2 text-left">
-          {FEATURES.map((f, i) => (
-            <motion.li
-              key={i}
-              initial={{ x: -10, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 0.15 + i * 0.06 }}
-              className="flex items-start gap-3 px-3 py-2 rounded-xl bg-white/60 dark:bg-card/60 backdrop-blur-sm border border-white/40 dark:border-border"
-            >
-              <span className="mt-0.5 w-7 h-7 rounded-full bg-primary/15 text-primary flex items-center justify-center shrink-0">
-                <f.icon className="w-4 h-4" />
-              </span>
-              <span className="text-sm text-foreground/90 leading-snug">{f.text}</span>
-            </motion.li>
-          ))}
-        </ul>
-
-        {/* Primary CTA — free conversation */}
-        <motion.button
-          whileTap={{ scale: 0.97 }}
-          onClick={() => start(SCENARIOS[0])}
-          className="mt-6 w-full max-w-sm flex items-center justify-center gap-2 py-4 rounded-2xl bg-gradient-to-r from-orange-500 to-pink-500 text-white font-bold shadow-lg shadow-orange-500/30"
-        >
-          <Phone className="w-5 h-5" />
-          Позвонить Ракель
-        </motion.button>
-      </div>
-
-      <section className="px-4 pb-6">
-        <h3 className="font-bold text-lg">Повторение слов</h3>
-        <p className="text-sm text-muted-foreground mb-3">Занятий: {progress.attempts.length}. Слов к повторению: {dueTerms(progress).length}.</p>
-        {dueTerms(progress).slice(0, 5).map(item => (
-          <div key={item.term} className="rounded-xl border p-3 mb-2 bg-card">
-            <p dir="rtl" lang="he" className="font-hebrew text-xl mb-2">{item.term}</p>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={() => handleReview(item.term, false)}>Ещё учить</Button>
-              <Button size="sm" onClick={() => handleReview(item.term, true)}>Помню</Button>
+        <section className="mt-8" aria-labelledby="lesson-title">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-indigo-700">Обучение по шагам</p>
+              <h2 id="lesson-title" className="mt-1 text-2xl font-extrabold">Уроки с Ракель</h2>
+              <p className="mt-1 text-sm text-slate-600">{LESSONS.length} уроков по 7–10 минут · записано попыток: {progress.attempts.length}</p>
             </div>
           </div>
-        ))}
-      </section>
-      {/* Structured curriculum */}
-      <section className="px-4 pb-7" aria-label="Программа обучения">
-        <h3 className="text-lg font-bold mb-2">Программа обучения A1–B2</h3>
-        <p className="text-sm text-muted-foreground mb-4">Уроки по 7–10 минут: объяснение, диалог, практика и проверка знаний.</p>
-        {(["A1", "A2", "B1", "B2"] as const).map(level => (
-          <div key={level} className="mb-4">
-            <h4 className="font-semibold mb-2">{level}</h4>
-            <div className="grid gap-2">
-              {LESSONS.filter(lesson => lesson.level === level).map(lesson => (
-                <button key={lesson.id} onClick={() => startLesson(lesson)}
-                  className="text-left rounded-xl border border-border bg-card p-3 hover:border-primary/60">
-                  <span className="font-semibold text-sm">{lesson.title}</span>
-                  <span className="block text-xs text-muted-foreground">{lesson.minutes} мин · {lesson.objective}</span>
-                </button>
+          <div className="mt-4 grid grid-cols-4 gap-2 rounded-2xl bg-indigo-100/70 p-1.5" role="group" aria-label="Уровень языка">
+            {levels.map(level => (
+              <button type="button" key={level} onClick={() => setSelectedLevel(level)} aria-pressed={selectedLevel === level} className={"min-h-11 rounded-xl text-sm font-extrabold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 " + (selectedLevel === level ? "bg-white text-indigo-900 shadow-sm" : "text-indigo-700 hover:bg-white/60")}>{level}</button>
+            ))}
+          </div>
+          <div className="mt-3 grid gap-3 md:grid-cols-2">
+            {currentLessons.map((lesson, index) => (
+              <button type="button" key={lesson.id} onClick={() => startLesson(lesson)} className="flex min-h-[106px] items-start gap-4 rounded-2xl border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:border-indigo-300 hover:shadow-md focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-indigo-400/60">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-sm font-extrabold text-indigo-800">{index + 1}</span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-base font-extrabold leading-snug">{lesson.title}</span>
+                  <span className="mt-1 block text-sm leading-relaxed text-slate-600">{lesson.objective}</span>
+                  <span className="mt-2 block text-xs font-bold text-indigo-700">{lesson.minutes} мин{lessonAttempts.has(lesson.id) ? " · уже пробовали" : " · новый урок"}</span>
+                </span>
+                <ArrowLeft aria-hidden="true" className="mt-2 h-4 w-4 shrink-0 rotate-180 text-slate-400" />
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-9" aria-labelledby="scenarios-title">
+          <div>
+            <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-indigo-700">Без учебника</p>
+            <h2 id="scenarios-title" className="mt-1 text-2xl font-extrabold">Попробуй в жизни</h2>
+            <p className="mt-1 text-sm text-slate-600">Выбери ситуацию — Ракель начнёт разговор по теме.</p>
+          </div>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {SCENARIOS.slice(1).map(s => (
+              <button type="button" key={s.id} onClick={() => start(s)} className="flex min-h-[115px] items-start gap-3 rounded-2xl border border-slate-200 bg-white p-4 text-left transition hover:border-indigo-300 hover:shadow-sm focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-indigo-400/60">
+                <span aria-hidden="true" className="text-3xl leading-none">{s.emoji}</span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-sm font-extrabold">{s.title}</span>
+                  <span dir="rtl" lang="he" className="mt-1 block text-sm font-medium text-indigo-700">{s.titleHe}</span>
+                  <span className="mt-1 block text-xs leading-relaxed text-slate-600">{s.desc}</span>
+                </span>
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-9 rounded-3xl border border-slate-200 bg-white p-5 sm:p-6" aria-labelledby="review-title">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-indigo-700">Закрепление</p>
+              <h2 id="review-title" className="mt-1 text-xl font-extrabold">Повторить слова</h2>
+            </div>
+            <span className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-700">Сейчас к повторению: {due.length}</span>
+          </div>
+          {due.length === 0 ? (
+            <p className="mt-4 text-sm leading-relaxed text-slate-600">Пока нет слов, срок повторения которых наступил. Они появятся здесь после уроков.</p>
+          ) : (
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              {due.slice(0, 6).map(item => (
+                <div key={item.term} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <p dir="rtl" lang="he" className="font-hebrew text-2xl font-bold text-slate-900">{item.term}</p>
+                  <div className="mt-3 grid grid-cols-2 gap-2">
+                    <Button variant="outline" className="min-h-11" onClick={() => handleReview(item.term, false)}>Ещё учить</Button>
+                    <Button className="min-h-11" onClick={() => handleReview(item.term, true)}>Помню</Button>
+                  </div>
+                </div>
               ))}
             </div>
-          </div>
-        ))}
-      </section>
-
-      {/* Scenarios */}
-      <div className="px-4">
-        <div className="flex items-center gap-2 mb-3 px-1">
-          <MessageCircle className="w-4 h-4 text-primary" />
-          <h3 className="text-sm font-bold text-foreground uppercase tracking-wide">
-            Выбери ситуацию
-          </h3>
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          {SCENARIOS.slice(1).map((s, i) => (
-            <motion.button
-              key={s.id}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.05 * i }}
-              whileTap={{ scale: 0.96 }}
-              onClick={() => start(s)}
-              className="text-left p-4 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-md transition-all flex flex-col gap-2 min-h-[124px]"
-            >
-              <span className="text-3xl">{s.emoji}</span>
-              <div>
-                <p className="font-semibold text-sm text-foreground leading-tight">{s.title}</p>
-                <p dir="rtl" lang="he" className="font-hebrew text-xs text-muted-foreground mt-0.5">
-                  {s.titleHe}
-                </p>
-              </div>
-              <p className="text-xs text-muted-foreground leading-snug mt-auto">{s.desc}</p>
-            </motion.button>
-          ))}
-        </div>
-
-        <p className="text-center text-xs text-muted-foreground mt-6 px-6">
-          Нажми на ситуацию — Ракель сразу позвонит и начнёт разговор на иврите.
-        </p>
+          )}
+        </section>
       </div>
     </div>
   );
