@@ -20,7 +20,7 @@ export default function Home() {
   const { stats, progress, learnedCount } = useLearning();
   const total = VERB_DROPS_SEED.length;
   const progressPercent = total > 0 ? Math.min(100, Math.round((learnedCount / total) * 100)) : 0;
-  const todayDone = Math.min(DAILY_GOAL, stats.newLearned);
+  const todayDone = stats.newLearned;
   const dueCount = Object.values(progress).filter(item =>
     item.level >= 1 && !!item.nextReview && Date.parse(item.nextReview) <= Date.now(),
   ).length;
