@@ -86,12 +86,6 @@ const SCENARIOS: Scenario[] = [
   },
 ];
 
-const FEATURES = [
-  { icon: Mic, text: "Говори со мной голосом — я отвечаю как живой собеседник" },
-  { icon: CheckCircle2, text: "Помогу замечать ошибки и практиковать правильные фразы" },
-  { icon: Sparkles, text: "Каждый раз новый разговор по выбранной ситуации" },
-];
-
 export default function AITutor() {
   const navigate = useNavigate();
   const [progress, setProgress] = useState(readProgress);
