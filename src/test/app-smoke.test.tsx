@@ -13,6 +13,8 @@ describe("HebrewMe route smoke tests", () => {
     render(<App />);
     expect(await screen.findByText(/через действия/i)).toBeInTheDocument();
     expect(await screen.findByText(/Начать 5 минут/i)).toBeInTheDocument();
+    expect(screen.getByText("повторений сделано")).toBeInTheDocument();
+    expect(screen.getByText("пора повторить")).toBeInTheDocument();
   });
 
   it("renders the games screen from a direct route", async () => {
