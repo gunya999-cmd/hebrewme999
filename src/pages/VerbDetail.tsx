@@ -44,18 +44,18 @@ export default function VerbDetail() {
   };
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_18%_0%,_rgba(124,58,237,0.25),_transparent_30%),radial-gradient(circle_at_90%_12%,_rgba(34,211,238,0.20),_transparent_28%),linear-gradient(180deg,_#080b24_0%,_#111433_34%,_hsl(var(--background))_34%,_hsl(var(--background))_100%)] pb-28">
-      <div className="px-5 pt-8 text-white">
-        <button onClick={() => navigate(-1)} className="mb-5 rounded-2xl border border-white/15 bg-white/10 p-2 backdrop-blur-xl">
+    <div className="min-h-screen bg-[#f5f7fc] pb-28">
+      <div className="mx-auto max-w-4xl px-4 pt-6 text-white sm:px-8 sm:pt-10">
+        <button type="button" onClick={() => navigate("/dictionary")} aria-label="Вернуться в словарь" className="mb-5 flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-900 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-indigo-300">
           <ArrowLeft className="h-5 w-5" />
         </button>
 
-        <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} className="relative overflow-hidden rounded-[2.4rem] neon-panel p-5 text-center">
+        <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} className="relative overflow-hidden rounded-[2rem] border border-indigo-100 bg-[#202750] p-6 text-center shadow-[0_16px_48px_rgba(28,39,75,0.14)]">
           <div className="absolute -right-12 -top-12 h-40 w-40 rounded-full bg-cyan-300/20 blur-2xl" />
           <div className="absolute -bottom-14 -left-8 h-44 w-44 rounded-full bg-violet-400/25 blur-2xl" />
           <div className="relative">
             <p className="text-xs font-black uppercase tracking-[0.26em] text-cyan-100/75">карточка глагола</p>
-            <h1 className="mt-2 font-hebrew text-6xl font-black text-white hebrew-glow" dir="rtl">{verb.infinitive_hebrew}</h1>
+            <h1 className="mt-2 font-hebrew text-5xl font-extrabold text-white sm:text-6xl" dir="rtl">{verb.infinitive_hebrew}</h1>
             <p className="mt-2 text-lg font-bold text-white/75">{verb.transcription_ru}</p>
             <p className="mt-1 text-2xl font-black text-white">{verb.translation_ru}</p>
             <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
@@ -67,10 +67,10 @@ export default function VerbDetail() {
               </span>
             </div>
             <div className="mt-4 flex items-center justify-center gap-3">
-              <button onClick={() => void playVerbAudio(verb)} className="rounded-full bg-cyan-300 p-3 text-slate-950 shadow-lg shadow-cyan-400/25" title="Слушать инфинитив">
+              <button type="button" onClick={() => void playVerbAudio(verb)} aria-label="Слушать инфинитив" className="flex h-12 w-12 items-center justify-center rounded-full bg-[#c8f96b] text-slate-950 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-indigo-300" title="Слушать инфинитив">
                 <Volume2 className="h-5 w-5" />
               </button>
-              <button onClick={() => navigate("/games/verb-drops")} className="rounded-full border border-white/20 bg-white/10 p-3 text-white backdrop-blur-xl" title="Тренировать в игре">
+              <button type="button" onClick={() => navigate("/games/verb-drops")} aria-label="Тренировать в игре" className="flex h-12 w-12 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-indigo-300" title="Тренировать в игре">
                 <Gamepad2 className="h-5 w-5" />
               </button>
             </div>
@@ -80,7 +80,7 @@ export default function VerbDetail() {
       </div>
 
       {verb.imageSrc && (
-        <div className="px-5 mt-5">
+        <div className="mx-auto mt-5 max-w-4xl px-4 sm:px-8">
           <div className="glass-card mx-auto max-w-[300px] rounded-[2rem] p-2">
             <VerbCardScene
               verbId={verb.id}
@@ -94,15 +94,17 @@ export default function VerbDetail() {
       )}
 
       {conjugation ? (
-        <div className="px-5 mt-6">
-          <div className="mb-4 flex gap-1 rounded-2xl bg-white/75 p-1 shadow-sm backdrop-blur-xl">
+        <div className="mx-auto mt-6 max-w-4xl px-4 sm:px-8">
+          <div className="mb-4 flex gap-2 overflow-x-auto rounded-2xl border border-slate-200 bg-white p-2 shadow-sm" role="group" aria-label="Время глагола">
             {TENSES.map((t) => (
               <button
                 key={t}
+                type="button"
+                aria-pressed={activeTense === t}
                 onClick={() => setActiveTense(t)}
-                className={`flex-1 rounded-xl py-2 text-xs font-black transition-all ${
+                className={`min-h-11 min-w-[88px] flex-1 rounded-xl px-2 py-2 text-xs font-black transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
                   activeTense === t
-                    ? "bg-slate-950 text-white shadow-lg"
+                    ? "bg-indigo-700 text-white shadow-sm"
                     : "text-muted-foreground"
                 }`}
               >
@@ -124,7 +126,7 @@ export default function VerbDetail() {
                 <button
                   key={person}
                   onClick={() => speak(form.hebrew)}
-                  className="glass-card w-full rounded-2xl p-3.5 flex items-center gap-3 active:scale-[0.98] transition-transform text-left"
+                  className="flex min-h-[72px] w-full items-center gap-3 rounded-2xl border border-slate-200 bg-white p-3.5 text-left shadow-sm transition hover:border-indigo-300 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-indigo-300"
                 >
                   <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-slate-950 text-white">
                     <span className="text-xs font-black">{PERSON_LABELS[person]}</span>
@@ -147,7 +149,7 @@ export default function VerbDetail() {
           </AnimatePresence>
         </div>
       ) : (
-        <div className="px-5 mt-6">
+        <div className="mx-auto mt-6 max-w-4xl px-4 sm:px-8">
           <div className="glass-card rounded-[2rem] p-8 text-center">
             <p className="text-sm font-bold text-muted-foreground">Спряжения пока не подключены для этого глагола.</p>
           </div>
