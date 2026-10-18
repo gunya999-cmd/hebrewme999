@@ -20,7 +20,7 @@ const LEVEL_VERB_HINT: Record<CEFR, string> = {
 };
 
 function buildSystemInstruction(level: CEFR): string {
-  return `את מרים — מורה לעברית בתל אביב, מנהלת תרגול קולי קצר על נטיית פעלים.
+  return `את רחל — מורה לעברית בתל אביב, מנהלת תרגול קולי קצר על נטיית פעלים.
 
 רמת התלמיד: ${level}.
 ${LEVEL_VERB_HINT[level]}
@@ -80,14 +80,14 @@ export default function ConjugationVoice() {
       <div className="px-5 pt-5 flex flex-col items-center gap-5">
         <motion.div initial={{ scale: 0.85, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="relative">
           <div className="absolute inset-0 -m-4 rounded-full bg-primary/20 blur-2xl" />
-          <img src={tutorAvatar} alt="Мирьям" width={118} height={118} className="relative rounded-full border-4 border-white shadow-xl" />
+          <img src={tutorAvatar} alt="Ракель" width={118} height={118} className="relative rounded-full border-4 border-white shadow-xl" />
           <div className="absolute -bottom-1 -right-1 w-10 h-10 bg-slate-950 rounded-full border-2 border-background flex items-center justify-center">
             <Mic className="w-5 h-5 text-cyan-200" />
           </div>
         </motion.div>
 
         <div className="text-center max-w-sm">
-          <h2 className="text-2xl font-black text-foreground">Мирьям ведёт упражнение</h2>
+          <h2 className="text-2xl font-black text-foreground">Ракель ведёт упражнение</h2>
           <p className="text-sm text-muted-foreground mt-2">
             Перед стартом понятно, что делать: сначала назвать инфинитив, потом изменить предложение по заданию.
           </p>

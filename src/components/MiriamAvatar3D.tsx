@@ -40,9 +40,12 @@ export function MiriamAvatar3D({
       });
     };
     // Both loops keep running so we can crossfade instantly without a freeze.
-    safePlay(s);
-    safePlay(i);
-  }, []);
+    const active = speaking ? s : i;
+    const inactive = speaking ? i : s;
+    inactive.pause();
+    safePlay(active);
+    return () => active.pause();
+  }, [speaking]);
 
   return (
     <div
@@ -70,7 +73,7 @@ export function MiriamAvatar3D({
         playsInline
         loop
         autoPlay
-        preload="auto"
+        preload="metadata"
         width={size}
         height={size}
         className={cn(
@@ -89,7 +92,7 @@ export function MiriamAvatar3D({
         playsInline
         loop
         autoPlay
-        preload="auto"
+        preload="metadata"
         width={size}
         height={size}
         className={cn(
