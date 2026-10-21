@@ -1,3 +1,4 @@
+import { useLanguage } from "@/lib/i18n";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { ArrowLeft, Mic, MicOff, Phone, PhoneOff, Settings2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -195,6 +196,7 @@ async function translateToRussian(text: string): Promise<string> {
 }
 
 export default function VoiceDialogue() {
+  const { t, language } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
   const routeState = location.state as {
@@ -1020,7 +1022,7 @@ export default function VoiceDialogue() {
           <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
             <ArrowLeft className="w-5 h-5" />
           </Button>
-          <h1 className="text-lg font-bold text-foreground">Голосовой диалог</h1>
+          <h1 className="text-lg font-bold text-foreground">{t("Голосовой диалог")}</h1>
         </div>
         <div className="flex-1 flex flex-col items-center justify-center px-4 gap-6">
           <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="relative">
@@ -1030,10 +1032,10 @@ export default function VoiceDialogue() {
             </div>
           </motion.div>
           <div className="text-center">
-            <h2 className="text-xl font-bold text-foreground">Ракель</h2>
-            <p className="text-sm text-muted-foreground mt-1">Голосовой диалог на иврите в реальном времени</p>
+            <h2 className="text-xl font-bold text-foreground">{t("Ракель")}</h2>
+            <p className="text-sm text-muted-foreground mt-1">{t("Голосовой диалог на иврите в реальном времени")}</p>
             <p className="text-xs text-muted-foreground mt-2 max-w-xs">
-              Говорите с Ракель голосом только на иврите. Можно перебивать в любой момент. Перевод на русский появляется в текстовом окне.
+              {t("Говорите с Ракель голосом только на иврите. Можно перебивать в любой момент. Перевод на русский появляется в текстовом окне.")}
             </p>
           </div>
           <div className="w-full max-w-sm space-y-3">
@@ -1046,8 +1048,8 @@ export default function VoiceDialogue() {
               >
                 <span className="text-2xl">{l.emoji}</span>
                 <div>
-                  <p className="font-semibold text-foreground">{l.label}</p>
-                  <p className="text-xs text-muted-foreground">{l.desc}</p>
+                  <p className="font-semibold text-foreground">{t(l.label)}</p>
+                  <p className="text-xs text-muted-foreground">{t(l.desc)}</p>
                 </div>
               </motion.button>
             ))}
@@ -1058,7 +1060,7 @@ export default function VoiceDialogue() {
             className="text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground transition-colors flex items-center gap-1.5"
           >
             <Settings2 className="w-3.5 h-3.5" />
-            Проверить микрофон
+            {t("Проверить микрофон")}
           </button>
         </div>
         <MicDiagnostics
@@ -1089,10 +1091,10 @@ export default function VoiceDialogue() {
           </div>
           <div className="min-w-0">
             <h1 className="max-w-[190px] truncate text-sm font-bold text-foreground sm:max-w-none">
-              {customTitle || `Ракель — ${LEVELS.find(l => l.id === level)?.label}`}
+              {customTitle || `${t("Ракель")} — ${t(LEVELS.find(l => l.id === level)?.label || "")}`}
             </h1>
             <p className="text-xs text-muted-foreground">
-              {connecting ? "Подключение..." : connected ? (aiSpeaking ? "🗣 Говорит..." : speechStatus === "hearing" ? "🎙 Слышу вас..." : "🎧 Слушает...") : "Отключено"}
+              {connecting ? language === "ru" ? "Подключение..." : language === "en" ? "Connecting..." : "מתחברים..." : connected ? (aiSpeaking ? "🗣 Говорит..." : speechStatus === "hearing" ? "🎙 Слышу вас..." : "🎧 Слушает...") : "Отключено"}
             </p>
           </div>
         </div>
@@ -1100,8 +1102,8 @@ export default function VoiceDialogue() {
           variant="ghost"
           size="icon"
           onClick={() => setDiagOpen(true)}
-          aria-label="Проверить микрофон"
-          title="Проверить микрофон"
+          aria-label={t("Проверить микрофон")}
+          title={t("Проверить микрофон")}
         >
           <Settings2 className="w-5 h-5" />
         </Button>
@@ -1124,7 +1126,7 @@ export default function VoiceDialogue() {
       )}
 
       {/* Transcript — Russian translation only */}
-      <div ref={scrollRef} aria-label="История диалога" className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 py-4">
+      <div ref={scrollRef} aria-label={t("История диалога")} className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 py-4">
         <AnimatePresence>
           {transcript.map((line) => (
             <motion.div
@@ -1135,7 +1137,7 @@ export default function VoiceDialogue() {
             >
               <div className={`max-w-[85%] ${line.speaker === "user" ? "items-end" : "items-start"} flex flex-col gap-0.5`}>
                 {line.speaker === "miriam" && (
-                  <span className="text-xs text-muted-foreground font-medium ml-1">Ракель</span>
+                  <span className="text-xs text-muted-foreground font-medium ml-1">{t("Ракель")}</span>
                 )}
                 <div className={`rounded-2xl px-4 py-2.5 text-sm space-y-1 ${
                   line.speaker === "user"
@@ -1164,12 +1166,12 @@ export default function VoiceDialogue() {
         {currentAiText && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex justify-start">
             <div className="max-w-[85%] flex flex-col gap-0.5">
-              <span className="text-xs text-muted-foreground font-medium ml-1">Ракель</span>
+              <span className="text-xs text-muted-foreground font-medium ml-1">{t("Ракель")}</span>
               <div className="rounded-2xl rounded-bl-md px-4 py-2.5 text-sm bg-card border border-border text-foreground space-y-1">
                 <p dir="rtl" lang="he" className="font-hebrew text-base leading-snug text-right">
                   {currentAiText}
                 </p>
-                <p className="text-xs text-muted-foreground italic">переводится...</p>
+                <p className="text-xs text-muted-foreground italic">{t("переводится...")}</p>
               </div>
             </div>
           </motion.div>
@@ -1183,7 +1185,7 @@ export default function VoiceDialogue() {
                 <p dir="rtl" lang="he" className="font-hebrew text-base leading-snug text-right">
                   {currentUserText}
                 </p>
-                <p className="text-xs italic opacity-70">переводится...</p>
+                <p className="text-xs italic opacity-70">{t("переводится...")}</p>
               </div>
             </div>
           </motion.div>
@@ -1199,7 +1201,7 @@ export default function VoiceDialogue() {
                 animate={{ rotate: 360 }}
                 transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
               />
-              <p className="text-sm text-muted-foreground">Подключение к Ракель...</p>
+              <p className="text-sm text-muted-foreground">{t("Подключение к Ракель...")}</p>
             </div>
           </div>
         )}
@@ -1215,8 +1217,8 @@ export default function VoiceDialogue() {
                 variant={muted ? "destructive" : "outline"}
                 className="w-14 h-14 rounded-full"
                 onClick={toggleMute}
-                aria-label={muted ? "Включить микрофон" : "Выключить микрофон"}
-                title={muted ? "Включить микрофон" : "Выключить микрофон"}
+                aria-label={t(muted ? "Включить микрофон" : "Выключить микрофон")}
+                title={t(muted ? "Включить микрофон" : "Выключить микрофон")}
               >
                 {muted ? <MicOff className="w-6 h-6" /> : <Mic className="w-6 h-6" />}
               </Button>
@@ -1226,8 +1228,8 @@ export default function VoiceDialogue() {
                 variant="destructive"
                 className="w-16 h-16 rounded-full"
                 onClick={endSession}
-                aria-label="Завершить разговор"
-                title="Завершить разговор"
+                aria-label={t("Завершить разговор")}
+                title={t("Завершить разговор")}
               >
                 <PhoneOff className="w-7 h-7" />
               </Button>
@@ -1239,7 +1241,7 @@ export default function VoiceDialogue() {
               onClick={() => startSession(level)}
             >
               <Phone className="w-5 h-5" />
-              Позвонить Ракель
+              {t("Позвонить Ракель")}
             </Button>
           ) : null}
         </div>
@@ -1261,7 +1263,7 @@ export default function VoiceDialogue() {
           </div>
         )}
         {connected && muted && (
-          <p className="text-xs text-center text-destructive mt-3">Микрофон выключен</p>
+          <p className="text-xs text-center text-destructive mt-3">{t("Микрофон выключен")}</p>
         )}
       </div>
     </div>

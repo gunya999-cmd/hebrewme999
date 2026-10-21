@@ -85,3 +85,37 @@ test("creators page is discoverable on home and lists all four creators", async 
   await page.getByRole("button", { name: "На главную" }).click();
   await expect(page).toHaveURL(/\/$/);
 });
+
+test("language selection persists, translates navigation, and enables Hebrew RTL", async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 720 });
+  await page.goto("/");
+  const chooser = page.getByRole("combobox", { name: "Язык приложения" });
+  await expect(chooser).toHaveValue("ru");
+
+  await chooser.selectOption("en");
+  await expect(page.getByRole("heading", { name: "Learn Hebrew by doing" })).toBeVisible();
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await expect(page.locator("html")).toHaveAttribute("dir", "ltr");
+  await expect(page.getByRole("navigation", { name: "Main navigation" }).getByRole("button", { name: "Today" })).toBeVisible();
+  await page.reload();
+  await expect(page.getByRole("combobox", { name: "App language" })).toHaveValue("en");
+  await page.goto("/about");
+  await expect(page.getByRole("heading", { name: "HebrewMe creators" })).toBeVisible();
+
+  await page.getByRole("combobox", { name: "App language" }).selectOption("he");
+  await expect(page.locator("html")).toHaveAttribute("lang", "he");
+  await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
+  await expect(page.getByRole("heading", { name: "יוצרי HebrewMe" })).toBeVisible();
+  await page.goto("/");
+  await expect(page.getByRole("heading", { name: "לומדים עברית דרך עשייה" })).toBeVisible();
+  await expect(page.getByRole("combobox", { name: "שפת האפליקציה" })).toHaveValue("he");
+  await page.goto("/games");
+  await expect(page.getByRole("heading", { name: "משחקים ותרגול" })).toBeVisible();
+  const sizes = await page.evaluate(() => ({ viewport: document.documentElement.clientWidth, content: document.documentElement.scrollWidth }));
+  expect(sizes.content).toBeLessThanOrEqual(sizes.viewport + 1);
+
+  await page.getByRole("combobox", { name: "שפת האפליקציה" }).selectOption("ru");
+  await expect(page.locator("html")).toHaveAttribute("dir", "ltr");
+  await page.reload();
+  await expect(page.getByRole("combobox", { name: "Язык приложения" })).toHaveValue("ru");
+});
