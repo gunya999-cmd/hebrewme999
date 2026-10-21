@@ -53,20 +53,20 @@ export default function About() {
           <div className="grid gap-3 sm:grid-cols-2">
             {creators.map(creator => (
               <article
-                key={language === "he" ? creator.hebrew : language === "en" ? creator.english : creator.russian}
+                key={creator.russian}
                 className="flex min-h-[116px] items-center gap-4 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm"
               >
                 <span
                   aria-hidden="true"
                   className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-indigo-100 text-2xl font-extrabold text-indigo-800"
                 >
-                  {creator.initial}
+                  {language === "he" ? creator.hebrew[0] : language === "en" ? creator.english[0] : creator.initial}
                 </span>
                 <div className="min-w-0">
-                  <h3 className="text-base font-extrabold leading-snug text-slate-950 sm:text-lg">
-                    {creator.russian}
+                  <h3 dir={language === "he" ? "rtl" : "ltr"} lang={language === "he" ? "he" : language === "en" ? "en" : "ru"} className="text-base font-extrabold leading-snug text-slate-950 sm:text-lg">
+                    {language === "he" ? creator.hebrew : language === "en" ? creator.english : creator.russian}
                   </h3>
-                  <p dir={language === "he" ? "ltr" : "rtl"} lang={language === "he" ? "ru" : "he"} className="mt-1 w-fit max-w-full font-hebrew text-lg font-medium text-indigo-700">
+                  <p dir={language === "he" ? "ltr" : "rtl"} lang={language === "he" ? "ru" : "he"} className={"mt-1 w-fit max-w-full text-lg font-medium text-indigo-700 " + (language === "he" ? "" : "font-hebrew")}>
                     {language === "he" ? creator.russian : creator.hebrew}
                   </p>
                 </div>
