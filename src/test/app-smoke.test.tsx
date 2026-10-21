@@ -29,7 +29,7 @@ describe("HebrewMe route smoke tests", () => {
     expect(await screen.findByText(/AI Репетитор/i)).toBeInTheDocument();
     expect(await screen.findByText(/Позвонить Ракель/i)).toBeInTheDocument();
   });
-}
+
   it("keeps the creators page accessible by its direct route", async () => {
     window.history.pushState({}, "", "/about");
     render(<App />);
