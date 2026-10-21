@@ -67,3 +67,21 @@ test("games catalog offers a direct route to grammar practice", async ({ page })
   await page.getByRole("button", { name: /Узнай модель/ }).click();
   await expect(page).toHaveURL(/\/games\/guess-binyan$/);
 });
+
+test("creators page is discoverable on home and lists all four creators", async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 720 });
+  await page.goto("/");
+  await page.getByRole("button", { name: "О приложении и создателях" }).click();
+  await expect(page).toHaveURL(/\/about$/);
+  await expect(page.getByRole("heading", { name: "Создатели HebrewMe" })).toBeVisible();
+  for (const name of ["Георгий Гуревич", "Людмила Гуревич", "Михаил Гуревич", "Никита Гуревич"]) {
+    await expect(page.getByRole("heading", { name })).toBeVisible();
+  }
+  const sizing = await page.evaluate(() => ({
+    viewport: document.documentElement.clientWidth,
+    content: document.documentElement.scrollWidth,
+  }));
+  expect(sizing.content).toBeLessThanOrEqual(sizing.viewport + 1);
+  await page.getByRole("button", { name: "На главную" }).click();
+  await expect(page).toHaveURL(/\/$/);
+});
