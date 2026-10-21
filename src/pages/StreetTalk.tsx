@@ -1,3 +1,4 @@
+import { useLanguage } from "@/lib/i18n";
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -43,13 +44,13 @@ function PhraseCard({ phrase }: { phrase: StreetTalkPhrase }) {
         <button
           onClick={() => speakHebrewWithBrowser(phrase.hebrew)}
           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-slate-950 text-cyan-200 shadow-lg"
-          aria-label="Слушать фразу"
+          aria-label={t("Слушать фразу")}
         >
           <Volume2 className="h-5 w-5" />
         </button>
       </div>
       <div className="mt-3 flex flex-wrap items-center gap-2">
-        <span className={`rounded-full px-3 py-1 text-[11px] font-black ${TONE_CLASS[phrase.tone]}`}>{TONE_LABELS[phrase.tone]}</span>
+        <span className={`rounded-full px-3 py-1 text-[11px] font-black ${TONE_CLASS[phrase.tone]}`}>{t(TONE_LABELS[phrase.tone])}</span>
         <span className="rounded-full bg-muted px-3 py-1 text-[11px] font-bold text-muted-foreground">{phrase.context}</span>
       </div>
     </motion.div>
@@ -57,6 +58,7 @@ function PhraseCard({ phrase }: { phrase: StreetTalkPhrase }) {
 }
 
 export default function StreetTalk() {
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [category, setCategory] = useState<StreetTalkCategory>("all");
   const [query, setQuery] = useState("");
@@ -80,8 +82,8 @@ export default function StreetTalk() {
             <ArrowLeft className="h-5 w-5" />
           </button>
           <div>
-            <p className="text-xs font-black uppercase tracking-[0.28em] text-cyan-200/80">живой иврит</p>
-            <h1 className="text-3xl font-black tracking-tight">Уличный разговор</h1>
+            <p className="text-xs font-black uppercase tracking-[0.28em] text-cyan-200/80">{t("живой иврит")}</p>
+            <h1 className="text-3xl font-black tracking-tight">{t("Уличный разговор")}</h1>
           </div>
         </div>
 
@@ -92,9 +94,9 @@ export default function StreetTalk() {
             <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-300 text-slate-950">
               <MessageCircle className="h-6 w-6" />
             </div>
-            <h2 className="text-2xl font-black">Фразы для реальной жизни</h2>
+            <h2 className="text-2xl font-black">{t("Фразы для реальной жизни")}</h2>
             <p className="mt-2 text-sm font-semibold leading-relaxed text-white/72">
-              Улица, магазин, транспорт, школа, работа, соседи, спортзал, реакции, слэнг и резкие фразы без тяжёлого мата.
+              {t("Улица, магазин, транспорт, школа, работа, соседи, спортзал, реакции, слэнг и резкие фразы без тяжёлого мата.")}
             </p>
             <div className="mt-4 flex gap-2">
               <span className="rounded-full bg-white/16 px-3 py-1 text-xs font-black text-white/85">{STREET_TALK_PHRASES.length} фраз</span>
@@ -111,7 +113,7 @@ export default function StreetTalk() {
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Поиск: жарко, автобус, отстань, gym..."
+              placeholder={t("Поиск: жарко, автобус, отстань, gym...")}
               className="w-full rounded-2xl border border-border bg-card py-3 pl-9 pr-4 text-sm font-semibold outline-none focus:ring-2 focus:ring-primary/30"
             />
           </div>
@@ -131,13 +133,13 @@ export default function StreetTalk() {
         <div className="mb-4 flex items-start gap-3 rounded-[1.5rem] border border-destructive/15 bg-destructive/8 p-4">
           <ShieldAlert className="mt-0.5 h-5 w-5 shrink-0 text-destructive" />
           <p className="text-xs font-semibold leading-relaxed text-muted-foreground">
-            Метки `резко` и `срочно` — для понимания речи и защиты границ. Использовать осторожно: тон в иврите часто важнее самой фразы.
+            {t("Метки `резко` и `срочно` — для понимания речи и защиты границ. Использовать осторожно: тон в иврите часто важнее самой фразы.")}
           </p>
         </div>
 
         <div className="mb-3 flex items-center justify-between">
           <p className="text-sm font-black text-foreground">Найдено: {filtered.length}</p>
-          <button onClick={() => { setCategory("all"); setQuery(""); }} className="text-xs font-black text-primary">Сбросить</button>
+          <button onClick={() => { setCategory("all"); setQuery(""); }} className="text-xs font-black text-primary">{t("Сбросить")}</button>
         </div>
 
         <AnimatePresence mode="popLayout">
@@ -148,8 +150,8 @@ export default function StreetTalk() {
 
         {filtered.length === 0 && (
           <div className="glass-card rounded-[2rem] p-8 text-center">
-            <p className="font-black text-foreground">Ничего не найдено</p>
-            <p className="mt-1 text-sm text-muted-foreground">Попробуй другой запрос или категорию.</p>
+            <p className="font-black text-foreground">{t("Ничего не найдено")}</p>
+            <p className="mt-1 text-sm text-muted-foreground">{t("Попробуй другой запрос или категорию.")}</p>
           </div>
         )}
       </main>

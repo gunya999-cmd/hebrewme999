@@ -1,3 +1,4 @@
+import { useLanguage } from "@/lib/i18n";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Volume2, Gamepad2 } from "lucide-react";
 import { useState } from "react";
@@ -18,6 +19,7 @@ function getTenseForms(conjugations: VerbConjugations, tense: string): Record<st
 }
 
 export default function VerbDetail() {
+  const { t: tr } = useLanguage();
   const { id } = useParams();
   const navigate = useNavigate();
   const [activeTense, setActiveTense] = useState<string>("present");
@@ -27,8 +29,8 @@ export default function VerbDetail() {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center px-6">
         <div className="glass-card rounded-[2rem] p-8 text-center">
-          <p className="text-lg font-black text-foreground">Глагол не найден</p>
-          <button onClick={() => navigate("/dictionary")} className="mt-4 rounded-xl bg-primary px-5 py-3 text-sm font-bold text-primary-foreground">Вернуться в словарь</button>
+          <p className="text-lg font-black text-foreground">{tr("Глагол не найден")}</p>
+          <button onClick={() => navigate("/dictionary")} className="mt-4 rounded-xl bg-primary px-5 py-3 text-sm font-bold text-primary-foreground">{tr("Вернуться в словарь")}</button>
         </div>
       </div>
     );
@@ -46,7 +48,7 @@ export default function VerbDetail() {
   return (
     <div className="min-h-screen bg-[#f5f7fc] pb-28">
       <div className="mx-auto max-w-4xl px-4 pt-6 text-white sm:px-8 sm:pt-10">
-        <button type="button" onClick={() => navigate("/dictionary")} aria-label="Вернуться в словарь" className="mb-5 flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-900 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-indigo-300">
+        <button type="button" onClick={() => navigate("/dictionary")} aria-label={tr("Вернуться в словарь")} className="mb-5 flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-900 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-indigo-300">
           <ArrowLeft className="h-5 w-5" />
         </button>
 
@@ -54,23 +56,23 @@ export default function VerbDetail() {
           <div className="absolute -right-12 -top-12 h-40 w-40 rounded-full bg-cyan-300/20 blur-2xl" />
           <div className="absolute -bottom-14 -left-8 h-44 w-44 rounded-full bg-violet-400/25 blur-2xl" />
           <div className="relative">
-            <p className="text-xs font-black uppercase tracking-[0.26em] text-cyan-100/75">карточка глагола</p>
+            <p className="text-xs font-black uppercase tracking-[0.26em] text-cyan-100/75">{tr("карточка глагола")}</p>
             <h1 className="mt-2 font-hebrew text-5xl font-extrabold text-white sm:text-6xl" dir="rtl">{verb.infinitive_hebrew}</h1>
             <p className="mt-2 text-lg font-bold text-white/75">{verb.transcription_ru}</p>
             <p className="mt-1 text-2xl font-black text-white">{verb.translation_ru}</p>
             <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
               <span className="rounded-full bg-white/16 px-3 py-1 text-xs font-black text-white/85">
-                Корень: <span className="font-hebrew" dir="rtl">{verb.root}</span>
+                {tr("Корень:")} <span className="font-hebrew" dir="rtl">{verb.root}</span>
               </span>
               <span className="rounded-full bg-white/16 px-3 py-1 text-xs font-black text-white/85">
                 <span className="font-hebrew" dir="rtl">{verb.binyan}</span> {BINYAN_NAMES[verb.binyan]}
               </span>
             </div>
             <div className="mt-4 flex items-center justify-center gap-3">
-              <button type="button" onClick={() => void playVerbAudio(verb)} aria-label="Слушать инфинитив" className="flex h-12 w-12 items-center justify-center rounded-full bg-[#c8f96b] text-slate-950 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-indigo-300" title="Слушать инфинитив">
+              <button type="button" onClick={() => void playVerbAudio(verb)} aria-label={tr("Слушать инфинитив")} className="flex h-12 w-12 items-center justify-center rounded-full bg-[#c8f96b] text-slate-950 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-indigo-300" title={tr("Слушать инфинитив")}>
                 <Volume2 className="h-5 w-5" />
               </button>
-              <button type="button" onClick={() => navigate("/games/verb-drops")} aria-label="Тренировать в игре" className="flex h-12 w-12 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-indigo-300" title="Тренировать в игре">
+              <button type="button" onClick={() => navigate("/games/verb-drops")} aria-label={tr("Тренировать в игре")} className="flex h-12 w-12 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-indigo-300" title={tr("Тренировать в игре")}>
                 <Gamepad2 className="h-5 w-5" />
               </button>
             </div>
@@ -95,7 +97,7 @@ export default function VerbDetail() {
 
       {conjugation ? (
         <div className="mx-auto mt-6 max-w-4xl px-4 sm:px-8">
-          <div className="mb-4 flex gap-2 overflow-x-auto rounded-2xl border border-slate-200 bg-white p-2 shadow-sm" role="group" aria-label="Время глагола">
+          <div className="mb-4 flex gap-2 overflow-x-auto rounded-2xl border border-slate-200 bg-white p-2 shadow-sm" role="group" aria-label={tr("Время глагола")}>
             {TENSES.map((t) => (
               <button
                 key={t}
@@ -108,7 +110,7 @@ export default function VerbDetail() {
                     : "text-muted-foreground"
                 }`}
               >
-                {TENSE_LABELS[t]}
+                {tr(TENSE_LABELS[t])}
               </button>
             ))}
           </div>
@@ -142,7 +144,7 @@ export default function VerbDetail() {
                 </button>
               )) : (
                 <div className="glass-card rounded-[2rem] p-6 text-center">
-                  <p className="text-sm font-bold text-muted-foreground">В этом времени нет форм для этого глагола.</p>
+                  <p className="text-sm font-bold text-muted-foreground">{tr("В этом времени нет форм для этого глагола.")}</p>
                 </div>
               )}
             </motion.div>
@@ -151,7 +153,7 @@ export default function VerbDetail() {
       ) : (
         <div className="mx-auto mt-6 max-w-4xl px-4 sm:px-8">
           <div className="glass-card rounded-[2rem] p-8 text-center">
-            <p className="text-sm font-bold text-muted-foreground">Спряжения пока не подключены для этого глагола.</p>
+            <p className="text-sm font-bold text-muted-foreground">{tr("Спряжения пока не подключены для этого глагола.")}</p>
           </div>
         </div>
       )}

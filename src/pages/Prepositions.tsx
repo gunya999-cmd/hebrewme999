@@ -1,3 +1,4 @@
+import { useLanguage } from "@/lib/i18n";
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search } from "lucide-react";
@@ -7,6 +8,7 @@ import { prepositions, PREP_CATEGORY_LABELS, PrepCategory } from "@/data/preposi
 const ALL_CATEGORIES: PrepCategory[] = ['place', 'direction', 'relation', 'possession', 'conjunction_connect', 'conjunction_oppose', 'conjunction_divide', 'particle', 'other'];
 
 export default function Prepositions() {
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<PrepCategory | null>(null);
@@ -28,13 +30,13 @@ export default function Prepositions() {
     <div className="min-h-screen bg-background pb-20">
       <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm px-4 pt-8 pb-3">
         <h1 className="font-hebrew text-2xl font-black text-foreground mb-1" dir="rtl">מילות יחס</h1>
-        <p className="text-sm text-muted-foreground mb-4">Предлоги, союзы и частицы</p>
+        <p className="text-sm text-muted-foreground mb-4">{t("Предлоги, союзы и частицы")}</p>
 
         <div className="relative mb-3">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input
             type="text"
-            placeholder="Поиск по значению, транскрипции..."
+            placeholder={t("Поиск по значению, транскрипции...")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full bg-card border border-border rounded-xl py-2.5 pl-9 pr-4 text-sm font-medium text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
@@ -48,7 +50,7 @@ export default function Prepositions() {
               !selectedCategory ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
             }`}
           >
-            Все
+            {t("Все")}
           </button>
           {ALL_CATEGORIES.map((c) => (
             <button

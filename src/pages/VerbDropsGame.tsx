@@ -1,3 +1,4 @@
+import { useLanguage } from "@/lib/i18n";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -240,6 +241,7 @@ function getVerbDropAudioUrls(verb: VerbDropCard): string[] {
 }
 
 export default function VerbDropsGame() {
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [topic, setTopic] = useState<TopicId | null>(null);
   const [progress, setProgress] = useState<Record<string, VerbDropProgress>>(() => loadVerbDropsProgress());
@@ -430,8 +432,8 @@ export default function VerbDropsGame() {
         <div className="flex items-center gap-3 mb-6">
           <button onClick={() => navigate("/games")} className="text-muted-foreground"><ArrowLeft className="w-6 h-6" /></button>
           <div>
-            <h1 className="text-3xl font-black tracking-tight text-foreground">Глаголопад</h1>
-            <p className="text-xs text-muted-foreground font-semibold">5 минут • формы • времена • лица</p>
+            <h1 className="text-3xl font-black tracking-tight text-foreground">{t("Глаголопад")}</h1>
+            <p className="text-xs text-muted-foreground font-semibold">{t("5 минут • формы • времена • лица")}</p>
           </div>
         </div>
         <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} className="relative overflow-hidden rounded-[2.25rem] border border-white/70 bg-white/80 p-5 shadow-2xl shadow-primary/10 backdrop-blur-md mb-5">
@@ -439,17 +441,17 @@ export default function VerbDropsGame() {
           <div className="absolute -bottom-16 -left-10 h-40 w-40 rounded-full bg-success/15" />
           <VerbDropArtwork verb={HERO_WALK_VERB} className="h-44 mb-4 relative z-10" />
           <div className="relative z-10">
-            <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-black text-primary"><Timer className="h-3.5 w-3.5" /> 5-минутная игра</div>
-            <h2 className="text-2xl font-black text-foreground">Тренируй формы глаголов</h2>
-            <p className="text-sm text-muted-foreground mt-2">Инфинитив, настоящее, прошедшее, будущее, повелительное, лица и род.</p>
+            <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-black text-primary"><Timer className="h-3.5 w-3.5" /> {t("5-минутная игра")}</div>
+            <h2 className="text-2xl font-black text-foreground">{t("Тренируй формы глаголов")}</h2>
+            <p className="text-sm text-muted-foreground mt-2">{t("Инфинитив, настоящее, прошедшее, будущее, повелительное, лица и род.")}</p>
           </div>
         </motion.div>
         <div className="grid grid-cols-2 gap-3">
           {VERB_DROP_CATEGORIES.map((category, index) => (
             <motion.button key={category.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.04 }} whileTap={{ scale: 0.96 }} onClick={() => startSession(category.id)} className="rounded-[1.75rem] border border-white/80 bg-white/85 p-4 text-left shadow-xl shadow-black/5 backdrop-blur-sm">
               <div dir={category.id.startsWith("binyan_") ? "rtl" : undefined} className="text-3xl mb-2 font-hebrew font-black text-primary">{category.emoji}</div>
-              <p className="font-black text-sm text-foreground">{category.title}</p>
-              <p className="text-xs text-muted-foreground mt-1">{category.desc}</p>
+              <p className="font-black text-sm text-foreground">{t(category.title)}</p>
+              <p className="text-xs text-muted-foreground mt-1">{t(category.desc)}</p>
             </motion.button>
           ))}
         </div>
@@ -462,20 +464,20 @@ export default function VerbDropsGame() {
       <div className="min-h-screen bg-background pb-24 px-6 pt-10 flex flex-col justify-center">
         <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="text-center">
           <div className="mx-auto mb-5 h-20 w-20 rounded-[2rem] bg-success/10 flex items-center justify-center"><Trophy className="h-10 w-10 text-success" /></div>
-          <h1 className="text-3xl font-black text-foreground">5 минут завершены</h1>
-          <p className="text-muted-foreground mt-2">Количество заданий зависело от скорости прохождения.</p>
+          <h1 className="text-3xl font-black text-foreground">{t("5 минут завершены")}</h1>
+          <p className="text-muted-foreground mt-2">{t("Количество заданий зависело от скорости прохождения.")}</p>
           <div className="grid grid-cols-3 gap-3 my-7">
-            <div className="rounded-2xl border border-border bg-card p-4"><p className="text-3xl font-black text-success">{score.correct}</p><p className="text-xs text-muted-foreground font-semibold">правильно</p></div>
-            <div className="rounded-2xl border border-border bg-card p-4"><p className="text-3xl font-black text-destructive">{score.wrong}</p><p className="text-xs text-muted-foreground font-semibold">ошибок</p></div>
-            <div className="rounded-2xl border border-border bg-card p-4"><p className="text-3xl font-black text-primary">{currentIndex}</p><p className="text-xs text-muted-foreground font-semibold">форм</p></div>
+            <div className="rounded-2xl border border-border bg-card p-4"><p className="text-3xl font-black text-success">{score.correct}</p><p className="text-xs text-muted-foreground font-semibold">{t("правильно")}</p></div>
+            <div className="rounded-2xl border border-border bg-card p-4"><p className="text-3xl font-black text-destructive">{score.wrong}</p><p className="text-xs text-muted-foreground font-semibold">{t("ошибок")}</p></div>
+            <div className="rounded-2xl border border-border bg-card p-4"><p className="text-3xl font-black text-primary">{currentIndex}</p><p className="text-xs text-muted-foreground font-semibold">{t("форм")}</p></div>
           </div>
           {weakWords.length > 0 && (
             <div className="rounded-2xl bg-muted p-4 text-left mb-5">
-              <p className="font-bold text-sm text-foreground mb-2">Повторить позже</p>
+              <p className="font-bold text-sm text-foreground mb-2">{t("Повторить позже")}</p>
               <div className="flex flex-wrap gap-2">{weakWords.map((word) => <span key={word.id} dir="rtl" className="rounded-full bg-background px-3 py-1 font-hebrew text-sm font-bold text-foreground">{word.infinitive_hebrew}</span>)}</div>
             </div>
           )}
-          <div className="flex gap-3"><button onClick={() => navigate("/games")} className="flex-1 rounded-xl bg-muted py-3 font-bold text-foreground">К играм</button><button onClick={restart} className="flex-1 rounded-xl bg-primary py-3 font-bold text-primary-foreground">Ещё раз</button></div>
+          <div className="flex gap-3"><button onClick={() => navigate("/games")} className="flex-1 rounded-xl bg-muted py-3 font-bold text-foreground">{t("К играм")}</button><button onClick={restart} className="flex-1 rounded-xl bg-primary py-3 font-bold text-primary-foreground">{t("Ещё раз")}</button></div>
         </motion.div>
       </div>
     );
@@ -500,19 +502,19 @@ export default function VerbDropsGame() {
 
           {currentStep.mode === "intro" && (
             <div className="rounded-[2rem] border border-white/70 bg-white/85 p-5 text-center shadow-xl shadow-black/5 backdrop-blur-md">
-              <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-black text-primary"><Sparkles className="h-3.5 w-3.5" /> новая форма</div>
+              <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-black text-primary"><Sparkles className="h-3.5 w-3.5" /> {t("новая форма")}</div>
               <h2 dir="rtl" className="font-hebrew text-5xl font-black text-foreground mb-2">{currentStep.form.hebrew}</h2>
               <p className="text-sm text-muted-foreground font-semibold">{currentStep.form.transcription}</p>
               <p className="text-2xl font-black text-foreground mt-2">{currentStep.form.translation}</p>
               <p className="mt-2 text-sm font-black text-primary">{currentStep.form.grammar}</p>
               <div className="mt-3 flex items-center justify-center gap-2"><span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary font-hebrew">{currentStep.form.verb.binyan}</span><span className="rounded-full bg-muted px-3 py-1 text-xs font-bold text-muted-foreground">корень: {currentStep.form.verb.root}</span></div>
-              <div className="mt-6 flex gap-3"><button onClick={() => playAudio(currentStep.form)} className="flex-1 rounded-xl border border-border bg-card py-3 font-bold text-foreground flex items-center justify-center gap-2">{playing ? <Loader2 className="w-5 h-5 animate-spin" /> : <Volume2 className="w-5 h-5" />}Слушать</button><button onClick={goNext} className="flex-1 rounded-xl bg-primary py-3 font-bold text-primary-foreground">Ловлю</button></div>
+              <div className="mt-6 flex gap-3"><button onClick={() => playAudio(currentStep.form)} className="flex-1 rounded-xl border border-border bg-card py-3 font-bold text-foreground flex items-center justify-center gap-2">{playing ? <Loader2 className="w-5 h-5 animate-spin" /> : <Volume2 className="w-5 h-5" />}Слушать</button><button onClick={goNext} className="flex-1 rounded-xl bg-primary py-3 font-bold text-primary-foreground">{t("Ловлю")}</button></div>
             </div>
           )}
 
           {(currentStep.mode === "picture" || currentStep.mode === "audio") && (
             <div>
-              <p className="text-center text-sm font-bold text-muted-foreground mb-2">{currentStep.mode === "audio" ? "Слушай и выбери форму" : "Выбери правильную форму"}</p>
+              <p className="text-center text-sm font-bold text-muted-foreground mb-2">{t(currentStep.mode === "audio" ? "Слушай и выбери форму" : "Выбери правильную форму")}</p>
               {currentStep.mode === "audio" ? <button onClick={() => playAudio(currentStep.form)} className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-[1.75rem] bg-primary text-primary-foreground shadow-lg">{playing ? <Loader2 className="w-9 h-9 animate-spin" /> : <Volume2 className="w-9 h-9" />}</button> : <div className="mb-5 text-center"><h2 className="text-3xl font-black text-foreground">{currentStep.form.translation}</h2><p className="mt-1 text-sm font-black text-primary">{currentStep.form.grammar}</p></div>}
               <div className="grid grid-cols-2 gap-3">{currentStep.options.map((option) => {
                 const isSelected = selectedAnswer === option.hebrew;
@@ -531,12 +533,12 @@ export default function VerbDropsGame() {
 
           {currentStep.mode === "letters" && (
             <div>
-              <p className="text-center text-sm font-bold text-muted-foreground mb-1">Собери форму по буквам</p>
+              <p className="text-center text-sm font-bold text-muted-foreground mb-1">{t("Собери форму по буквам")}</p>
               <h2 className="text-center text-2xl font-black text-foreground mb-1">{currentStep.form.translation}</h2>
               <p className="text-center text-sm font-black text-primary mb-1">{currentStep.form.grammar}</p>
               <p className="text-center text-sm text-muted-foreground font-semibold mb-4">{currentStep.form.transcription}</p>
               <div dir="rtl" className="min-h-[76px] rounded-[2rem] border-2 border-dashed border-primary/30 bg-white/70 p-3 flex items-center justify-center gap-2 mb-4 shadow-inner">
-                {selectedLetters.length === 0 ? <span className="text-sm text-muted-foreground">нажми буквы снизу</span> : selectedLetters.map((letter) => <button key={letter.id} onClick={() => undoLetter(letter)} className="h-12 min-w-12 rounded-2xl bg-primary font-hebrew text-2xl font-black text-primary-foreground shadow-lg">{letter.value}</button>)}
+                {selectedLetters.length === 0 ? <span className="text-sm text-muted-foreground">{t("нажми буквы снизу")}</span> : selectedLetters.map((letter) => <button key={letter.id} onClick={() => undoLetter(letter)} className="h-12 min-w-12 rounded-2xl bg-primary font-hebrew text-2xl font-black text-primary-foreground shadow-lg">{letter.value}</button>)}
               </div>
               <div dir="rtl" className="grid grid-cols-5 gap-2 mb-4">{letterBank.map((letter) => <button key={letter.id} onClick={() => chooseLetter(letter)} disabled={!!result} className="h-14 rounded-2xl border border-white/80 bg-white/90 font-hebrew text-2xl font-black text-foreground shadow-xl shadow-black/5">{letter.value}</button>)}</div>
               <p dir="rtl" className="text-center font-hebrew text-lg text-muted-foreground min-h-7">{selectedWord}</p>
@@ -550,7 +552,7 @@ export default function VerbDropsGame() {
               <p className="text-sm text-muted-foreground font-semibold">{currentStep.form.transcription}</p>
               <p className="text-sm text-muted-foreground font-semibold">{currentStep.form.translation}</p>
               <p className="text-sm font-black text-primary">{currentStep.form.grammar}</p>
-              <button onClick={goNext} className="mt-4 w-full rounded-xl bg-primary py-3 font-bold text-primary-foreground">Следующая форма</button>
+              <button onClick={goNext} className="mt-4 w-full rounded-xl bg-primary py-3 font-bold text-primary-foreground">{t("Следующая форма")}</button>
             </motion.div>
           )}
         </motion.div>

@@ -1,3 +1,4 @@
+import { useLanguage } from "@/lib/i18n";
 import { Gauge } from "lucide-react";
 import { useSpeechRate, SPEECH_RATE_LABELS, SpeechRateKey } from "@/hooks/useSpeechRate";
 import { cn } from "@/lib/utils";
@@ -11,6 +12,7 @@ const ORDER: SpeechRateKey[] = ["slow", "normal", "fast"];
 
 export function SpeechRateSelector({ className, variant = "pills" }: Props) {
   const { rateKey, setRate } = useSpeechRate();
+  const { t } = useLanguage();
 
   if (variant === "compact") {
     return (
@@ -28,7 +30,7 @@ export function SpeechRateSelector({ className, variant = "pills" }: Props) {
                 : "text-muted-foreground hover:text-foreground"
             )}
             aria-pressed={rateKey === k}
-            title={`Скорость: ${SPEECH_RATE_LABELS[k]}`}
+            title={`${t("Скорость:")} ${SPEECH_RATE_LABELS[k]}`}
           >
             {SPEECH_RATE_LABELS[k]}
           </button>
@@ -40,7 +42,7 @@ export function SpeechRateSelector({ className, variant = "pills" }: Props) {
   return (
     <div className={cn("flex items-center gap-2", className)}>
       <span className="text-xs text-muted-foreground flex items-center gap-1">
-        <Gauge className="w-3.5 h-3.5" /> Скорость:
+        <Gauge className="w-3.5 h-3.5" /> {t("Скорость:")}
       </span>
       <div className="inline-flex rounded-full bg-muted p-1">
         {ORDER.map((k) => (

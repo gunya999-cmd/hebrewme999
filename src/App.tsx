@@ -1,3 +1,5 @@
+import { LanguageProvider } from "@/lib/i18n";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { lazy, Suspense } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
@@ -49,6 +51,7 @@ function AppFallback() {
 }
 
 const App = () => (
+  <LanguageProvider>
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
@@ -57,6 +60,7 @@ const App = () => (
         <ErrorBoundary>
           <div className="min-h-screen bg-[radial-gradient(circle_at_15%_0%,rgba(124,58,237,0.10),transparent_28%),radial-gradient(circle_at_85%_10%,rgba(34,211,238,0.08),transparent_24%),#f6faf8]">
             <BottomNav />
+            <LanguageSwitcher />
             <main className="min-h-screen w-full xl:pl-24">
               <div className="relative mx-auto min-h-screen w-full max-w-6xl overflow-hidden bg-background shadow-[0_0_80px_rgba(15,23,42,0.06)] md:max-w-[1100px] xl:my-6 xl:min-h-[calc(100vh-3rem)] xl:rounded-[2.5rem] xl:border xl:border-white/70">
                 <Suspense fallback={<AppFallback />}>
@@ -90,6 +94,7 @@ const App = () => (
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
+  </LanguageProvider>
 );
 
 export default App;
