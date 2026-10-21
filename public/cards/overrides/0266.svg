@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 768 768" role="img" aria-label="Boy notices a paper cut on his finger">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fffdf8"/>
+      <stop offset="1" stop-color="#eef9f7"/>
+    </linearGradient>
+    <linearGradient id="shirt" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#11b8b5"/>
+      <stop offset="1" stop-color="#078b99"/>
+    </linearGradient>
+    <linearGradient id="skin" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffc47d"/>
+      <stop offset="1" stop-color="#f59a50"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#1f2937" flood-opacity=".14"/>
+    </filter>
+  </defs>
+  <rect width="768" height="768" rx="60" fill="url(#bg)"/>
+  <ellipse cx="390" cy="690" rx="225" ry="34" fill="#cbd5e1" opacity=".45"/>
+  <g filter="url(#shadow)">
+    <path d="M255 442c-32 63-43 143-29 221h111l15-174z" fill="#173c67"/>
+    <path d="M452 447c31 58 48 136 48 216H390l-24-175z" fill="#173c67"/>
+    <path d="M203 642h139c6 0 12 5 12 12v28H191v-19c0-12 5-21 12-21z" fill="#36a36a"/>
+    <path d="M386 642h129c14 0 25 10 25 23v17H377v-27c0-7 4-13 9-13z" fill="#36a36a"/>
+    <path d="M214 657h116M402 657h112" stroke="#fff" stroke-width="10" stroke-linecap="round" opacity=".9"/>
+    <path d="M261 365c15-43 52-73 105-73 58 0 101 34 116 85l-18 130H276z" fill="url(#shirt)"/>
+    <path d="M297 419c-43 7-79 34-104 73-16 24-6 55 18 67 24 12 51 2 62-22l43-95z" fill="url(#skin)"/>
+    <path d="M450 397c40 7 72 31 92 66 10 18 12 38 8 57-5 25-30 40-54 30-18-8-29-26-27-45l7-54z" fill="url(#skin)"/>
+    <path d="M280 489l-91-8 7 111 126-16z" fill="#fff" stroke="#d7dee7" stroke-width="7"/>
+    <path d="M191 483l65 49 59-38" fill="none" stroke="#e5e7eb" stroke-width="5"/>
+    <circle cx="372" cy="227" r="118" fill="url(#skin)"/>
+    <path d="M267 219c-8-83 38-146 120-151 83-5 131 50 120 135-24-12-44-37-53-67-29 37-83 61-159 64z" fill="#5b2f18"/>
+    <path d="M287 167c-22-6-42 9-43 32-1 25 20 43 46 38" fill="url(#skin)" stroke="#e88943" stroke-width="5"/>
+    <path d="M466 168c22-6 42 9 43 32 1 25-20 43-46 38" fill="url(#skin)" stroke="#e88943" stroke-width="5"/>
+    <ellipse cx="336" cy="231" rx="19" ry="25" fill="#fff"/>
+    <ellipse cx="423" cy="231" rx="19" ry="25" fill="#fff"/>
+    <circle cx="341" cy="236" r="10" fill="#1f2937"/>
+    <circle cx="418" cy="236" r="10" fill="#1f2937"/>
+    <path d="M316 199c18-13 37-12 52 1M397 199c17-13 36-12 51 1" fill="none" stroke="#4a2818" stroke-width="10" stroke-linecap="round"/>
+    <path d="M367 264c6 7 16 7 23 0" fill="none" stroke="#c7683a" stroke-width="6" stroke-linecap="round"/>
+    <path d="M352 291c17-15 39-14 55 2" fill="none" stroke="#8e3b2f" stroke-width="8" stroke-linecap="round"/>
+    <path d="M489 455c5-29 16-55 34-76 13-15 35-16 49-4 14 13 14 34 1 48l-24 27 12 38c6 19-4 39-23 45-20 6-39-6-44-25z" fill="url(#skin)"/>
+    <path d="M539 377c6-42 8-77 14-108 3-17 20-28 36-24 17 4 27 20 24 37l-11 67 31-31c12-12 31-12 43 0 12 12 12 31 0 43l-68 68c-19 19-51 14-64-9z" fill="url(#skin)"/>
+    <path d="M572 250l5 45" stroke="#f43f5e" stroke-width="8" stroke-linecap="round"/>
+    <path d="M633 243l19-27M650 278l34-7M627 312l28 20" stroke="#ef4444" stroke-width="10" stroke-linecap="round"/>
+  </g>
+</svg>

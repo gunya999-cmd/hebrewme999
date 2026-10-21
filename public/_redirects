@@ -1,0 +1,3 @@
+# Cloudflare Pages SPA fallback for React Router.
+# Keeps deep links like /ai-tutor, /voice-dialogue, /games working after refresh.
+/* /index.html 200

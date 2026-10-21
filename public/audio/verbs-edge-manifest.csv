@@ -1,0 +1,351 @@
+﻿rank,infinitive_hebrew,transcription_ru,binyan,difficulty,audio_url,audio_file,audio_provider,audio_voice,audio_rate,audio_volume,audio_text
+1,לעשות,лаас о т,"делать, создавать, совершать",pealim_live_title_verified,/audio/verbs/001.mp3,public/audio/verbs/001.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לעשות
+2,לדבר,ледаб е р,говорить,pealim_live_title_verified,/audio/verbs/002.mp3,public/audio/verbs/002.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לדבר
+3,לכתוב,лихт о в,писать,pealim_live_title_verified,/audio/verbs/003.mp3,public/audio/verbs/003.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לכתוב
+4,ללכת,лал е хет,идти,pealim_live_title_verified,/audio/verbs/004.mp3,public/audio/verbs/004.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,ללכת
+5,לבוא,лав о,приходить,pealim_live_title_verified,/audio/verbs/005.mp3,public/audio/verbs/005.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לבוא
+6,לראות,лиръ о т,видеть,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/006.mp3,public/audio/verbs/006.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לראות
+7,לשמוע,лишм о а,слышать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/007.mp3,public/audio/verbs/007.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לשמוע
+8,לדעת,лад а ат,знать,pealim_live_title_verified,/audio/verbs/008.mp3,public/audio/verbs/008.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לדעת
+9,לרצות,лирц о т,хотеть,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/009.mp3,public/audio/verbs/009.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לרצות
+10,לתת,лат е т,давать; позволять,pealim_live_title_verified,/audio/verbs/010.mp3,public/audio/verbs/010.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לתת
+11,לקחת,лак а хат,"брать, взять",pealim_live_title_verified,/audio/verbs/011.mp3,public/audio/verbs/011.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לקחת
+12,לאכול,леэх о ль,есть,pealim_live_title_verified,/audio/verbs/012.mp3,public/audio/verbs/012.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לאכול
+13,לשתות,лишт о т,пить,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/013.mp3,public/audio/verbs/013.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לשתות
+14,לקרוא,ликр о,читать; звать,pealim_live_title_verified,/audio/verbs/014.mp3,public/audio/verbs/014.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לקרוא
+15,ללמוד,лильм о д,"изучать, учить",pealim_live_title_verified,/audio/verbs/015.mp3,public/audio/verbs/015.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,ללמוד
+16,להבין,леhавин,понимать,pealim_live_title_verified,/audio/verbs/016.mp3,public/audio/verbs/016.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להבין
+17,לאהוב,леэhов,любить,pealim_live_title_verified,/audio/verbs/017.mp3,public/audio/verbs/017.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לאהוב
+18,לעבוד,лаавод,"работать, трудиться; функционировать",pealim_live_title_verified,/audio/verbs/018.mp3,public/audio/verbs/018.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לעבוד
+19,לחשוב,лахшов,думать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/019.mp3,public/audio/verbs/019.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לחשוב
+20,לשאול,лишоль,спрашивать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/020.mp3,public/audio/verbs/020.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לשאול
+21,לענות,лаанот,отвечать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/021.mp3,public/audio/verbs/021.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לענות
+22,לשבת,лашевет,сидеть,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/022.mp3,public/audio/verbs/022.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לשבת
+23,לשים,ласим,"класть, ставить",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/023.mp3,public/audio/verbs/023.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לשים
+24,לצאת,лацет,выходить,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/024.mp3,public/audio/verbs/024.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לצאת
+25,להיכנס,леhиканес,входить,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/025.mp3,public/audio/verbs/025.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להיכנס
+26,לחזור,лахзор,возвращаться,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/026.mp3,public/audio/verbs/026.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לחזור
+27,לעבור,лаавор,"проходить, переходить",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/027.mp3,public/audio/verbs/027.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לעבור
+28,לחיות,лихьёт,жить,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/028.mp3,public/audio/verbs/028.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לחיות
+29,לגור,лагур,"жить, проживать",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/029.mp3,public/audio/verbs/029.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לגור
+30,לעמוד,лаамод,стоять,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/030.mp3,public/audio/verbs/030.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לעמוד
+31,לפתוח,лифтóах,открывать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/031.mp3,public/audio/verbs/031.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לפתוח
+32,לסגור,лисгор,закрывать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/032.mp3,public/audio/verbs/032.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לסגור
+33,לחפש,лехапес,искать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/033.mp3,public/audio/verbs/033.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לחפש
+34,למצוא,лимцо,находить,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/034.mp3,public/audio/verbs/034.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,למצוא
+35,להרגיש,леhаргиш,чувствовать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/035.mp3,public/audio/verbs/035.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להרגיש
+36,להכיר,леhак и р,"знать, быть знакомым",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/036.mp3,public/audio/verbs/036.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להכיר
+37,להתחיל,леhатх и ль,начинать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/037.mp3,public/audio/verbs/037.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להתחיל
+38,להמשיך,леhамш и х,продолжать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/038.mp3,public/audio/verbs/038.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להמשיך
+39,להפסיק,леhафс и к,прекращать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/039.mp3,public/audio/verbs/039.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להפסיק
+40,לקנות,ликн о т,покупать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/040.mp3,public/audio/verbs/040.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לקנות
+41,לשלם,лешал е м,платить,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/041.mp3,public/audio/verbs/041.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לשלם
+42,לבשל,леваш е ль,готовить еду,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/042.mp3,public/audio/verbs/042.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לבשל
+43,לנקות,ленак о т,"чистить, убирать",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/043.mp3,public/audio/verbs/043.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לנקות
+44,לתקן,летак е н,"чинить, исправлять",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/044.mp3,public/audio/verbs/044.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לתקן
+45,לסדר,лесад е р,"упорядочивать, устраивать",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/045.mp3,public/audio/verbs/045.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לסדר
+46,להתקשר,леhиткаш е р,звонить; связываться,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/046.mp3,public/audio/verbs/046.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להתקשר
+47,להתכתב,леhиткат е в,переписываться,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/047.mp3,public/audio/verbs/047.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להתכתב
+48,להתאמן,леhитъам е н,тренироваться,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/048.mp3,public/audio/verbs/048.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להתאמן
+49,להתעניין,леhитъань е н,интересоваться,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/049.mp3,public/audio/verbs/049.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להתעניין
+50,להסתדר,леhистад е р,"справляться, устраиваться",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/050.mp3,public/audio/verbs/050.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להסתדר
+51,להתכונן,леhиткон е н,готовиться,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/051.mp3,public/audio/verbs/051.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להתכונן
+52,לעלות,лаал о т,подниматься; повышаться,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/052.mp3,public/audio/verbs/052.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לעלות
+53,לרדת,лар е дет,спускаться; снижаться,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/053.mp3,public/audio/verbs/053.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לרדת
+54,לרוץ,лар у ц,бежать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/054.mp3,public/audio/verbs/054.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לרוץ
+55,להתקדם,леhиткад е м,продвигаться,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/055.mp3,public/audio/verbs/055.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להתקדם
+56,לקבל,лекаб е ль,"получать, принимать",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/056.mp3,public/audio/verbs/056.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לקבל
+57,להחליט,леhахл и т,"решать, принимать решение",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/057.mp3,public/audio/verbs/057.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להחליט
+58,להשתמש,леhиштам е ш,использовать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/058.mp3,public/audio/verbs/058.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להשתמש
+59,לנסוע,линс о а,"ехать, путешествовать транспортом",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/059.mp3,public/audio/verbs/059.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לנסוע
+60,להסביר,леhасб и р,объяснять,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/060.mp3,public/audio/verbs/060.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להסביר
+61,להראות,леhаръ о т,показывать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/061.mp3,public/audio/verbs/061.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להראות
+62,לישון,лишон,спать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/062.mp3,public/audio/verbs/062.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לישון
+63,להוציא,леhоц и,"выносить, выводить, выпускать",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/063.mp3,public/audio/verbs/063.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להוציא
+64,לנסות,ленас о т,"пытаться, пробовать",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/064.mp3,public/audio/verbs/064.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לנסות
+65,להביא,леhав и,приносить,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/065.mp3,public/audio/verbs/065.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להביא
+66,לשלוח,лишл о ах,"отправлять, посылать",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/066.mp3,public/audio/verbs/066.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לשלוח
+67,לבקש,левак е ш,просить,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/067.mp3,public/audio/verbs/067.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לבקש
+68,להזמין,леhазм и н,приглашать; заказывать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/068.mp3,public/audio/verbs/068.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להזמין
+69,לשחק,лесах е к,играть,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/069.mp3,public/audio/verbs/069.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לשחק
+70,לפגוש,лифг о ш,встречать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/070.mp3,public/audio/verbs/070.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לפגוש
+71,לחכות,лехак о т,ждать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/071.mp3,public/audio/verbs/071.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לחכות
+72,לזכור,лизк о р,помнить,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/072.mp3,public/audio/verbs/072.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לזכור
+73,לשכוח,лишк о ах,забывать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/073.mp3,public/audio/verbs/073.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לשכוח
+74,לעזור,лааз о р,помогать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/074.mp3,public/audio/verbs/074.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לעזור
+75,לשמור,лишм о р,"сохранять, беречь, охранять",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/075.mp3,public/audio/verbs/075.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לשמור
+76,להשאיר,леhашъ и р,оставлять,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/076.mp3,public/audio/verbs/076.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להשאיר
+77,להישאר,леhиша э р,оставаться,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/077.mp3,public/audio/verbs/077.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להישאר
+78,להקשיב,леhакш и в,"слушать, прислушиваться",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/078.mp3,public/audio/verbs/078.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להקשיב
+79,לספר,лесап е р,рассказывать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/079.mp3,public/audio/verbs/079.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לספר
+80,לסיים,лесай е м,заканчивать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/080.mp3,public/audio/verbs/080.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לסיים
+81,לבחור,ливх о р,выбирать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/081.mp3,public/audio/verbs/081.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לבחור
+82,להסכים,леhаск и м,соглашаться,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/082.mp3,public/audio/verbs/082.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להסכים
+83,לפתור,лифт о р,решать задачу,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/083.mp3,public/audio/verbs/083.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לפתור
+84,להספיק,леhасп и к,успевать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/084.mp3,public/audio/verbs/084.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להספיק
+85,להזיז,леhаз и з,"двигать, перемещать",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/085.mp3,public/audio/verbs/085.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להזיז
+86,להחליף,леhахал и ф,"заменять, менять",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/086.mp3,public/audio/verbs/086.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להחליף
+87,לקום,лак у м,вставать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/087.mp3,public/audio/verbs/087.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לקום
+88,ליפול,лип о ль,падать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/088.mp3,public/audio/verbs/088.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,ליפול
+89,להרים,леhар и м,поднимать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/089.mp3,public/audio/verbs/089.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להרים
+90,להוריד,леhор и д,"опускать, снижать",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/090.mp3,public/audio/verbs/090.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להוריד
+91,ללבוש,лильб о ш,"надевать, носить",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/091.mp3,public/audio/verbs/091.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,ללבוש
+92,להתלבש,леhитлаб е ш,одеваться,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/092.mp3,public/audio/verbs/092.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להתלבש
+93,לגעת,лаг а ат,касаться,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/093.mp3,public/audio/verbs/093.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לגעת
+94,להחזיק,леhахз и к,держать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/094.mp3,public/audio/verbs/094.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להחזיק
+95,לזרוק,лизр о к,бросать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/095.mp3,public/audio/verbs/095.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לזרוק
+96,לתפוס,литп о с,"ловить, хватать",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/096.mp3,public/audio/verbs/096.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לתפוס
+97,לנצח,ленац е ах,побеждать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/097.mp3,public/audio/verbs/097.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לנצח
+98,להפסיד,леhафс и д,проигрывать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/098.mp3,public/audio/verbs/098.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להפסיד
+99,לקרות,ликр о т,"происходить, случаться",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/099.mp3,public/audio/verbs/099.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לקרות
+100,להצליח,леhацл и ах,"преуспевать, удаваться",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/100.mp3,public/audio/verbs/100.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להצליח
+101,להיכשל,леhикаш е ль,"терпеть неудачу, проваливаться",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/101.mp3,public/audio/verbs/101.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להיכשל
+102,להתרגל,леhитраг е ль,привыкать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/102.mp3,public/audio/verbs/102.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להתרגל
+103,להאמין,леhаам и н,верить,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/103.mp3,public/audio/verbs/103.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להאמין
+104,לבדוק,ливд о к,проверять,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/104.mp3,public/audio/verbs/104.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לבדוק
+105,להוסיף,леhос и ф,добавлять,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/105.mp3,public/audio/verbs/105.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להוסיף
+106,להדליק,леhадл и к,зажигать; включать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/106.mp3,public/audio/verbs/106.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להדליק
+107,לכבות,лехаб о т,гасить; выключать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/107.mp3,public/audio/verbs/107.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לכבות
+108,להפעיל,леhафъ и ль,включать; приводить в действие,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/108.mp3,public/audio/verbs/108.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להפעיל
+109,לעצור,лаац о р,останавливать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/109.mp3,public/audio/verbs/109.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לעצור
+110,להסתכל,леhистак е ль,смотреть,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/110.mp3,public/audio/verbs/110.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להסתכל
+111,לצפות,лицп о т,смотреть; ожидать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/111.mp3,public/audio/verbs/111.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לצפות
+112,לפחד,лефах е д,бояться,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/112.mp3,public/audio/verbs/112.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לפחד
+113,לכעוס,лихъ о с,злиться,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/113.mp3,public/audio/verbs/113.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לכעוס
+114,לבכות,ливк о т,плакать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/114.mp3,public/audio/verbs/114.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לבכות
+115,לצחוק,лицх о к,смеяться,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/115.mp3,public/audio/verbs/115.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לצחוק
+116,לחייך,лехай е х,улыбаться,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/116.mp3,public/audio/verbs/116.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לחייך
+117,לצעוק,лицъ о к,кричать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/117.mp3,public/audio/verbs/117.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לצעוק
+118,לשיר,лаш и р,петь,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/118.mp3,public/audio/verbs/118.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לשיר
+119,לרקוד,лирк о д,танцевать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/119.mp3,public/audio/verbs/119.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לרקוד
+120,לנגן,ленаг е н,играть на музыкальном инструменте,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/120.mp3,public/audio/verbs/120.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לנגן
+121,לצייר,лецай е р,рисовать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/121.mp3,public/audio/verbs/121.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לצייר
+122,לצלם,лецал е м,фотографировать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/122.mp3,public/audio/verbs/122.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לצלם
+123,להתקלח,леhиткал е ах,принимать душ,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/123.mp3,public/audio/verbs/123.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להתקלח
+124,להתגלח,леhитгал е ах,бриться,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/124.mp3,public/audio/verbs/124.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להתגלח
+125,לצחצח,лецахц е ах,чистить зубы,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/125.mp3,public/audio/verbs/125.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לצחצח
+126,לשטוף,лишт о ф,"мыть, промывать",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/126.mp3,public/audio/verbs/126.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לשטוף
+127,לרחוץ,лирх о ц,"мыть, купать",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/127.mp3,public/audio/verbs/127.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לרחוץ
+128,לכבס,лехаб е с,стирать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/128.mp3,public/audio/verbs/128.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לכבס
+129,לגהץ,легаh е ц,гладить,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/129.mp3,public/audio/verbs/129.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לגהץ
+130,לספור,лисп о р,считать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/130.mp3,public/audio/verbs/130.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לספור
+131,למדוד,лимд о д,"измерять, примерять",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/131.mp3,public/audio/verbs/131.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,למדוד
+132,לחתוך,лахт о х,резать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/132.mp3,public/audio/verbs/132.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לחתוך
+133,לערבב,леарб е в,смешивать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/133.mp3,public/audio/verbs/133.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לערבב
+134,לטגן,летаг е н,жарить,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/134.mp3,public/audio/verbs/134.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לטגן
+135,לאפות,леэф о т,"печь, выпекать",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/135.mp3,public/audio/verbs/135.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לאפות
+136,לטעום,литъ о м,пробовать на вкус,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/136.mp3,public/audio/verbs/136.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לטעום
+137,למכור,лимк о р,продавать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/137.mp3,public/audio/verbs/137.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,למכור
+138,להרוויח,леhарв и ах,зарабатывать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/138.mp3,public/audio/verbs/138.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להרוויח
+139,לבזבז,левазб е з,тратить впустую,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/139.mp3,public/audio/verbs/139.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לבזבז
+140,לחסוך,лахас о х,экономить,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/140.mp3,public/audio/verbs/140.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לחסוך
+141,לשכור,лиск о р,"арендовать, нанимать",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/141.mp3,public/audio/verbs/141.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לשכור
+142,להשכיר,леhаск и р,сдавать в аренду,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/142.mp3,public/audio/verbs/142.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להשכיר
+143,לתכנן,летахн е н,планировать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/143.mp3,public/audio/verbs/143.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לתכנן
+144,לבנות,ливн о т,строить,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/144.mp3,public/audio/verbs/144.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לבנות
+145,לשבור,лишб о р,ломать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/145.mp3,public/audio/verbs/145.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לשבור
+146,לתלות,литл о т,вешать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/146.mp3,public/audio/verbs/146.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לתלות
+147,לקפל,лекап е ль,складывать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/147.mp3,public/audio/verbs/147.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לקפל
+148,למשוך,лимш о х,тянуть,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/148.mp3,public/audio/verbs/148.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,למשוך
+149,לדחוף,лидх о ф,толкать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/149.mp3,public/audio/verbs/149.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לדחוף
+150,לחבר,лехаб е р,"соединять, подключать",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/150.mp3,public/audio/verbs/150.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לחבר
+151,לנתק,ленат е к,"отсоединять, отключать",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/151.mp3,public/audio/verbs/151.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לנתק
+152,לסמן,лесам е н,"отмечать, обозначать",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/152.mp3,public/audio/verbs/152.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לסמן
+153,למחוק,лимх о к,"стирать, удалять",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/153.mp3,public/audio/verbs/153.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,למחוק
+154,להעתיק,леhаат и к,копировать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/154.mp3,public/audio/verbs/154.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להעתיק
+155,להדביק,леhадб и к,"приклеивать, вставлять",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/155.mp3,public/audio/verbs/155.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להדביק
+156,להקליד,леhакл и д,печатать на клавиатуре,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/156.mp3,public/audio/verbs/156.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להקליד
+157,להדפיס,леhадп и с,печатать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/157.mp3,public/audio/verbs/157.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להדפיס
+158,להעלות,леhаал о т,поднимать; загружать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/158.mp3,public/audio/verbs/158.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להעלות
+159,להגיש,леhаг и ш,"подавать, представлять",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/159.mp3,public/audio/verbs/159.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להגיש
+160,לקבוע,ликб о а,"назначать, устанавливать",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/160.mp3,public/audio/verbs/160.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לקבוע
+161,לבטל,леват е ль,отменять,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/161.mp3,public/audio/verbs/161.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לבטל
+162,לאשר,леаш е р,"утверждать, подтверждать",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/162.mp3,public/audio/verbs/162.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לאשר
+163,להזכיר,леhазк и р,напоминать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/163.mp3,public/audio/verbs/163.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להזכיר
+164,ללמד,лелам е д,"учить кого-то, преподавать",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/164.mp3,public/audio/verbs/164.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,ללמד
+165,לתרגם,летарг е м,переводить,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/165.mp3,public/audio/verbs/165.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לתרגם
+166,לתרגל,летарг е ль,"практиковать, упражняться",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/166.mp3,public/audio/verbs/166.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לתרגל
+167,להקליט,леhакл и т,записывать звук,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/167.mp3,public/audio/verbs/167.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להקליט
+168,להקשות,леhакш о т,"затруднять, усложнять",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/168.mp3,public/audio/verbs/168.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להקשות
+169,להקל,леhак е ль,облегчать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/169.mp3,public/audio/verbs/169.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להקל
+170,להשוות,леhашв о т,сравнивать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/170.mp3,public/audio/verbs/170.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להשוות
+171,להשוויץ,леhашв и ц,хвастаться,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/171.mp3,public/audio/verbs/171.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להשוויץ
+172,להמליץ,леhамл и ц,рекомендовать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/172.mp3,public/audio/verbs/172.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להמליץ
+173,להציע,леhац и а,предлагать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/173.mp3,public/audio/verbs/173.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להציע
+174,להודיע,леhод и а,"сообщать, уведомлять",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/174.mp3,public/audio/verbs/174.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להודיע
+175,להחזיר,леhахаз и р / леhахз и р,возвращать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/175.mp3,public/audio/verbs/175.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להחזיר
+176,להעביר,леhаав и р,"передавать, переводить",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/176.mp3,public/audio/verbs/176.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להעביר
+177,להתנהג,леhитнаh е г,вести себя,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/177.mp3,public/audio/verbs/177.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להתנהג
+178,להפריע,леhафр и а,мешать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/178.mp3,public/audio/verbs/178.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להפריע
+179,להתווכח,леhитвак е ах,спорить,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/179.mp3,public/audio/verbs/179.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להתווכח
+180,להתנצל,леhитнац е ль,извиняться,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/180.mp3,public/audio/verbs/180.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להתנצל
+181,להתאים,леhат и м,"подходить, соответствовать",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/181.mp3,public/audio/verbs/181.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להתאים
+182,להשפיע,леhашп и а,влиять,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/182.mp3,public/audio/verbs/182.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להשפיע
+183,להרשות,леhарш о т,разрешать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/183.mp3,public/audio/verbs/183.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להרשות
+184,להצביע,леhацб и а,голосовать; указывать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/184.mp3,public/audio/verbs/184.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להצביע
+185,להבטיח,леhавт и ах,обещать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/185.mp3,public/audio/verbs/185.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להבטיח
+186,להזהיר,леhазh и р,предупреждать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/186.mp3,public/audio/verbs/186.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להזהיר
+187,להיזהר,леhизаh е р,"остерегаться, быть осторожным",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/187.mp3,public/audio/verbs/187.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להיזהר
+188,להיתקל,леhитак е ль,"сталкиваться, натыкаться",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/188.mp3,public/audio/verbs/188.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להיתקל
+189,להתבלבל,леhитбальб е ль,"путаться, сбиваться",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/189.mp3,public/audio/verbs/189.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להתבלבל
+190,לבלבל,левальб е ль,"путать, сбивать с толку",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/190.mp3,public/audio/verbs/190.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לבלבל
+191,להשתנות,леhиштан о т,изменяться,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/191.mp3,public/audio/verbs/191.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להשתנות
+192,לשנות,лешан о т,"менять, изменять",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/192.mp3,public/audio/verbs/192.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לשנות
+193,לשתף,лешат е ф,"делиться, участвовать совместно",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/193.mp3,public/audio/verbs/193.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לשתף
+194,להשתתף,леhиштат е ф,участвовать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/194.mp3,public/audio/verbs/194.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להשתתף
+195,לשפר,лешап е р,улучшать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/195.mp3,public/audio/verbs/195.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לשפר
+196,להשתפר,леhиштап е р,улучшаться,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/196.mp3,public/audio/verbs/196.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להשתפר
+197,להגדיל,леhагд и ль,увеличивать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/197.mp3,public/audio/verbs/197.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להגדיל
+198,לגדול,лигд о ль,расти,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/198.mp3,public/audio/verbs/198.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לגדול
+199,להקטין,леhакт и н,уменьшать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/199.mp3,public/audio/verbs/199.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להקטין
+200,לקטון,ликт о н,уменьшаться,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/200.mp3,public/audio/verbs/200.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לקטון
+201,להרחיב,леhарх и в,расширять,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/201.mp3,public/audio/verbs/201.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להרחיב
+202,לצמצם,лецамц е м,"сокращать, сужать",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/202.mp3,public/audio/verbs/202.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לצמצם
+203,להשלים,леhашл и м,"завершать, дополнять",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/203.mp3,public/audio/verbs/203.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להשלים
+204,להפריד,леhафр и д,разделять,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/204.mp3,public/audio/verbs/204.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להפריד
+205,להיפרד,леhипар е д,"расставаться, отделяться",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/205.mp3,public/audio/verbs/205.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להיפרד
+206,לגלות,легал о т,"обнаруживать, раскрывать",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/206.mp3,public/audio/verbs/206.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לגלות
+207,להסתיר,леhаст и р,скрывать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/207.mp3,public/audio/verbs/207.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להסתיר
+208,להגן,леhаг е н,защищать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/208.mp3,public/audio/verbs/208.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להגן
+209,לתקוף,литк о ф,атаковать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/209.mp3,public/audio/verbs/209.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לתקוף
+210,להילחם,леhилах е м,"бороться, воевать",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/210.mp3,public/audio/verbs/210.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להילחם
+211,לברוח,ливр о ах,убегать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/211.mp3,public/audio/verbs/211.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לברוח
+212,להציל,леhац и ль,спасать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/212.mp3,public/audio/verbs/212.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להציל
+213,להינצל,леhинац е ль,спасаться,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/213.mp3,public/audio/verbs/213.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להינצל
+214,לטפל,летап е ль,"лечить, заботиться",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/214.mp3,public/audio/verbs/214.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לטפל
+215,להירגע,леhераг е а / леhераг а,успокаиваться,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/215.mp3,public/audio/verbs/215.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להירגע
+216,להרגיע,леhарг и а,успокаивать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/216.mp3,public/audio/verbs/216.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להרגיע
+217,להתעורר,леhитъор е р,просыпаться,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/217.mp3,public/audio/verbs/217.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להתעורר
+218,להעיר,леhа и р,будить,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/218.mp3,public/audio/verbs/218.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להעיר
+219,לנשום,линш о м,дышать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/219.mp3,public/audio/verbs/219.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לנשום
+220,להריח,леhар и ах,"нюхать, чувствовать запах",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/220.mp3,public/audio/verbs/220.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להריח
+221,לכאוב,лихъ о в,"болеть, причинять боль",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/221.mp3,public/audio/verbs/221.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לכאוב
+222,לחלות,лахал о т,заболевать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/222.mp3,public/audio/verbs/222.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לחלות
+223,להבריא,леhавр и,выздоравливать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/223.mp3,public/audio/verbs/223.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להבריא
+224,להיפגע,леhипаг е а / леhипаг а,"пострадать, быть раненым",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/224.mp3,public/audio/verbs/224.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להיפגע
+225,לפגוע,лифг о а,причинять вред; поражать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/225.mp3,public/audio/verbs/225.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לפגוע
+226,לרפא,лерап е,"лечить, исцелять",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/226.mp3,public/audio/verbs/226.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לרפא
+227,להחלים,леhахл и м,выздоравливать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/227.mp3,public/audio/verbs/227.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להחלים
+228,לאבחן,леавх е н,диагностировать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/228.mp3,public/audio/verbs/228.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לאבחן
+229,לטעות,литъ о т,ошибаться,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/229.mp3,public/audio/verbs/229.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לטעות
+230,לשכנע,лешахн е а,убеждать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/230.mp3,public/audio/verbs/230.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לשכנע
+231,להשתכנע,леhиштахн е а,убеждаться,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/231.mp3,public/audio/verbs/231.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להשתכנע
+232,להודות,леhод о т,благодарить; признаваться,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/232.mp3,public/audio/verbs/232.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להודות
+233,להעריך,леhаар и х,оценивать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/233.mp3,public/audio/verbs/233.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להעריך
+234,להתכוון,леhиткав е н,"намереваться, иметь в виду",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/234.mp3,public/audio/verbs/234.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להתכוון
+235,לכוון,лехав е н,"направлять, настраивать",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/235.mp3,public/audio/verbs/235.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לכוון
+236,לסרב,лесар е в,отказываться,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/236.mp3,public/audio/verbs/236.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לסרב
+237,להכריח,леhахр и ах,"заставлять, принуждать",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/237.mp3,public/audio/verbs/237.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להכריח
+238,להעדיף,леhаадиф,предпочитать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/238.mp3,public/audio/verbs/238.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להעדיף
+239,להתגעגע,леhитгаагеа,"скучать, тосковать",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/239.mp3,public/audio/verbs/239.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להתגעגע
+240,לסבול,лисбол,"страдать, терпеть",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/240.mp3,public/audio/verbs/240.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לסבול
+241,להתייחס,леhитяхес,"относиться, реагировать",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/241.mp3,public/audio/verbs/241.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להתייחס
+242,להתקיים,леhиткаем,"существовать, происходить",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/242.mp3,public/audio/verbs/242.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להתקיים
+243,להתקרב,леhиткарев,приближаться,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/243.mp3,public/audio/verbs/243.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להתקרב
+244,להתרחק,леhитерхк,отдаляться,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/244.mp3,public/audio/verbs/244.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להתרחק
+245,לקרב,лекерв,приближать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/245.mp3,public/audio/verbs/245.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לקרב
+246,להתקרר,леhитекрр,остывать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/246.mp3,public/audio/verbs/246.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להתקרר
+247,לחמם,лехемм,"греть, нагревать",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/247.mp3,public/audio/verbs/247.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לחמם
+248,להתחמם,леhитехмм,согреваться,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/248.mp3,public/audio/verbs/248.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להתחמם
+249,לחזק,лехезк,"укреплять, усиливать",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/249.mp3,public/audio/verbs/249.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לחזק
+250,להתחזק,леhитехзк,"укрепляться, усиливаться",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/250.mp3,public/audio/verbs/250.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להתחזק
+251,לשחות,лисх о т,"плавать, плыть",replacement_common_hebrew_verified,/audio/verbs/251.mp3,public/audio/verbs/251.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לשחות
+252,להיפתח,леhипетх,открываться,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/252.mp3,public/audio/verbs/252.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להיפתח
+253,להיסגר,леhисегр,закрываться,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/253.mp3,public/audio/verbs/253.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להיסגר
+254,להישבר,леhишевр,ломаться,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/254.mp3,public/audio/verbs/254.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להישבר
+255,להיבנות,леhивнот,строиться,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/255.mp3,public/audio/verbs/255.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להיבנות
+256,להופיע,леhофиа,"появляться, выступать",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/256.mp3,public/audio/verbs/256.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להופיע
+257,להיעלם,леhеалем,исчезать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/257.mp3,public/audio/verbs/257.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להיעלם
+258,להתקבל,леhиткабел,"быть принятым, приниматься",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/258.mp3,public/audio/verbs/258.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להתקבל
+259,לשחרר,лешахрер,"освобождать, отпускать",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/259.mp3,public/audio/verbs/259.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לשחרר
+260,להשתחרר,леhиштахрер,освобождаться,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/260.mp3,public/audio/verbs/260.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להשתחרר
+261,להגיב,леhагив,реагировать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/261.mp3,public/audio/verbs/261.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להגיב
+262,להירשם,леhерашем,"регистрироваться, записываться",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/262.mp3,public/audio/verbs/262.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להירשם
+263,לרשום,лиршом,"записывать, регистрировать",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/263.mp3,public/audio/verbs/263.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לרשום
+264,לנהוג,линhог,"водить, управлять; вести себя",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/264.mp3,public/audio/verbs/264.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לנהוג
+265,לטוס,латус,летать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/265.mp3,public/audio/verbs/265.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לטוס
+266,לטייל,летаел,"гулять, путешествовать",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/266.mp3,public/audio/verbs/266.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לטייל
+267,לחנות,лаханот,парковаться,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/267.mp3,public/audio/verbs/267.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לחנות
+268,לחצות,лахцот,пересекать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/268.mp3,public/audio/verbs/268.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לחצות
+269,לפנות,лифнот,обращаться; поворачивать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/269.mp3,public/audio/verbs/269.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לפנות
+270,להסתובב,леhистовев,"вращаться; гулять, обходить",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/270.mp3,public/audio/verbs/270.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להסתובב
+271,להתמצא,леhитмаце,ориентироваться,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/271.mp3,public/audio/verbs/271.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להתמצא
+272,לאבד,леабед,терять,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/272.mp3,public/audio/verbs/272.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לאבד
+273,להוביל,леhовил,"вести, транспортировать",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/273.mp3,public/audio/verbs/273.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להוביל
+274,ללוות,лилвот,сопровождать; одалживать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/274.mp3,public/audio/verbs/274.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,ללוות
+275,להצטרף,леhицтареф,присоединяться,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/275.mp3,public/audio/verbs/275.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להצטרף
+276,לצרף,лецареф,"присоединять, добавлять",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/276.mp3,public/audio/verbs/276.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לצרף
+277,להיפגש,леhипегш,встречаться,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/277.mp3,public/audio/verbs/277.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להיפגש
+278,להציג,леhациг,"представлять, показывать",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/278.mp3,public/audio/verbs/278.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להציג
+279,לייצג,лейцг,представлять интересы,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/279.mp3,public/audio/verbs/279.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לייצג
+280,לכלול,лехлоль,включать в себя,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/280.mp3,public/audio/verbs/280.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לכלול
+281,לבלות,левал о т,проводить время; развлекаться,replacement_common_hebrew_verified,/audio/verbs/281.mp3,public/audio/verbs/281.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לבלות
+282,לחלק,лехелк,"делить, распределять",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/282.mp3,public/audio/verbs/282.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לחלק
+283,להתחלק,леhитехлк,"делиться, распределяться",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/283.mp3,public/audio/verbs/283.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להתחלק
+284,ליצור,леицор,создавать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/284.mp3,public/audio/verbs/284.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,ליצור
+285,לייצר,лейцр,производить,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/285.mp3,public/audio/verbs/285.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לייצר
+286,לפתח,лепетх,"развивать, разрабатывать",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/286.mp3,public/audio/verbs/286.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לפתח
+287,להתפתח,леhитептх,развиваться,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/287.mp3,public/audio/verbs/287.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להתפתח
+288,להתפלל,леhитпал е ль,молиться,replacement_common_hebrew_verified,/audio/verbs/288.mp3,public/audio/verbs/288.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להתפלל
+289,להתחתן,леhитхат е н,"жениться, выходить замуж",replacement_common_hebrew_verified,/audio/verbs/289.mp3,public/audio/verbs/289.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להתחתן
+290,להתגרש,леhитгар е ш,разводиться,replacement_common_hebrew_verified,/audio/verbs/290.mp3,public/audio/verbs/290.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להתגרש
+291,להשתעל,леhишта э ль,кашлять,replacement_common_hebrew_verified,/audio/verbs/291.mp3,public/audio/verbs/291.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להשתעל
+292,להתעטש,леhитат е ш,чихать,replacement_common_hebrew_verified,/audio/verbs/292.mp3,public/audio/verbs/292.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להתעטש
+293,לגנוב,лигн о в,красть,replacement_common_hebrew_verified,/audio/verbs/293.mp3,public/audio/verbs/293.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לגנוב
+294,להרוס,лаhар о с,"разрушать, портить",replacement_common_hebrew_verified,/audio/verbs/294.mp3,public/audio/verbs/294.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להרוס
+295,לנגוע,линг о а,касаться,replacement_common_hebrew_verified,/audio/verbs/295.mp3,public/audio/verbs/295.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לנגוע
+296,לתמוך,летмох,поддерживать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/296.mp3,public/audio/verbs/296.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לתמוך
+297,להתנגד,леhитнаг е д,"возражать, сопротивляться",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/297.mp3,public/audio/verbs/297.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להתנגד
+298,להוכיח,леhох и ах,доказывать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/298.mp3,public/audio/verbs/298.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להוכיח
+299,לחקור,лахк о р,исследовать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/299.mp3,public/audio/verbs/299.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לחקור
+300,לטעון,литъ о н,"утверждать, заявлять",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/300.mp3,public/audio/verbs/300.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לטעון
+301,לחייב,лехай е в,обязывать; списывать деньги,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/301.mp3,public/audio/verbs/301.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לחייב
+302,לדלג,ледал е г,пропускать; перепрыгивать,replacement_common_hebrew_verified,/audio/verbs/302.mp3,public/audio/verbs/302.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לדלג
+303,לנחות,линх о т,"приземляться, садиться",replacement_common_hebrew_verified,/audio/verbs/303.mp3,public/audio/verbs/303.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לנחות
+304,להסתיים,леhистайем,заканчиваться,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/304.mp3,public/audio/verbs/304.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להסתיים
+305,להמריא,леhамр и,взлетать,replacement_common_hebrew_verified,/audio/verbs/305.mp3,public/audio/verbs/305.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להמריא
+306,לעדכן,ледехн,обновлять,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/306.mp3,public/audio/verbs/306.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לעדכן
+307,להתעדכן,леhитедхн,обновляться,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/307.mp3,public/audio/verbs/307.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להתעדכן
+308,להשתעמם,леhиштаам е м,скучать,replacement_common_hebrew_verified,/audio/verbs/308.mp3,public/audio/verbs/308.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להשתעמם
+309,להצחיק,леhацх и к,"смешить, заставлять смеяться",replacement_common_hebrew_verified,/audio/verbs/309.mp3,public/audio/verbs/309.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להצחיק
+310,לנהל,ленhл,"управлять, руководить",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/310.mp3,public/audio/verbs/310.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לנהל
+311,להתנהל,леhитнhл,"вестись, проходить, управляться",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/311.mp3,public/audio/verbs/311.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להתנהל
+312,להקים,леhаким,"основывать, создавать",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/312.mp3,public/audio/verbs/312.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להקים
+313,לקיים,лекайем,"проводить, выполнять; существовать",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/313.mp3,public/audio/verbs/313.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לקיים
+314,להגדיר,леhагдир,определять,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/314.mp3,public/audio/verbs/314.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להגדיר
+315,להתחייב,леhитхай е в,"обязываться, брать обязательство",replacement_common_hebrew_verified,/audio/verbs/315.mp3,public/audio/verbs/315.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להתחייב
+316,לסכם,лесехм,"суммировать, резюмировать",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/316.mp3,public/audio/verbs/316.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לסכם
+317,לנתח,ленатеах,анализировать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/317.mp3,public/audio/verbs/317.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לנתח
+318,לנמק,ленамек,обосновывать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/318.mp3,public/audio/verbs/318.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לנמק
+319,להסיק,леhасик,делать вывод,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/319.mp3,public/audio/verbs/319.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להסיק
+320,להבהיר,леhавhир,"прояснять, уточнять",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/320.mp3,public/audio/verbs/320.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להבהיר
+321,להדריך,леhадрих,"инструктировать, направлять",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/321.mp3,public/audio/verbs/321.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להדריך
+322,לייעץ,леяэц,"советовать, консультировать",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/322.mp3,public/audio/verbs/322.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לייעץ
+323,להתייעץ,леhитяец,консультироваться,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/323.mp3,public/audio/verbs/323.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להתייעץ
+324,לחתום,лаҳтом,подписывать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/324.mp3,public/audio/verbs/324.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לחתום
+325,לבחון,ливхон,"проверять, экзаменовать",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/325.mp3,public/audio/verbs/325.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לבחון
+326,לאחר,леахер,опаздывать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/326.mp3,public/audio/verbs/326.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לאחר
+327,להקדים,леhакдим,"опережать, приходить раньше",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/327.mp3,public/audio/verbs/327.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להקדים
+328,להתעכב,леhитакев,задерживаться,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/328.mp3,public/audio/verbs/328.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להתעכב
+329,לעכב,леакев,задерживать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/329.mp3,public/audio/verbs/329.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לעכב
+330,לדרוש,лидрош,требовать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/330.mp3,public/audio/verbs/330.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לדרוש
+331,לתבוע,литбоа,подавать иск; требовать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/331.mp3,public/audio/verbs/331.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לתבוע
+332,להתלבט,леhитлаббет,"колебаться, сомневаться",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/332.mp3,public/audio/verbs/332.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להתלבט
+333,להתייחד,леhитяхед,уединяться; быть особым,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/333.mp3,public/audio/verbs/333.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להתייחד
+334,לאחד,леахед,объединять,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/334.mp3,public/audio/verbs/334.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לאחד
+335,להתאחד,леhитахед,объединяться,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/335.mp3,public/audio/verbs/335.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להתאחד
+336,לפרסם,лефарсем,публиковать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/336.mp3,public/audio/verbs/336.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לפרסם
+337,להתפרסם,леhитпарс е м,публиковаться; становиться известным,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/337.mp3,public/audio/verbs/337.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להתפרסם
+338,לסרוק,лиср о к,сканировать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/338.mp3,public/audio/verbs/338.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לסרוק
+339,להצפין,леhацп и н,шифровать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/339.mp3,public/audio/verbs/339.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להצפין
+340,לפענח,лефаан е ах,расшифровывать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/340.mp3,public/audio/verbs/340.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לפענח
+341,להצליב,леhацл и в,"сопоставлять, скрещивать",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/341.mp3,public/audio/verbs/341.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להצליב
+342,לערוך,лаар о х,редактировать; проводить,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/342.mp3,public/audio/verbs/342.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לערוך
+343,להיערך,леhеар е х,"готовиться, организовываться",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/343.mp3,public/audio/verbs/343.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להיערך
+344,להתרגש,леhитраг е ш,"волноваться, быть взволнованным",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/344.mp3,public/audio/verbs/344.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להתרגש
+345,לרגש,лераг е ш,"волновать, трогать",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/345.mp3,public/audio/verbs/345.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לרגש
+346,להתאכזב,леhитъахз е в,разочаровываться,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/346.mp3,public/audio/verbs/346.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להתאכזב
+347,לאכזב,леахз е в,разочаровывать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/347.mp3,public/audio/verbs/347.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לאכזב
+348,לקנא,лекан е,завидовать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/348.mp3,public/audio/verbs/348.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לקנא
+349,להתבייש,леhитбай е ш,стыдиться,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/349.mp3,public/audio/verbs/349.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,להתבייש
+350,לבייש,левай е ш,стыдить,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/350.mp3,public/audio/verbs/350.mp3,microsoft_edge_tts,he-IL-HilaNeural,-10%,+0%,לבייש

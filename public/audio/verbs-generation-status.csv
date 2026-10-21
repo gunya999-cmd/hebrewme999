@@ -1,0 +1,68 @@
+﻿rank,infinitive_hebrew,transcription_ru,binyan,difficulty,audio_url,audio_file,audio_provider,audio_model,audio_voice,audio_prompt,generation_status,file_size,error
+1,לעשות,лаас о т,"делать, создавать, совершать",pealim_live_title_verified,/audio/verbs/001.wav,public/audio/verbs/001.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לעשות",skipped_exists,90284,
+2,לדבר,ледаб е р,говорить,pealim_live_title_verified,/audio/verbs/002.wav,public/audio/verbs/002.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לדבר",skipped_exists,80684,
+3,לכתוב,лихт о в,писать,pealim_live_title_verified,/audio/verbs/003.wav,public/audio/verbs/003.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לכתוב",skipped_exists,82604,
+4,ללכת,лал е хет,идти,pealim_live_title_verified,/audio/verbs/004.wav,public/audio/verbs/004.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: ללכת",skipped_exists,92204,
+5,לבוא,лав о,приходить,pealim_live_title_verified,/audio/verbs/005.wav,public/audio/verbs/005.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לבוא",skipped_exists,80684,
+6,לראות,лиръ о т,видеть,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/006.wav,public/audio/verbs/006.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לראות",skipped_exists,84524,
+7,לשמוע,лишм о а,слышать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/007.wav,public/audio/verbs/007.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לשמוע",skipped_exists,78764,
+8,לדעת,лад а ат,знать,pealim_live_title_verified,/audio/verbs/008.wav,public/audio/verbs/008.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לדעת",skipped_exists,88364,
+9,לרצות,лирц о т,хотеть,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/009.wav,public/audio/verbs/009.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לרצות",skipped_exists,94124,
+10,לתת,лат е т,давать; позволять,pealim_live_title_verified,/audio/verbs/010.wav,public/audio/verbs/010.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לתת",skipped_exists,69164,
+11,לקחת,лак а хат,"брать, взять",pealim_live_title_verified,/audio/verbs/011.wav,public/audio/verbs/011.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לקחת",skipped_exists,82604,
+12,לאכול,леэх о ль,есть,pealim_live_title_verified,/audio/verbs/012.wav,public/audio/verbs/012.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לאכול",skipped_exists,94124,
+13,לשתות,лишт о т,пить,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/013.wav,public/audio/verbs/013.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לשתות",skipped_exists,88364,
+14,לקרוא,ликр о,читать; звать,pealim_live_title_verified,/audio/verbs/014.wav,public/audio/verbs/014.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לקרוא",skipped_exists,67244,
+15,ללמוד,лильм о д,"изучать, учить",pealim_live_title_verified,/audio/verbs/015.wav,public/audio/verbs/015.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: ללמוד",skipped_exists,84524,
+16,להבין,леhавин,понимать,pealim_live_title_verified,/audio/verbs/016.wav,public/audio/verbs/016.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: להבין",skipped_exists,169004,
+17,לאהוב,леэhов,любить,pealim_live_title_verified,/audio/verbs/017.wav,public/audio/verbs/017.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לאהוב",skipped_exists,115244,
+18,לעבוד,лаавод,"работать, трудиться; функционировать",pealim_live_title_verified,/audio/verbs/018.wav,public/audio/verbs/018.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לעבוד",skipped_exists,90284,
+19,לחשוב,лахшов,думать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/019.wav,public/audio/verbs/019.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לחשוב",skipped_exists,88364,
+20,לשאול,лишоль,спрашивать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/020.wav,public/audio/verbs/020.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לשאול",skipped_exists,94124,
+21,לענות,лаанот,отвечать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/021.wav,public/audio/verbs/021.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לענות",skipped_exists,92204,
+22,לשבת,лашевет,сидеть,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/022.wav,public/audio/verbs/022.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לשבת",skipped_exists,94124,
+23,לשים,ласим,"класть, ставить",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/023.wav,public/audio/verbs/023.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לשים",skipped_exists,69164,
+24,לצאת,лацет,выходить,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/024.wav,public/audio/verbs/024.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לצאת",skipped_exists,107564,
+25,להיכנס,леhиканес,входить,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/025.wav,public/audio/verbs/025.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: להיכנס",skipped_exists,124844,
+26,לחזור,лахзор,возвращаться,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/026.wav,public/audio/verbs/026.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לחזור",skipped_exists,80684,
+27,לעבור,лаавор,"проходить, переходить",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/027.wav,public/audio/verbs/027.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לעבור",skipped_exists,73004,
+28,לחיות,лихьёт,жить,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/028.wav,public/audio/verbs/028.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לחיות",skipped_exists,107564,
+29,לגור,лагур,"жить, проживать",added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/029.wav,public/audio/verbs/029.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לגור",skipped_exists,90284,
+30,לעמוד,лаамод,стоять,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/030.wav,public/audio/verbs/030.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לעמוד",generated,67244,
+31,לפתוח,лифтóах,открывать,added_ru_dictionary_value_needs_final_pealim_title_check,/audio/verbs/031.wav,public/audio/verbs/031.wav,google_ai_studio_gemini_tts,gemini-3.1-flash-tts-preview,Aoede,"Read aloud exactly this Hebrew infinitive once, in modern Israeli Hebrew, at a clear slow teaching pace. Do not add translation, explanation, or any other words: לפתוח",quota_deferred,0,"HTTP 429: {
+  ""error"": {
+    ""code"": 429,
+    ""message"": ""You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 10, model: gemini-3.1-flash-tts\nPlease retry in 3.750904227s."",
+    ""status"": ""RESOURCE_EXHAUSTED"",
+    ""details"": [
+      {
+        ""@type"": ""type.googleapis.com/google.rpc.Help"",
+        ""links"": [
+          {
+            ""description"": ""Learn more about Gemini API quotas"",
+            ""url"": ""https://ai.google.dev/gemini-api/docs/rate-limits""
+          }
+        ]
+      },
+      {
+        ""@type"": ""type.googleapis.com/google.rpc.QuotaFailure"",
+        ""violations"": [
+          {
+            ""quotaMetric"": ""generativelanguage.googleapis.com/generate_content_free_tier_requests"",
+            ""quotaId"": ""GenerateRequestsPerDayPerProjectPerModel-FreeTier"",
+            ""quotaDimensions"": {
+              ""location"": ""global"",
+              ""model"": ""gemini-3.1-flash-tts""
+            },
+            ""quotaValue"": ""10""
+          }
+        ]
+      },
+      {
+        ""@type"": ""type.googleapis.com/google.rpc.RetryInfo"",
+        ""retryDelay"": ""3s""
+      }
+    ]
+  }
+}
+"
