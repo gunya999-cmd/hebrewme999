@@ -140,6 +140,19 @@ export default function Home() {
             ))}
           </div>
         </section>
+
+        <section className="mt-8 rounded-3xl border border-indigo-100 bg-white p-5 shadow-sm sm:p-6" aria-labelledby="about-link-heading">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-indigo-700">HebrewMe</p>
+              <h2 id="about-link-heading" className="mt-1 text-xl font-extrabold">О приложении</h2>
+              <p className="mt-1 text-sm leading-relaxed text-slate-600">Познакомься с создателями — семьёй Гуревич.</p>
+            </div>
+            <button type="button" onClick={() => navigate("/about")} className={"inline-flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-2xl bg-indigo-700 px-5 text-sm font-bold text-white transition hover:bg-indigo-800 " + actionFocus}>
+              О приложении и создателях <ChevronRight aria-hidden="true" className="h-4 w-4" />
+            </button>
+          </div>
+        </section>
       </div>
     </div>
   );
