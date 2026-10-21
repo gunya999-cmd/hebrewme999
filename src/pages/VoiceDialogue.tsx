@@ -196,7 +196,7 @@ async function translateToRussian(text: string): Promise<string> {
 }
 
 export default function VoiceDialogue() {
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
   const routeState = location.state as {
@@ -1094,7 +1094,7 @@ export default function VoiceDialogue() {
               {customTitle || `${t("Ракель")} — ${t(LEVELS.find(l => l.id === level)?.label || "")}`}
             </h1>
             <p className="text-xs text-muted-foreground">
-              {connecting ? language === "ru" ? "Подключение..." : language === "en" ? "Connecting..." : "מתחברים..." : connected ? (aiSpeaking ? "🗣 Говорит..." : speechStatus === "hearing" ? "🎙 Слышу вас..." : "🎧 Слушает...") : "Отключено"}
+              {connecting ? t("Подключение...") : connected ? (aiSpeaking ? t("🗣 Говорит...") : speechStatus === "hearing" ? t("🎙 Слышу вас...") : t("🎧 Слушает...")) : t("Отключено")}
             </p>
           </div>
         </div>
@@ -1121,7 +1121,7 @@ export default function VoiceDialogue() {
       {/* Error */}
       {error && (
         <div role="alert" className="mx-4 mt-2 rounded-xl bg-destructive/10 p-3 text-sm text-destructive">
-          {error}
+          {t(error)}
         </div>
       )}
 

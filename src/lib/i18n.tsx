@@ -1182,6 +1182,66 @@ const translations: Record<string, readonly [string, string]> = {
   "Серия занятий:": [
     "Learning streak:",
     "רצף לימוד:"
+  ],
+  "Говорите с Ракель голосом только на иврите. Можно перебивать в любой момент. Перевод на русский появляется в текстовом окне.": [
+    "Speak Hebrew with Rachel. You can interrupt at any time. Russian translations appear in the transcript.",
+    "דברו עם רחל בעברית. אפשר לקטוע בכל רגע. התרגום לרוסית מופיע בתמליל."
+  ],
+  "רакель": [
+    "Rachel",
+    "רחל"
+  ],
+  "Ракель ведёт упражнение": [
+    "Rachel guides the exercise",
+    "רחל מנחה את התרגול"
+  ],
+  "אותי / אותם — объектные формы. ממך / עליו / בה / אצלי / לו — предлоги с местоименным суффиксом.": [
+    "אותי / אותם are object forms. ממך / עליו / בה / אצלי / לו are prepositions with pronominal suffixes.",
+    "אותי / אותם הן צורות מושא. ממך / עליו / בה / אצלי / לו הן מילות יחס בנטיית כינויי גוף."
+  ],
+  "Подключение...": [
+    "Connecting...",
+    "מתחברים..."
+  ],
+  "🗣 Говорит...": [
+    "🗣 Speaking...",
+    "🗣 מדברת..."
+  ],
+  "🎙 Слышу вас...": [
+    "🎙 Hearing you...",
+    "🎙 שומעת אותך..."
+  ],
+  "🎧 Слушает...": [
+    "🎧 Listening...",
+    "🎧 מקשיבה..."
+  ],
+  "Отключено": [
+    "Disconnected",
+    "מנותק"
+  ],
+  "Ваш браузер не поддерживает живой аудио-диалог.": [
+    "Your browser does not support live audio conversations.",
+    "הדפדפן אינו תומך בשיחות שמע חיות."
+  ],
+  "Доступ к микрофону запрещён. Разрешите микрофон в браузере и попробуйте снова.": [
+    "Microphone access was denied. Allow the microphone in your browser and try again.",
+    "הגישה למיקרופון נדחתה. אפשרו גישה בדפדפן ונסו שוב."
+  ],
+  "Микрофон не найден. Подключите устройство и попробуйте снова.": [
+    "No microphone was found. Connect a microphone and try again.",
+    "לא נמצא מיקרופון. חברו מיקרופון ונסו שוב."
+  ],
+  "Не удалось включить микрофон.": [
+    "Could not activate the microphone.",
+    "לא ניתן להפעיל את המיקרופון."
+  ],
+  "Ошибка подключения к голосовому сервису": [
+    "Could not connect to the voice service",
+    "שגיאה בחיבור לשירות הקולי"
+  ],
+  "Попробуйте начать разговор заново.": [
+    "Please restart the conversation.",
+    "נסו להתחיל את השיחה מחדש."
   ]
 };
 
