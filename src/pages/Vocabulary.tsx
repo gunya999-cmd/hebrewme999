@@ -1,3 +1,4 @@
+import { useLanguage } from "@/lib/i18n";
 import { useState, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Volume2, Loader2, Search } from "lucide-react";
@@ -17,6 +18,7 @@ const CATS: Array<{ key: VocabWord["category"] | "all"; label: string }> = [
 ];
 
 export default function Vocabulary() {
+  const { t } = useLanguage();
   const [cat, setCat] = useState<VocabWord["category"] | "all">("all");
   const [search, setSearch] = useState("");
   const [playingId, setPlayingId] = useState<string | null>(null);
@@ -78,9 +80,9 @@ export default function Vocabulary() {
     <div className="min-h-screen bg-[radial-gradient(circle_at_18%_0%,_rgba(124,58,237,0.20),_transparent_30%),radial-gradient(circle_at_90%_10%,_rgba(34,211,238,0.16),_transparent_28%),hsl(var(--background))] pb-28">
       <div className="sticky top-0 z-10 bg-background/85 backdrop-blur-xl px-5 pt-8 pb-3">
         <p className="text-xs font-black uppercase tracking-[0.25em] text-primary">vocabulary</p>
-        <h1 className="text-3xl font-black text-foreground mb-1">Слова и фразы</h1>
+        <h1 className="text-3xl font-black text-foreground mb-1">{t("Слова и фразы")}</h1>
         <p className="text-xs text-muted-foreground font-medium mb-4">
-          50 нужных слов и фраз • голос Мирьям
+          {t("50 нужных слов и фраз • голос Мирьям")}
         </p>
 
         <div className="relative mb-3">
@@ -88,7 +90,7 @@ export default function Vocabulary() {
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Поиск…"
+            placeholder={t("Поиск…")}
             className="w-full bg-card border border-border rounded-2xl py-3 pl-9 pr-4 text-sm font-medium text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
           />
         </div>
@@ -152,7 +154,7 @@ export default function Vocabulary() {
       </div>
 
       {list.length === 0 && (
-        <p className="text-center text-muted-foreground mt-12 text-sm">Ничего не найдено</p>
+        <p className="text-center text-muted-foreground mt-12 text-sm">{t("Ничего не найдено")}</p>
       )}
     </div>
   );

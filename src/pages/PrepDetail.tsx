@@ -1,3 +1,4 @@
+import { useLanguage } from "@/lib/i18n";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Volume2 } from "lucide-react";
 import { motion } from "framer-motion";
@@ -10,6 +11,7 @@ const FORM_KEYS = [
 ] as const;
 
 export default function PrepDetail() {
+  const { t } = useLanguage();
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -17,7 +19,7 @@ export default function PrepDetail() {
   if (!prep) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <p className="text-muted-foreground">Предлог не найден</p>
+        <p className="text-muted-foreground">{t("Предлог не найден")}</p>
       </div>
     );
   }
@@ -95,7 +97,7 @@ export default function PrepDetail() {
               </div>
               <div className="flex-1">
                 {isDash ? (
-                  <span className="text-sm text-muted-foreground italic">не спрягается</span>
+                  <span className="text-sm text-muted-foreground italic">{t("не спрягается")}</span>
                 ) : (
                   <>
                     <span className="font-hebrew text-foreground font-bold text-lg" dir="rtl">{form.hebrew}</span>
@@ -120,7 +122,7 @@ export default function PrepDetail() {
           rel="noopener noreferrer"
           className="block w-full text-center bg-card border border-border rounded-xl py-3 text-sm font-medium text-primary active:scale-[0.98] transition-transform"
         >
-          🔍 Посмотреть на Pealim
+          {t("🔍 Посмотреть на Pealim")}
         </a>
       </div>
     </div>

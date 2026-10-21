@@ -1,3 +1,4 @@
+import { useLanguage } from "@/lib/i18n";
 import { useState, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -177,6 +178,7 @@ function speak(text: string) {
 
 /* ───── Component ───── */
 export default function PrepFillGame() {
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const { markCorrect, markWrong } = useLearning();
   const [score, setScore] = useState(0);
@@ -228,16 +230,16 @@ export default function PrepFillGame() {
       <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4 pb-20">
         <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="text-center">
           <div className="text-6xl mb-4">🎉</div>
-          <h2 className="text-2xl font-black text-foreground mb-2">Игра завершена!</h2>
+          <h2 className="text-2xl font-black text-foreground mb-2">{t("Игра завершена!")}</h2>
           <p className="text-lg text-muted-foreground mb-6">
             {score} из {total} правильно ({total > 0 ? Math.round((score / total) * 100) : 0}%)
           </p>
           <div className="flex gap-3">
             <button onClick={() => navigate('/games')} className="px-6 py-3 rounded-xl bg-muted text-foreground font-bold">
-              К играм
+              {t("К играм")}
             </button>
             <button onClick={() => { setCurrentIdx(0); setScore(0); setTotal(0); setSelected(null); setShowResult(false); }} className="px-6 py-3 rounded-xl bg-primary text-primary-foreground font-bold">
-              Ещё раз
+              {t("Ещё раз")}
             </button>
           </div>
         </motion.div>
@@ -252,7 +254,7 @@ export default function PrepFillGame() {
           <ArrowLeft className="w-5 h-5 text-foreground" />
         </button>
         <div className="flex-1">
-          <h1 className="text-lg font-black text-foreground">Вставь предлог</h1>
+          <h1 className="text-lg font-black text-foreground">{t("Вставь предлог")}</h1>
           <p className="text-xs text-muted-foreground">{currentIdx + 1} / {GAME_SIZE}</p>
         </div>
         <div className="bg-primary/10 text-primary font-bold text-sm px-3 py-1.5 rounded-full">
@@ -333,7 +335,7 @@ export default function PrepFillGame() {
             {isCorrect ? '✅ Правильно!' : `❌ Правильный ответ: ${sentence.correctPrep}`}
           </p>
           <button onClick={handleNext} className="flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-bold">
-            Далее <ArrowRight className="w-4 h-4" />
+            {t("Далее")} <ArrowRight className="w-4 h-4" />
           </button>
         </motion.div>
       )}

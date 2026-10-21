@@ -116,7 +116,7 @@ export default function AITutor() {
         customInstruction: lessonPrompt(lesson),
         customGreet: lesson.level === "A1"
           ? `Начни урок «${lesson.title}»: объясни цель одной короткой фразой на русском, затем переходи к ивриту.`
-          : `התחילי את השיעור: ${lesson.objective}. שאלי שאלה ראשונה.`,
+          : `התחילי את השיעור: ${t(lesson.objective)}. שאלי שאלה ראשונה.`,
         customTitle: `Ракель · ${lesson.level} · ${lesson.title}`,
         lessonId: lesson.id,
       },
@@ -168,7 +168,7 @@ export default function AITutor() {
             <div>
               <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-indigo-700">{t("Обучение по шагам")}</p>
               <h2 id="lesson-title" className="mt-1 text-2xl font-extrabold">{t("Уроки с Ракель")}</h2>
-              <p className="mt-1 text-sm text-slate-600">{LESSONS.length} уроков по 7–10 минут · записано попыток: {progress.attempts.length}</p>
+              <p className="mt-1 text-sm text-slate-600">{LESSONS.length} {language === "ru" ? "уроков по 7–10 минут · записано попыток:" : language === "en" ? "lessons, 7–10 minutes each · attempts:" : "שיעורים, 7–10 דקות כל אחד · ניסיונות:"} {progress.attempts.length}</p>
             </div>
           </div>
           <div className="mt-4 grid grid-cols-4 gap-2 rounded-2xl bg-indigo-100/70 p-1.5" role="group" aria-label={t("Уровень языка")}>
@@ -183,7 +183,7 @@ export default function AITutor() {
                 <span className="min-w-0 flex-1">
                   <span className="block text-base font-extrabold leading-snug">{t(lesson.title)}</span>
                   <span className="mt-1 block text-sm leading-relaxed text-slate-600">{lesson.objective}</span>
-                  <span className="mt-2 block text-xs font-bold text-indigo-700">{lesson.minutes} мин{lessonAttempts.has(lesson.id) ? " · уже пробовали" : " · новый урок"}</span>
+                  <span className="mt-2 block text-xs font-bold text-indigo-700">{lesson.minutes} {language === "ru" ? "мин" : language === "en" ? "min" : "דק׳"}{lessonAttempts.has(lesson.id) ? (language === "ru" ? " · уже пробовали" : language === "en" ? " · attempted" : " · נוסה") : (language === "ru" ? " · новый урок" : language === "en" ? " · new lesson" : " · שיעור חדש")}</span>
                 </span>
                 <ArrowLeft aria-hidden="true" className="mt-2 h-4 w-4 shrink-0 rotate-180 text-slate-400" />
               </button>
@@ -202,7 +202,7 @@ export default function AITutor() {
               <button type="button" key={s.id} onClick={() => start(s)} className="flex min-h-[115px] items-start gap-3 rounded-2xl border border-slate-200 bg-white p-4 text-left transition hover:border-indigo-300 hover:shadow-sm focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-indigo-400/60">
                 <span aria-hidden="true" className="text-3xl leading-none">{s.emoji}</span>
                 <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-extrabold">{s.title}</span>
+                  <span className="block text-sm font-extrabold">{t(s.title)}</span>
                   <span dir="rtl" lang="he" className="mt-1 block text-sm font-medium text-indigo-700">{s.titleHe}</span>
                   <span className="mt-1 block text-xs leading-relaxed text-slate-600">{t(s.desc)}</span>
                 </span>
@@ -217,7 +217,7 @@ export default function AITutor() {
               <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-indigo-700">{t("Закрепление")}</p>
               <h2 id="review-title" className="mt-1 text-xl font-extrabold">{t("Повторить слова")}</h2>
             </div>
-            <span className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-700">Сейчас к повторению: {due.length}</span>
+            <span className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-700">{language === "ru" ? "Сейчас к повторению:" : language === "en" ? "Due for review:" : "מילים לחזרה:"} {due.length}</span>
           </div>
           {due.length === 0 ? (
             <p className="mt-4 text-sm leading-relaxed text-slate-600">{t("Пока нет слов, срок повторения которых наступил. Они появятся здесь после уроков.")}</p>

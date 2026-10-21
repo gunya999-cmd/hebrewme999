@@ -1,3 +1,4 @@
+import { useLanguage } from "@/lib/i18n";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, Mic, Volume2, MessageCircle } from "lucide-react";
@@ -51,6 +52,7 @@ ${LEVEL_VERB_HINT[level]}
 }
 
 export default function ConjugationVoice() {
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   const start = (level: CEFR) => {
@@ -72,43 +74,43 @@ export default function ConjugationVoice() {
           <ArrowLeft className="w-5 h-5" />
         </button>
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.24em] text-primary">голосовой протокол</p>
-          <h1 className="text-xl font-black text-foreground">Спряжение голосом</h1>
+          <p className="text-xs font-black uppercase tracking-[0.24em] text-primary">{t("голосовой протокол")}</p>
+          <h1 className="text-xl font-black text-foreground">{t("Спряжение голосом")}</h1>
         </div>
       </div>
 
       <div className="px-5 pt-5 flex flex-col items-center gap-5">
         <motion.div initial={{ scale: 0.85, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="relative">
           <div className="absolute inset-0 -m-4 rounded-full bg-primary/20 blur-2xl" />
-          <img src={tutorAvatar} alt="Мирьям" width={118} height={118} className="relative rounded-full border-4 border-white shadow-xl" />
+          <img src={tutorAvatar} alt="Ракель" width={118} height={118} className="relative rounded-full border-4 border-white shadow-xl" />
           <div className="absolute -bottom-1 -right-1 w-10 h-10 bg-slate-950 rounded-full border-2 border-background flex items-center justify-center">
             <Mic className="w-5 h-5 text-cyan-200" />
           </div>
         </motion.div>
 
         <div className="text-center max-w-sm">
-          <h2 className="text-2xl font-black text-foreground">Мирьям ведёт упражнение</h2>
+          <h2 className="text-2xl font-black text-foreground">{t("Ракель ведёт упражнение")}</h2>
           <p className="text-sm text-muted-foreground mt-2">
-            Перед стартом понятно, что делать: сначала назвать инфинитив, потом изменить предложение по заданию.
+            {t("Перед стартом понятно, что делать: сначала назвать инфинитив, потом изменить предложение по заданию.")}
           </p>
         </div>
 
         <div className="grid w-full max-w-md grid-cols-2 gap-3">
           <div className="glass-card rounded-2xl p-4">
             <Volume2 className="mb-2 h-5 w-5 text-primary" />
-            <p className="text-sm font-black text-foreground">1. Слушай</p>
+            <p className="text-sm font-black text-foreground">{t("1. Слушай")}</p>
             <p dir="rtl" className="mt-2 font-hebrew text-xl font-black text-foreground">אני הולך הביתה</p>
-            <p className="mt-1 text-xs font-semibold text-muted-foreground">Назови инфинитив: ללכת</p>
+            <p className="mt-1 text-xs font-semibold text-muted-foreground">{t("Назови инфинитив: ללכת")}</p>
           </div>
           <div className="glass-card rounded-2xl p-4">
             <MessageCircle className="mb-2 h-5 w-5 text-primary" />
-            <p className="text-sm font-black text-foreground">2. Измени</p>
+            <p className="text-sm font-black text-foreground">{t("2. Измени")}</p>
             <p dir="rtl" className="mt-2 font-hebrew text-xl font-black text-foreground">הלכתי הביתה</p>
-            <p className="mt-1 text-xs font-semibold text-muted-foreground">Например: скажи в прошлом</p>
+            <p className="mt-1 text-xs font-semibold text-muted-foreground">{t("Например: скажи в прошлом")}</p>
           </div>
         </div>
 
-        <p className="text-sm font-black text-foreground mt-1">Выберите уровень</p>
+        <p className="text-sm font-black text-foreground mt-1">{t("Выберите уровень")}</p>
         <div className="w-full max-w-md space-y-3">
           {LEVELS.map((level, index) => (
             <motion.button
@@ -122,8 +124,8 @@ export default function ConjugationVoice() {
             >
               <span dir="rtl" className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-950 font-hebrew text-2xl font-black text-cyan-200">{level.mark}</span>
               <div className="flex-1">
-                <p className="font-black text-foreground">{level.title}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">{level.desc}</p>
+                <p className="font-black text-foreground">{t(level.title)}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{t(level.desc)}</p>
               </div>
               <Mic className="w-4 h-4 text-muted-foreground" />
             </motion.button>
