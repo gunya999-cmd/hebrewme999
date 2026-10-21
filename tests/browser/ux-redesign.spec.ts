@@ -106,6 +106,20 @@ test("language selection persists, translates navigation, and enables Hebrew RTL
   await expect(page.locator("html")).toHaveAttribute("lang", "he");
   await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
   await expect(page.getByRole("heading", { name: "יוצרי HebrewMe" })).toBeVisible();
+  const people = [
+    ["גאורגי גורביץ'", "Георгий Гуревич"],
+    ["לודמילה גורביץ'", "Людмила Гуревич"],
+    ["מיכאל גורביץ'", "Михаил Гуревич"],
+    ["ניקיטה גורביץ'", "Никита Гуревич"],
+  ];
+  for (const [hebrew, russian] of people) {
+    const card = page.locator("article").filter({ has: page.getByRole("heading", { name: hebrew }) });
+    await expect(card).toHaveCount(1);
+    await expect(card.locator("h3")).toHaveText(hebrew);
+    await expect(card.locator("h3")).toHaveAttribute("lang", "he");
+    await expect(card.locator("p[lang='ru']")).toHaveText(russian);
+    await expect(card.locator("p[lang='ru']")).toHaveAttribute("dir", "ltr");
+  }
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "לומדים עברית דרך עשייה" })).toBeVisible();
   await expect(page.getByRole("combobox", { name: "שפת האפליקציה" })).toHaveValue("he");
