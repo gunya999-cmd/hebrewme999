@@ -49,6 +49,27 @@ if (org) console.log(`Access expected team domain: ${org.auth_domain === 'hebrew
 await read('/workers/services/hebrewme999', 'Worker service metadata read');
 const deployments = await read('/pages/projects/hebrewme999/deployments?per_page=20', 'Pages deployments read');
 if (Array.isArray(deployments)) {
+  const latestSafePreview = deployments.find(d =>
+    d?.deployment_trigger?.metadata?.branch === 'fix/voice-tutor-secure-20261025' &&
+    d?.latest_stage?.name === 'deploy' &&
+    d?.latest_stage?.status === 'success');
+  if (latestSafePreview?.url) {
+    const url = new URL('/api/voice-config', latestSafePreview.url);
+    if (url.protocol === 'https:' && url.hostname.endsWith('.pages.dev')) {
+      try {
+        const probe = await fetch(url, { redirect: 'manual', signal: AbortSignal.timeout(10000) });
+        console.log(`Anonymous live Preview voice-config HTTP ${probe.status}`);
+        if (probe.ok) {
+          // The protected Preview must not disclose any voice metadata
+          // to unauthenticated internet requests, even a model name.
+          throw new Error('Anonymous Preview voice-config was unexpectedly accessible');
+        }
+      } catch (error) {
+        if (String(error?.message).includes('unexpectedly accessible')) throw error;
+        console.log('Anonymous Preview request could not complete; login/network gate must be checked manually.');
+      }
+    }
+  }
   const recent = deployments.filter(d => {
     const branch = d?.deployment_trigger?.metadata?.branch;
     return branch === 'main' || branch === 'fix/voice-tutor-secure-20261025' || branch === 'feature/miriam-v2';
