@@ -47,4 +47,18 @@ if (Array.isArray(policies)) {
 const org = await read('/access/organizations', 'Access organization read');
 if (org) console.log(`Access expected team domain: ${org.auth_domain === 'hebrewme999-pages.cloudflareaccess.com'}`);
 await read('/workers/services/hebrewme999', 'Worker service metadata read');
+const deployments = await read('/pages/projects/hebrewme999/deployments?per_page=50', 'Pages deployments read');
+if (Array.isArray(deployments)) {
+  const recent = deployments.filter(d => {
+    const branch = d?.deployment_trigger?.metadata?.branch;
+    return branch === 'main' || branch === 'fix/voice-tutor-secure-20261025' || branch === 'feature/miriam-v2';
+  }).slice(0, 12);
+  for (const d of recent) {
+    const branch = String(d?.deployment_trigger?.metadata?.branch || 'unknown').slice(0, 80);
+    const sha = String(d?.deployment_trigger?.metadata?.commit_hash || '').slice(0, 12);
+    const phase = String(d?.latest_stage?.name || 'unknown').slice(0, 50);
+    const status = String(d?.latest_stage?.status || 'unknown').slice(0, 50);
+    console.log(`Pages deployment environment=${d.environment}; branch=${branch}; sha=${sha}; stage=${phase}; status=${status}`);
+  }
+}
 console.log('Read-only audit complete. No settings, policies, deployments or credentials modified.');
