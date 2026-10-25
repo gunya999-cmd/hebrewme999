@@ -39,7 +39,7 @@ for (const status of [401, 503]) {
 
 test("voice setup, PCM exchange and translations use only same-origin routes", async ({ page }) => {
   const messages: Array<{
-    setup?: { model: string; generationConfig: { responseModalities: string[] } };
+    setup?: { model: string; generationConfig: { responseModalities: string[] }; realtimeInputConfig: { activityHandling: string } };
     clientContent?: unknown;
     realtimeInput?: { audio?: { mimeType: string; data: string } };
   }> = [];
@@ -59,7 +59,7 @@ test("voice setup, PCM exchange and translations use only same-origin routes", a
       createGain() { return { ...node(), gain: { value: 0 } }; }
       createBuffer(_channels: number, length: number) { return { getChannelData: () => new Float32Array(length) }; }
       createBufferSource() {
-        const source = { ...node(), buffer: null, playbackRate: { value: 1 }, onended: null as (() => void) | null, stop() {}, start() { setTimeout(() => source.onended?.(), 10); } };
+        const source = { ...node(), buffer: null, playbackRate: { value: 1 }, onended: null as (() => void) | null, stop() {}, start() { setTimeout(() => source.onended?.(), 500); } };
         return source;
       }
     }
@@ -108,6 +108,9 @@ test("voice setup, PCM exchange and translations use only same-origin routes", a
   await expect(page.getByText("Меня зовут Георгий", { exact: true })).toBeVisible();
   expect(messages[0].setup.model).toBe("models/test-live-model");
   expect(messages[0].setup.generationConfig.responseModalities).toEqual(["AUDIO"]);
+  expect(messages[0].setup.realtimeInputConfig.activityHandling).toBe("START_OF_ACTIVITY_INTERRUPTS");
+  // The mock output is still playing when the input worklet fires (100ms
+  // against a 500ms buffer). PCM must reach the socket during AI playback.
   expect(messages.some(message => message.realtimeInput?.audio?.mimeType === "audio/pcm;rate=16000")).toBe(true);
   expect(requests.filter(url => url.includes("/api/translate"))).toHaveLength(2);
   expect(requests.some(url => /gemini-voice-config|generativelanguage\.googleapis\.com|\/functions\/v1\/ai-dialogue/.test(url))).toBe(false);

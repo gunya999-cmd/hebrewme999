@@ -146,6 +146,16 @@ describe("translation", () => {
     expect(body.contents[0].parts[0].text).toBe("שלום");
     expect(body.generationConfig.maxOutputTokens).toBe(400);
   });
+  it("translates to the interface language without trusting arbitrary targets", async () => {
+    const english = await translate({ request: translationRequest(JSON.stringify({ text: "שלום", targetLanguage: "en" })), env });
+    expect(english.status).toBe(200);
+    const [, options] = apiCalls()[0];
+    const payload = JSON.parse(options.body);
+    expect(payload.systemInstruction.parts[0].text).toContain("natural English");
+    const invalid = await translate({ request: translationRequest(JSON.stringify({ text: "שלום", targetLanguage: "fr" })), env });
+    expect(invalid.status).toBe(400);
+    expect(apiCalls()).toHaveLength(1);
+  });
   it("requires the separate translation rollout flag", async () => {
     expect((await translate({ request: translationRequest(), env: { ...env, MIRIAM_TRANSLATION_ENABLED: undefined } })).status).toBe(503);
     expect(fetchMock).not.toHaveBeenCalled();

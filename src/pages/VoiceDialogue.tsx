@@ -7,7 +7,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { MiriamAvatar3D } from "@/components/MiriamAvatar3D";
 import { MicDiagnostics } from "@/components/MicDiagnostics";
 import { getSpeechRate } from "@/hooks/useSpeechRate";
-import { getMiriamVoiceModel, miriamWebSocketUrl, translateToRussian } from "@/lib/miriamApi";
+import { getMiriamVoiceModel, miriamWebSocketUrl, translateToLanguage } from "@/lib/miriamApi";
 import { SpeechRateSelector } from "@/components/SpeechRateSelector";
 import { LESSONS } from "@/lib/miriamCurriculum";
 import { saveAttempt } from "@/lib/miriamProgress";
@@ -18,7 +18,7 @@ interface TranscriptLine {
   id: number;
   speaker: "miriam" | "user";
   hebrew: string;
-  russian: string;
+  translation: string;
 }
 
 const LEVELS: { id: Level; label: string; emoji: string; desc: string }[] = [
@@ -176,7 +176,7 @@ function getMicrophoneErrorMessage(err: unknown): string {
 }
 
 export default function VoiceDialogue() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
   const routeState = location.state as {
@@ -196,7 +196,8 @@ export default function VoiceDialogue() {
   const [muted, setMuted] = useState(false);
   const [aiSpeaking, setAiSpeaking] = useState(false);
   const [transcript, setTranscript] = useState<TranscriptLine[]>([]);
-  const lessonSavedRef = useRef(false);
+  const lessonSessionIdRef = useRef(`${Date.now()}-${Math.random().toString(36).slice(2)}`);
+  const userTurnsCountRef = useRef(0);
   const [error, setError] = useState<string | null>(null);
   const [currentAiText, setCurrentAiText] = useState("");
   const [currentUserText, setCurrentUserText] = useState("");
@@ -327,8 +328,8 @@ export default function VoiceDialogue() {
   }, []);
 
   /* ── Silence watchdog: detect "model went silent" and nudge it ── */
-  const SILENCE_TIMEOUT_MS = 3500;
-  const MAX_NUDGES = 2;
+  const SILENCE_TIMEOUT_MS = 10000;
+  const MAX_NUDGES = 1;
   const NUDGE_TEXT_HE = "תמשיכי בבקשה. עני לי בעברית פשוטה."; // "Please continue. Reply in simple Hebrew."
 
   const clearSilenceWatchdog = useCallback(() => {
@@ -457,6 +458,25 @@ export default function VoiceDialogue() {
     setAiSpeaking(false);
   }, [stopPlaybackSource]);
 
+  const cleanupMedia = useCallback(() => {
+    stopVoiceActivityMonitor();
+    stopSpeechRecognition();
+    interruptPlayback();
+    if (workletNodeRef.current) {
+      workletNodeRef.current.port.onmessage = null;
+      workletNodeRef.current.disconnect();
+      workletNodeRef.current = null;
+    }
+    sourceRef.current?.disconnect();
+    sourceRef.current = null;
+    streamRef.current?.getTracks().forEach(track => track.stop());
+    streamRef.current = null;
+    const context = audioCtxRef.current;
+    audioCtxRef.current = null;
+    if (context) void context.close().catch(() => {});
+    analyserRef.current = null;
+  }, [interruptPlayback, stopSpeechRecognition, stopVoiceActivityMonitor]);
+
   const startVoiceActivityMonitor = useCallback(() => {
     const analyser = analyserRef.current;
     if (!analyser) return;
@@ -489,33 +509,42 @@ export default function VoiceDialogue() {
     monitorFrameRef.current = requestAnimationFrame(tick);
   }, [stopVoiceActivityMonitor]);
 
-  /* ── Flush AI text buffer to transcript ── */
-  const flushAiText = useCallback(async () => {
+  // Show the Hebrew text immediately. Translation is enrichment, not a reason
+  // to hide a spoken turn or lose it when the translation endpoint times out.
+  const appendTranscript = useCallback((speaker: TranscriptLine["speaker"], hebrew: string) => {
+    const id = nextLineIdRef.current++;
+    setTranscript(prev => [...prev, { id, speaker, hebrew, translation: "" }]);
+    void translateToLanguage(hebrew, language).then(translation => {
+      if (translation) {
+        setTranscript(prev => prev.map(line => line.id === id ? { ...line, translation } : line));
+      }
+    });
+  }, [language]);
+
+  const flushAiText = useCallback(() => {
     const text = aiTextBufferRef.current.trim();
     if (!text) return;
     aiTextBufferRef.current = "";
     setCurrentAiText("");
-    const russian = await translateToRussian(text);
-    const id = nextLineIdRef.current++;
-    setTranscript(prev => [...prev, { id, speaker: "miriam", hebrew: text, russian }]);
-  }, []);
+    appendTranscript("miriam", text);
+  }, [appendTranscript]);
 
-  /* ── Flush user text buffer to transcript ── */
-  const flushUserText = useCallback(async () => {
+  const flushUserText = useCallback(() => {
     const text = userTextBufferRef.current.trim();
     userTextBufferRef.current = "";
     setCurrentUserText("");
     userTurnActiveRef.current = false;
     if (!text) return;
-    // Guard against duplicate flushes of the exact same final text within a short window.
-    const now = Date.now();
-    if (text === lastRecognizedTextRef.current && now - lastRecognizedAtRef.current < 3000) return;
-    lastRecognizedTextRef.current = text;
-    lastRecognizedAtRef.current = now;
-    const russian = await translateToRussian(text);
-    const id = nextLineIdRef.current++;
-    setTranscript(prev => [...prev, { id, speaker: "user", hebrew: text, russian }]);
-  }, []);
+    // Each completed speech turn counts, including intentionally repeated words.
+    userTurnsCountRef.current += 1;
+    const lesson = LESSONS.find(item => item.id === routeState?.lessonId);
+    if (lesson) {
+      try {
+        saveAttempt(lesson.id, userTurnsCountRef.current, lesson.vocabulary, lessonSessionIdRef.current);
+      } catch (error) { console.warn("Lesson attempt persistence failed", error); }
+    }
+    appendTranscript("user", text);
+  }, [appendTranscript, routeState?.lessonId]);
 
   const startSpeechRecognition = useCallback(() => {
     const SpeechRecognitionCtor =
@@ -690,7 +719,7 @@ export default function VoiceDialogue() {
                 prefixPaddingMs: 300,
                 silenceDurationMs: 1200,
               },
-              activityHandling: "NO_INTERRUPTION",
+              activityHandling: "START_OF_ACTIVITY_INTERRUPTS",
             },
             systemInstruction: {
               parts: [{ text: customInstructionRef.current || LEVEL_INSTRUCTIONS[selectedLevel] }],
@@ -726,10 +755,8 @@ export default function VoiceDialogue() {
             const TARGET_INPUT_RATE = 16000;
             workletNode.port.onmessage = (e) => {
               if (mutedRef.current || !e.data?.pcm) return;
-              // Don't stream mic audio while Miriam is speaking — otherwise her
-              // own voice leaks back through the mic and Gemini's VAD cuts her
-              // off mid-sentence (self-interruption from echo).
-              if (isPlayingRef.current) return;
+              // Keep duplex audio active while Rachel speaks so users can
+              // interrupt naturally. Browser echo cancellation limits feedback.
               const float32 = e.data.pcm as Float32Array;
               const resampled = resampleLinear(float32, inputSampleRate, TARGET_INPUT_RATE);
               const base64 = float32ToPcm16Base64(resampled);
@@ -821,83 +848,65 @@ export default function VoiceDialogue() {
       };
 
       ws.onerror = (e) => {
+        if (wsRef.current !== ws) return;
         console.error("[Gemini] WebSocket error:", e);
         setError("Ошибка подключения к голосовому сервису");
         setConnecting(false);
       };
 
       ws.onclose = (e) => {
+        // Ignore delayed events from a previously closed/retried connection.
+        if (wsRef.current !== ws) return;
+        wsRef.current = null;
         console.info("[Gemini] WebSocket closed:", e.code, e.reason || "(no reason)");
+        flushUserText();
+        flushAiText();
         clearSilenceWatchdog();
         awaitingModelReplyRef.current = false;
-        stopSpeechRecognition();
+        cleanupMedia();
         setConnected(false);
         setConnecting(false);
         if (e.code === 1000) {
           retryCountRef.current = 0;
           return;
         }
-        // Retriable codes — transient failures
-        const retriable = e.code === 1006 || e.code === 1011 || e.code === 1013 || e.code === 1001;
+        const retriable = [1001, 1006, 1011, 1013].includes(e.code);
         const canRetry = retriable && retryCountRef.current < MAX_RETRIES;
         if (canRetry) {
           retryCountRef.current += 1;
           const attempt = retryCountRef.current;
           setError(formatCloseError(e.code, e.reason, true, attempt));
-          // Cleanup audio nodes before retry
-          workletNodeRef.current?.disconnect();
-          workletNodeRef.current = null;
-          sourceRef.current?.disconnect();
-          sourceRef.current = null;
-          streamRef.current?.getTracks().forEach(t => t.stop());
-          streamRef.current = null;
-          audioCtxRef.current?.close().catch(() => {});
-          audioCtxRef.current = null;
-          analyserRef.current = null;
-          if (retryTimerRef.current) window.clearTimeout(retryTimerRef.current);
-          const delay = 800 * attempt;
+          if (retryTimerRef.current !== null) window.clearTimeout(retryTimerRef.current);
           retryTimerRef.current = window.setTimeout(() => {
             retryTimerRef.current = null;
             startSession(selectedLevel);
-          }, delay);
+          }, 800 * attempt);
         } else {
           retryCountRef.current = 0;
           setError(formatCloseError(e.code, e.reason, false, 0));
+          userTurnsCountRef.current = 0;
+          lessonSessionIdRef.current = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
         }
       };
 
     } catch (err) {
       console.error("startSession error:", err);
-      interruptPlayback();
-      stopVoiceActivityMonitor();
-      stopSpeechRecognition();
-      wsRef.current?.close(1000);
+      const oldSocket = wsRef.current;
       wsRef.current = null;
-      workletNodeRef.current?.disconnect();
-      workletNodeRef.current = null;
-      sourceRef.current?.disconnect();
-      sourceRef.current = null;
-      streamRef.current?.getTracks().forEach(t => t.stop());
-      streamRef.current = null;
-      audioCtxRef.current?.close();
-      audioCtxRef.current = null;
-      analyserRef.current = null;
+      oldSocket?.close(1000);
+      cleanupMedia();
       setConnected(false);
       setError(getMicrophoneErrorMessage(err));
       setConnecting(false);
     }
-  }, [connected, connecting, micDeviceId, armSilenceWatchdog, enqueueAudio, flushAiText, flushUserText, interruptPlayback, sendRealtimeInput, startSpeechRecognition, startVoiceActivityMonitor, stopVoiceActivityMonitor, stopSpeechRecognition, clearSilenceWatchdog, formatCloseError, markModelActivity, markModelTurnComplete]);
+  }, [connected, connecting, micDeviceId, armSilenceWatchdog, cleanupMedia, enqueueAudio, flushAiText, flushUserText, sendRealtimeInput, startSpeechRecognition, startVoiceActivityMonitor, clearSilenceWatchdog, formatCloseError, markModelActivity, markModelTurnComplete]);
+
 
   /* ── Disconnect ── */
   const endSession = useCallback(() => {
-    const lesson = LESSONS.find(item => item.id === routeState?.lessonId);
-    if (lesson && !lessonSavedRef.current && transcript.some(line => line.speaker === "user")) {
-      try {
-        saveAttempt(lesson.id, transcript.filter(line => line.speaker === "user").length, lesson.vocabulary);
-        lessonSavedRef.current = true;
-      } catch (error) { console.warn("Lesson progress save failed", error); }
-    }
-    if (retryTimerRef.current) {
+    flushUserText();
+    flushAiText();
+    if (retryTimerRef.current !== null) {
       window.clearTimeout(retryTimerRef.current);
       retryTimerRef.current = null;
     }
@@ -905,33 +914,18 @@ export default function VoiceDialogue() {
     clearSilenceWatchdog();
     awaitingModelReplyRef.current = false;
     nudgeAttemptsRef.current = 0;
-    geminiTranscriptionSeenRef.current = false;
-    userTurnActiveRef.current = false;
-    userTextBufferRef.current = "";
-    lastRecognizedTextRef.current = "";
-    stopVoiceActivityMonitor();
-    stopSpeechRecognition();
-    interruptPlayback();
     sendAudioStreamEnd();
-    wsRef.current?.close(1000);
+    const socket = wsRef.current;
     wsRef.current = null;
-    workletNodeRef.current?.disconnect();
-    workletNodeRef.current = null;
-    sourceRef.current?.disconnect();
-    sourceRef.current = null;
-    streamRef.current?.getTracks().forEach(t => t.stop());
-    streamRef.current = null;
-    audioCtxRef.current?.close();
-    audioCtxRef.current = null;
-    analyserRef.current = null;
+    socket?.close(1000);
+    cleanupMedia();
     mutedRef.current = false;
-    playbackQueueRef.current = [];
-    isPlayingRef.current = false;
     setMuted(false);
     setConnected(false);
-    setAiSpeaking(false);
     setConnecting(false);
-  }, [clearSilenceWatchdog, interruptPlayback, sendAudioStreamEnd, stopSpeechRecognition, stopVoiceActivityMonitor, routeState?.lessonId, transcript]);
+    userTurnsCountRef.current = 0;
+    lessonSessionIdRef.current = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  }, [cleanupMedia, clearSilenceWatchdog, flushAiText, flushUserText, sendAudioStreamEnd]);
 
   /* ── Toggle mute ── */
   const toggleMute = useCallback(() => {
@@ -960,14 +954,13 @@ export default function VoiceDialogue() {
 
   useEffect(() => {
     return () => {
-      stopVoiceActivityMonitor();
-      stopSpeechRecognition();
-      stopPlaybackSource();
-      wsRef.current?.close(1000);
-      streamRef.current?.getTracks().forEach(t => t.stop());
-      audioCtxRef.current?.close();
+      if (retryTimerRef.current !== null) window.clearTimeout(retryTimerRef.current);
+      const socket = wsRef.current;
+      wsRef.current = null;
+      socket?.close(1000);
+      cleanupMedia();
     };
-  }, [stopPlaybackSource, stopSpeechRecognition, stopVoiceActivityMonitor]);
+  }, [cleanupMedia]);
 
   // Auto-start when navigating with autoStart=true (e.g. from custom game pages)
   const autoStartTriedRef = useRef(false);
@@ -1091,7 +1084,7 @@ export default function VoiceDialogue() {
         </div>
       )}
 
-      {/* Transcript — Russian translation only */}
+      {/* Hebrew transcript with translation in the selected interface language */}
       <div ref={scrollRef} aria-label={t("История диалога")} className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 py-4">
         <AnimatePresence>
           {transcript.map((line) => (
@@ -1115,11 +1108,11 @@ export default function VoiceDialogue() {
                       {line.hebrew}
                     </p>
                   )}
-                  {line.russian && (
+                  {line.translation && (
                     <p className={`text-xs leading-snug ${
                       line.speaker === "user" ? "opacity-80" : "text-muted-foreground"
                     }`}>
-                      {line.russian}
+                      {line.translation}
                     </p>
                   )}
                 </div>

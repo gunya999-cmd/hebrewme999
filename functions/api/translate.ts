@@ -12,7 +12,7 @@ export async function onRequestPost(context: MiriamContext): Promise<Response> {
   if (request.headers.get("Content-Type")?.split(";")[0].trim().toLowerCase() !== "application/json") {
     return json({ error: "JSON required" }, 415);
   }
-  let body: { text?: unknown };
+  let body: { text?: unknown; targetLanguage?: unknown };
   // Bound actual streamed bytes too: Content-Length alone can be forged/absent.
   const reader = request.body?.getReader();
   if (!reader) return json({ error: "Invalid JSON" }, 400);
@@ -36,6 +36,10 @@ export async function onRequestPost(context: MiriamContext): Promise<Response> {
   if (!body || typeof body.text !== "string" || !body.text.trim() || body.text.length > 2000) {
     return json({ error: "Text must be 1-2000 characters" }, 400);
   }
+  const targetLanguage = body.targetLanguage ?? "ru";
+  if (targetLanguage !== "ru" && targetLanguage !== "en") {
+    return json({ error: "Unsupported translation language" }, 400);
+  }
   try {
     const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent", {
       method: "POST",
@@ -43,7 +47,7 @@ export async function onRequestPost(context: MiriamContext): Promise<Response> {
       redirect: "error",
       headers: { "Content-Type": "application/json", "x-goog-api-key": env.GOOGLE_AI_API_KEY },
       body: JSON.stringify({
-        systemInstruction: { parts: [{ text: "Translate Hebrew into natural Russian. Return only the translation, no commentary." }] },
+        systemInstruction: { parts: [{ text: targetLanguage === "ru" ? "Translate Hebrew into natural Russian. Return only the translation, no commentary." : "Translate Hebrew into natural English. Return only the translation, no commentary." }] },
         contents: [{ role: "user", parts: [{ text: body.text }] }],
         generationConfig: { temperature: 0.1, maxOutputTokens: 400 },
       }),

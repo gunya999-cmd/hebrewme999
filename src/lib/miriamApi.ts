@@ -32,13 +32,16 @@ export function miriamWebSocketUrl(): string {
   return url.href;
 }
 
-export async function translateToRussian(text: string): Promise<string> {
+export type TranslationLanguage = "ru" | "en" | "he";
+
+export async function translateToLanguage(text: string, targetLanguage: TranslationLanguage): Promise<string> {
+  if (targetLanguage === "he") return "";
   try {
     return await withDeadline(20000, async signal => {
       const response = await fetch("/api/translate", {
         method: "POST", credentials: "same-origin", redirect: "error",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }), signal,
+        body: JSON.stringify({ text, targetLanguage }), signal,
       });
       if (!response.ok) return "";
       const data = await response.json();
