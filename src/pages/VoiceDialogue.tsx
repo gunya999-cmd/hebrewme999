@@ -207,6 +207,8 @@ export default function VoiceDialogue() {
   const [speechStatus, setSpeechStatus] = useState<"off" | "listening" | "hearing" | "unsupported" | "error">("off");
 
   const wsRef = useRef<WebSocket | null>(null);
+  const sessionStartingRef = useRef(false);
+  const mountedRef = useRef(true);
   const audioCtxRef = useRef<AudioContext | null>(null);
   const workletNodeRef = useRef<AudioWorkletNode | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -636,7 +638,12 @@ export default function VoiceDialogue() {
 
   /* ── Connect to Gemini Live ── */
   const startSession = useCallback(async (selectedLevel: Level) => {
-    if (connecting || connected) return;
+    if (connecting || connected || sessionStartingRef.current || wsRef.current) return;
+    sessionStartingRef.current = true;
+    if (retryTimerRef.current !== null) {
+      window.clearTimeout(retryTimerRef.current);
+      retryTimerRef.current = null;
+    }
 
     setLevel(selectedLevel);
     mutedRef.current = false;
@@ -655,6 +662,7 @@ export default function VoiceDialogue() {
       audioCtxRef.current = audioCtx;
       await audioCtx.resume();
       const model = await getMiriamVoiceModel();
+      if (!mountedRef.current) return;
 
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
@@ -666,14 +674,22 @@ export default function VoiceDialogue() {
           autoGainControl: true,
         },
       });
+      if (!mountedRef.current) {
+        stream.getTracks().forEach(track => track.stop());
+        return;
+      }
       streamRef.current = stream;
 
       const inputSampleRate = Math.round(audioCtx.sampleRate);
 
       // Setup AudioWorklet
       const workletUrl = createWorkletBlobUrl();
-      await audioCtx.audioWorklet.addModule(workletUrl);
-      URL.revokeObjectURL(workletUrl);
+      try {
+        await audioCtx.audioWorklet.addModule(workletUrl);
+      } finally {
+        URL.revokeObjectURL(workletUrl);
+      }
+      if (!mountedRef.current) return;
       const workletNode = new AudioWorkletNode(audioCtx, "pcm-recorder-processor");
       workletNodeRef.current = workletNode;
 
@@ -741,6 +757,7 @@ export default function VoiceDialogue() {
 
           // Setup complete
           if (msg.setupComplete) {
+            sessionStartingRef.current = false;
             setConnected(true);
             setConnecting(false);
             setSpeechStatus("listening");
@@ -858,6 +875,7 @@ export default function VoiceDialogue() {
         // Ignore delayed events from a previously closed/retried connection.
         if (wsRef.current !== ws) return;
         wsRef.current = null;
+        sessionStartingRef.current = false;
         console.info("[Gemini] WebSocket closed:", e.code, e.reason || "(no reason)");
         flushUserText();
         flushAiText();
@@ -895,8 +913,9 @@ export default function VoiceDialogue() {
       wsRef.current = null;
       oldSocket?.close(1000);
       cleanupMedia();
+      sessionStartingRef.current = false;
       setConnected(false);
-      setError(getMicrophoneErrorMessage(err));
+      if (mountedRef.current) setError(getMicrophoneErrorMessage(err));
       setConnecting(false);
     }
   }, [connected, connecting, micDeviceId, armSilenceWatchdog, cleanupMedia, enqueueAudio, flushAiText, flushUserText, sendRealtimeInput, startSpeechRecognition, startVoiceActivityMonitor, clearSilenceWatchdog, formatCloseError, markModelActivity, markModelTurnComplete]);
@@ -919,6 +938,7 @@ export default function VoiceDialogue() {
     wsRef.current = null;
     socket?.close(1000);
     cleanupMedia();
+    sessionStartingRef.current = false;
     mutedRef.current = false;
     setMuted(false);
     setConnected(false);
@@ -953,7 +973,10 @@ export default function VoiceDialogue() {
   }, []);
 
   useEffect(() => {
+    mountedRef.current = true;
     return () => {
+      mountedRef.current = false;
+      sessionStartingRef.current = false;
       if (retryTimerRef.current !== null) window.clearTimeout(retryTimerRef.current);
       const socket = wsRef.current;
       wsRef.current = null;
