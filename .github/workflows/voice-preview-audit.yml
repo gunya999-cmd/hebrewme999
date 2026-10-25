@@ -1,0 +1,33 @@
+name: Voice Preview configuration audit
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'functions/**'
+      - 'server/**'
+      - 'src/lib/miriamApi.ts'
+      - 'scripts/cloudflare-preview-audit.mjs'
+      - '.github/workflows/voice-preview-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Read Cloudflare Pages and Access configuration without exposing values
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: node scripts/cloudflare-preview-audit.mjs
+      - name: Guard production rollout
+        run: |
+          echo "Read-only configuration audit; no production deployment or secret rotation."
