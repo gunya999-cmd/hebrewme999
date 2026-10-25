@@ -1,0 +1,53 @@
+name: Miriam voice checks
+
+on:
+  pull_request:
+    paths:
+      - 'src/pages/VoiceDialogue.tsx'
+      - 'src/components/MiriamAvatar3D.tsx'
+      - 'src/pages/AITutor.tsx'
+      - 'src/lib/miriam*.ts'
+      - 'src/test/app-smoke.test.tsx'
+      - 'tests/browser/miriam.spec.ts'
+      - 'playwright.miriam.config.ts'
+      - 'functions/**'
+      - 'server/**'
+      - 'tests/functions/**'
+      - 'src/lib/miriamApi*'
+      - 'supabase/functions/gemini-voice-config/**'
+      - 'vitest*.ts'
+      - 'tsconfig.functions.json'
+      - 'package*.json'
+      - 'wrangler.toml'
+      - '.github/workflows/miriam-voice.yml'
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run check:functions
+      - run: npm run test:functions
+      - run: npx wrangler pages functions build --outdir=/tmp/miriam-functions
+      - run: npm run build
+      - run: npm test -- --run
+
+  browser-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium webkit
+      - run: npx playwright test --config=playwright.miriam.config.ts
