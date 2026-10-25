@@ -5,6 +5,9 @@ export interface MiriamEnv {
   MIRIAM_VOICE_PROXY_ENABLED?: string;
   MIRIAM_TRANSLATION_ENABLED?: string;
   MIRIAM_LIVE_MODEL?: string;
+  // Set only after verifying the Google AI Studio project is on Free Tier.
+  // This is a manual authorization gate, not a programmatic billing API check.
+  MIRIAM_FREE_TIER_CONFIRMED?: string;
   MIRIAM_ACCESS_TEAM_DOMAIN?: string;
   MIRIAM_ACCESS_AUD?: string;
 }
@@ -59,13 +62,30 @@ export async function requireAccess({ request, env }: MiriamContext): Promise<Re
   }
 }
 
+// Official Free Tier pricing as of 2026-10-25. Paid-only and arbitrary
+// model IDs must not be selected by mistake through environment variables.
+export const FREE_LIVE_MODELS = new Set([
+  "gemini-3.8-live",
+  "gemini-3.1-flash-live-preview",
+  "gemini-2.5-flash-native-audio-preview-12-2025",
+]);
+
 export function liveModel(env: MiriamEnv): string | null {
   const model = env.MIRIAM_LIVE_MODEL;
-  return model && /^[a-z0-9][a-z0-9.-]{0,127}$/.test(model) ? model : null;
+  return model && FREE_LIVE_MODELS.has(model) ? model : null;
+}
+
+export function requireFreeTier(env: MiriamEnv): Response | null {
+  if (env.MIRIAM_FREE_TIER_CONFIRMED !== "true") {
+    return json({ error: "Free Tier project not verified" }, 503);
+  }
+  return null;
 }
 
 export async function voiceAccess(context: MiriamContext): Promise<Response | null> {
   if (context.env.MIRIAM_VOICE_PROXY_ENABLED !== "true") return json({ error: "Voice proxy rollout disabled" }, 503);
+  const freeTierDenied = requireFreeTier(context.env);
+  if (freeTierDenied) return freeTierDenied;
   if (!context.env.GOOGLE_AI_API_KEY || !liveModel(context.env)) return json({ error: "Voice service not configured" }, 503);
   return requireAccess(context);
 }

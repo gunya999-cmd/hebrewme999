@@ -10,7 +10,8 @@ const env: MiriamEnv = {
   GOOGLE_AI_API_KEY: "server-only-test-key",
   MIRIAM_VOICE_PROXY_ENABLED: "true",
   MIRIAM_TRANSLATION_ENABLED: "true",
-  MIRIAM_LIVE_MODEL: "test-live-model",
+  MIRIAM_LIVE_MODEL: "gemini-3.8-live",
+  MIRIAM_FREE_TIER_CONFIRMED: "true",
   MIRIAM_ACCESS_TEAM_DOMAIN: "miriam-test.cloudflareaccess.com",
   MIRIAM_ACCESS_AUD: "private-preview",
 };
@@ -83,7 +84,7 @@ describe("private preview authorization", () => {
 describe("voice metadata and upgrade", () => {
   it("returns only a model name, never the permanent key", async () => {
     const response = await config({ request: request("/api/voice-config"), env });
-    expect(await response.json()).toEqual({ model: "test-live-model" });
+    expect(await response.json()).toEqual({ model: "gemini-3.8-live" });
     expect(response.headers.get("Cache-Control")).toBe("no-store");
     expect(apiCalls()).toHaveLength(0);
   });
@@ -96,6 +97,19 @@ describe("voice metadata and upgrade", () => {
   it.each(["GOOGLE_AI_API_KEY", "MIRIAM_LIVE_MODEL", "MIRIAM_ACCESS_AUD"])("fails closed without %s", async name => {
     expect((await config({ request: request("/api/voice-config"), env: { ...env, [name]: undefined } })).status).toBe(503);
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+  it("fails closed before any Google call if free project status was not verified", async () => {
+    const unverified = { ...env, MIRIAM_FREE_TIER_CONFIRMED: "false" };
+    expect((await config({ request: request("/api/voice-config"), env: unverified })).status).toBe(503);
+    expect((await voice({ request: request("/api/gemini-live", { upgrade: true }), env: unverified })).status).toBe(503);
+    expect((await translate({ request: translationRequest(), env: unverified })).status).toBe(503);
+    expect(apiCalls()).toHaveLength(0);
+  });
+  it("rejects arbitrary or paid-only Live model identifiers", async () => {
+    for (const model of ["test-live-model", "gemini-2.5-pro", "gemini-3.8-live-extended-thinking"]) {
+      expect((await config({ request: request("/api/voice-config"), env: { ...env, MIRIAM_LIVE_MODEL: model } })).status).toBe(503);
+    }
+    expect(apiCalls()).toHaveLength(0);
   });
   it("requires a WebSocket upgrade", async () => {
     expect((await voice({ request: request("/api/gemini-live"), env })).status).toBe(426);

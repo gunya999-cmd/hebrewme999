@@ -1,11 +1,13 @@
 // Cloudflare Pages: Hebrew -> Russian translation without Supabase/Lovable.
-import { checkOrigin, json, requireAccess, type MiriamContext } from "../../server/miriamSecurity";
+import { checkOrigin, json, requireAccess, requireFreeTier, type MiriamContext } from "../../server/miriamSecurity";
 
 export async function onRequestPost(context: MiriamContext): Promise<Response> {
   const { request, env } = context;
   const originDenied = checkOrigin(request, true);
   if (originDenied) return originDenied;
   if (env.MIRIAM_TRANSLATION_ENABLED !== "true") return json({ error: "Translation rollout disabled" }, 503);
+  const freeTierDenied = requireFreeTier(env);
+  if (freeTierDenied) return freeTierDenied;
   if (!env.GOOGLE_AI_API_KEY) return json({ error: "Translation not configured" }, 503);
   const accessDenied = await requireAccess(context);
   if (accessDenied) return accessDenied;
@@ -41,7 +43,7 @@ export async function onRequestPost(context: MiriamContext): Promise<Response> {
     return json({ error: "Unsupported translation language" }, 400);
   }
   try {
-    const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent", {
+    const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent", {
       method: "POST",
       signal: AbortSignal.timeout(15000),
       redirect: "error",
