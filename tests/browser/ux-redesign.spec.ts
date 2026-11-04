@@ -136,7 +136,7 @@ test("language selection persists, translates navigation, and enables Hebrew RTL
 
 
 test("all published learning routes mount without a JavaScript crash", async ({ page }) => {
-  test.setTimeout(180_000);
+  test.setTimeout(120_000);
   const routes = [
     "/", "/dictionary", "/verb/v8-0001", "/games",
     "/games/guess-form", "/games/write-form", "/games/guess-root",
