@@ -27,6 +27,7 @@ function normalize(text: string): string {
 }
 
 function PhraseCard({ phrase }: { phrase: StreetTalkPhrase }) {
+  const { t } = useLanguage();
   return (
     <motion.div
       layout
