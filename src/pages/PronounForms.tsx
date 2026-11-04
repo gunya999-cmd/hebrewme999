@@ -13,6 +13,7 @@ function normalize(value: string): string {
 }
 
 function FormRow({ form }: { form: PronounFormItem }) {
+  const { t } = useLanguage();
   return (
     <motion.div layout className="rounded-2xl border border-border bg-card p-3">
       <div className="flex items-start justify-between gap-3">

@@ -133,3 +133,50 @@ test("language selection persists, translates navigation, and enables Hebrew RTL
   await page.reload();
   await expect(page.getByRole("combobox", { name: "Язык приложения" })).toHaveValue("ru");
 });
+
+
+test("all published learning routes mount without a JavaScript crash", async ({ page }) => {
+  test.setTimeout(120_000);
+  const routes = [
+    "/", "/dictionary", "/verb/v8-0001", "/games",
+    "/games/guess-form", "/games/write-form", "/games/guess-root",
+    "/games/guess-binyan", "/games/prep-fill", "/games/conjugation-voice",
+    "/games/verb-drops", "/ai-tutor", "/voice-dialogue", "/prepositions",
+    "/preposition/1", "/street-talk", "/pronoun-forms", "/vocabulary", "/about",
+  ];
+  let currentRoute = "";
+  const runtimeErrors: string[] = [];
+  page.on("pageerror", error => runtimeErrors.push(currentRoute + ": " + error.message));
+
+  for (const route of routes) {
+    currentRoute = route;
+    await page.goto(route);
+    await expect(page.locator("main h1, main h2").first(), "Route " + route + " must render").toBeVisible();
+    await expect(page.getByRole("heading", { name: "Что-то пошло не так" })).toHaveCount(0);
+    expect(runtimeErrors, "Runtime exceptions at " + route).toEqual([]);
+  }
+});
+
+test("possessive pronouns and everyday phrases remain usable on iPad and desktop", async ({ page }) => {
+  const runtimeErrors: string[] = [];
+  page.on("pageerror", error => runtimeErrors.push(error.message));
+  await page.goto("/");
+  await page.getByRole("button", { name: /Местоименные формы/ }).first().click();
+  await expect(page).toHaveURL(/pronoun-forms$/);
+  await expect(page.getByRole("heading", { name: "Местоименные формы" })).toBeVisible();
+
+  const search = page.getByPlaceholder("Поиск: אותי, עליו, тебе, как я...");
+  await search.fill("моя");
+  await expect(page.getByText("שלי", { exact: true }).first()).toBeVisible();
+  await search.fill("наши");
+  await expect(page.getByText("שלנו", { exact: true }).first()).toBeVisible();
+  await search.fill("ваши");
+  await expect(page.getByText("שלכם", { exact: true }).first()).toBeVisible();
+  await search.fill("из-за него");
+  await expect(page.getByText("בגללו", { exact: true }).first()).toBeVisible();
+
+  await page.goto("/street-talk");
+  await expect(page.getByRole("heading", { name: "Уличный разговор" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Слушать фразу" }).first()).toBeVisible();
+  expect(runtimeErrors).toEqual([]);
+});

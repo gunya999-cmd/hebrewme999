@@ -120,7 +120,7 @@ function unpackConjugations(packedForms: string): VerbConjugations {
   FORM_SLOTS.forEach((slot, index) => {
     const [hebrew = "", transcription = ""] = (packedItems[index] || "").split("|");
     const [tense, person] = FORM_SLOT_TO_PATH[slot];
-    (conjugations[tense] as Record<string, ConjugationForm>)[person] = f(hebrew, transcription, FORM_TRANSLATIONS[slot]);
+    (conjugations[tense] as unknown as Record<string, ConjugationForm>)[person] = f(hebrew, transcription, FORM_TRANSLATIONS[slot]);
   });
 
   return conjugations;

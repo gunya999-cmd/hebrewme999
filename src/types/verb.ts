@@ -19,9 +19,10 @@ export interface PastFutureTense {
   hi: ConjugationForm;
   anachnu: ConjugationForm;
   atem: ConjugationForm;
-  aten: ConjugationForm;
+  // Legacy dictionaries do not always include separate feminine plural forms.
+  aten?: ConjugationForm;
   hem: ConjugationForm;
-  hen: ConjugationForm;
+  hen?: ConjugationForm;
 }
 
 export interface ImperativeTense {

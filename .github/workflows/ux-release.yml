@@ -31,7 +31,7 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci
-      - run: npx tsc --noEmit
+      - run: npx tsc -p tsconfig.app.json --noEmit
       - run: npm run build
       - run: npm test -- --run
       - run: npx playwright install --with-deps chromium webkit
