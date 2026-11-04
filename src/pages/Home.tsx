@@ -122,6 +122,17 @@ export default function Home() {
               <span className="mt-3 inline-flex items-center gap-1 text-sm font-bold text-indigo-700">{t("Открыть словарь")} <ChevronRight aria-hidden="true" className="h-4 w-4" /></span>
             </button>
           </div>
+          <button
+            type="button"
+            onClick={() => navigate("/pronoun-forms")}
+            className={"mt-3 flex min-h-[72px] w-full items-center justify-between gap-4 rounded-2xl border border-indigo-200 bg-indigo-50 px-4 py-3 text-left text-indigo-950 transition hover:border-indigo-400 hover:bg-indigo-100 " + actionFocus}
+          >
+            <span>
+              <span className="block text-sm font-extrabold">{t("Местоименные формы")}</span>
+              <span dir="ltr" className="mt-1 block text-xs font-semibold text-indigo-800">שלי · שלך · שלו · שלה · שלנו · שלכם · ממני</span>
+            </span>
+            <ChevronRight aria-hidden="true" className="h-5 w-5 shrink-0" />
+          </button>
         </section>
 
         <section className="mt-9" aria-labelledby="library-title">
