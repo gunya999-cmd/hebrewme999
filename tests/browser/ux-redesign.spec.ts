@@ -162,7 +162,7 @@ test("possessive pronouns and everyday phrases remain usable on iPad and desktop
   page.on("pageerror", error => runtimeErrors.push(error.message));
   await page.goto("/");
   await page.getByRole("button", { name: /Местоименные формы/ }).first().click();
-  await expect(page).toHaveURL(/\\/pronoun-forms$/);
+  await expect(page).toHaveURL(/pronoun-forms$/);
   await expect(page.getByRole("heading", { name: "Местоименные формы" })).toBeVisible();
 
   const search = page.getByPlaceholder("Поиск: אותי, עליו, тебе, как я...");
