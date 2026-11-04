@@ -92,7 +92,7 @@ export default function PrepDetail() {
               <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
                 <div className="text-center">
                   <span className="font-hebrew text-xs font-bold text-primary" dir="rtl">{person.hebrew}</span>
-                  <p className="text-[9px] text-muted-foreground">{person.russian}</p>
+                  {key === "standalone" && <p className="text-[9px] text-muted-foreground">{person.russian}</p>}
                 </div>
               </div>
               <div className="flex-1">
@@ -101,9 +101,9 @@ export default function PrepDetail() {
                 ) : (
                   <>
                     <span className="font-hebrew text-foreground font-bold text-lg" dir="rtl">{form.hebrew}</span>
-                    <div className="flex gap-2 mt-0.5">
+                    <div className="mt-0.5 flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                      <span lang="ru" className="text-sm font-semibold text-foreground">{form.translation}</span>
                       <span className="text-sm text-muted-foreground">{form.transcription}</span>
-                      <span className="text-sm text-muted-foreground/60">— {form.translation}</span>
                     </div>
                   </>
                 )}
