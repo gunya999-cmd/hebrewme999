@@ -203,7 +203,7 @@ test("pronoun cards show contextual translations, not nominative subject labels"
   await expect(translation.nth(0)).toHaveText("меня");
   await expect(translation.nth(3)).toHaveText("его");
 
-  await page.getByRole("button", { name: /От \\/ из/ }).click();
+  await page.getByRole("button", { name: /От.*из/ }).click();
   await expect(translation.nth(0)).toHaveText("от меня / из меня");
   await expect(translation.nth(3)).toHaveText("от него");
 
