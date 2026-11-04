@@ -145,7 +145,7 @@ function buildFormsForVerb(verb: VerbDropCard): VerbDropForm[] {
     },
   ];
 
-  const conjugations = VERB_CONJUGATIONS_V8_BY_ID[verb.id] as ConjugationLike | undefined;
+  const conjugations = VERB_CONJUGATIONS_V8_BY_ID[verb.id] as unknown as ConjugationLike | undefined;
   if (!conjugations) return forms;
 
   (Object.keys(TENSE_LABELS) as TenseId[]).forEach((tense) => {
