@@ -173,9 +173,18 @@ function makeFormQuestion(mode: SmartTrainerMode, form: FormRecord, allForms: Fo
   const samePersonOtherTense = sameVerbWrong.filter((item) => item.person === form.person || item.tense === form.tense);
   const randomWrong = allForms.filter((item) => normalizeAnswer(item.hebrew) !== normalizeAnswer(form.hebrew));
 
-  const wrong = [...samePersonOtherTense, ...sameVerbWrong, ...shuffle(randomWrong)]
-    .filter((item, index, arr) => arr.findIndex((candidate) => normalizeAnswer(candidate.hebrew) === normalizeAnswer(item.hebrew)) === index)
-    .slice(0, 3);
+  // A Set avoids scanning the entire form pool for every candidate (quadratic
+  // work that previously blocked the game before its first question rendered).
+  // Keep the original priority: same person/tense, same verb, then other verbs.
+  const wrong: FormRecord[] = [];
+  const seen = new Set<string>([normalizeAnswer(form.hebrew)]);
+  for (const candidate of [...samePersonOtherTense, ...sameVerbWrong, ...shuffle(randomWrong)]) {
+    const key = normalizeAnswer(candidate.hebrew);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    wrong.push(candidate);
+    if (wrong.length === 3) break;
+  }
 
   return {
     id: `${mode}-${form.verb.id}-${form.tense}-${form.person}-${Math.random().toString(16).slice(2)}`,
