@@ -65,12 +65,13 @@ const KEY_MAP: Record<PackedConjugationKey, [keyof VerbConjugations, string, str
 };
 
 export function unpackVerbConjugations(forms: Partial<Record<PackedConjugationKey, PackedConjugationValue>>): VerbConjugations {
-  const conjugations: VerbConjugations = {};
+  // Packed rows are assembled dynamically; each tense/person is filled below.
+  const conjugations = {} as VerbConjugations;
 
   for (const [packedKey, value] of Object.entries(forms) as Array<[PackedConjugationKey, PackedConjugationValue]>) {
     const [tense, person, translation] = KEY_MAP[packedKey];
     conjugations[tense] ??= {};
-    (conjugations[tense] as Record<string, ConjugationForm>)[person] = {
+    (conjugations[tense] as unknown as Record<string, ConjugationForm>)[person] = {
       hebrew: value[0],
       transcription: value[1],
       translation,
