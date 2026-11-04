@@ -180,3 +180,34 @@ test("possessive pronouns and everyday phrases remain usable on iPad and desktop
   await expect(page.getByRole("button", { name: "Слушать фразу" }).first()).toBeVisible();
   expect(runtimeErrors).toEqual([]);
 });
+
+
+test("pronoun cards show contextual translations, not nominative subject labels", async ({ page }) => {
+  await page.goto("/pronoun-forms");
+  const translation = page.getByTestId("pronoun-translation");
+
+  await page.getByRole("button", { name: /Притяжательные формы/ }).click();
+  await expect(translation).toHaveCount(10);
+  await expect(translation.nth(0)).toHaveText("мой / моя / моё / мои");
+  await expect(translation.nth(1)).toHaveText("твой / твоя / твоё / твои (обращение к мужчине)");
+  await expect(translation.nth(2)).toHaveText("твой / твоя / твоё / твои (обращение к женщине)");
+  await expect(translation.nth(3)).toHaveText("его");
+  await expect(translation.nth(4)).toHaveText("её");
+  await expect(translation.nth(5)).toHaveText("наш / наша / наше / наши");
+  await expect(translation.nth(6)).toContainText("ваш / ваша / ваше / ваши");
+  await expect(translation.nth(8)).toContainText("их");
+  await expect(page.getByText("я", { exact: true })).toHaveCount(0);
+  await expect(page.getByText("она", { exact: true })).toHaveCount(0);
+
+  await page.getByRole("button", { name: /Объектные местоимения/ }).click();
+  await expect(translation.nth(0)).toHaveText("меня");
+  await expect(translation.nth(3)).toHaveText("его");
+
+  await page.getByRole("button", { name: /От \\/ из/ }).click();
+  await expect(translation.nth(0)).toHaveText("от меня / из меня");
+  await expect(translation.nth(3)).toHaveText("от него");
+
+  await page.goto("/preposition/1");
+  await expect(page.getByText("во мне", { exact: true })).toBeVisible();
+  await expect(page.getByText("я", { exact: true })).toHaveCount(0);
+});
