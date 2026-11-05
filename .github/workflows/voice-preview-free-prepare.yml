@@ -1,0 +1,27 @@
+name: Prepare free-only voice Preview
+on:
+  push:
+    branches: [fix/voice-tutor-secure-20261025]
+    paths:
+      - 'scripts/cloudflare-preview-free-prepare.mjs'
+      - '.github/workflows/voice-preview-free-prepare.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: voice-preview-free-prepare
+  cancel-in-progress: false
+jobs:
+  preview-free-defaults:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Set free-model Preview defaults, keep rollout disabled
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: node scripts/cloudflare-preview-free-prepare.mjs

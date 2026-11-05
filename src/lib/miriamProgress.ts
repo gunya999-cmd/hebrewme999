@@ -1,5 +1,5 @@
 import { nextReview, type ReviewItem } from "./miriamCurriculum";
-export type Attempt = { lessonId: string; at: number; userTurns: number };
+export type Attempt = { lessonId: string; at: number; userTurns: number; sessionId?: string };
 export type Progress = { attempts: Attempt[]; reviews: ReviewItem[] };
 const STORAGE_KEY = "miriam-learning-v1";
 export function readProgress(): Progress {
@@ -15,8 +15,9 @@ export function writeProgress(progress: Progress): void {
 export function mergeProgress(local: Progress, remote: Progress): Progress {
   const attempts = new Map<string, Attempt>();
   for (const attempt of [...remote.attempts, ...local.attempts]) {
-    const id = [attempt.lessonId, attempt.at, attempt.userTurns].join(":");
-    attempts.set(id, attempt);
+    const id = attempt.sessionId ? "session:" + attempt.sessionId : [attempt.lessonId, attempt.at, attempt.userTurns].join(":");
+    const previous = attempts.get(id);
+    if (!previous || attempt.userTurns >= previous.userTurns) attempts.set(id, attempt);
   }
   const reviews = new Map<string, ReviewItem>();
   for (const review of [...remote.reviews, ...local.reviews]) {
@@ -28,7 +29,7 @@ export function mergeProgress(local: Progress, remote: Progress): Progress {
     reviews: [...reviews.values()],
   };
 }
-export function saveAttempt(lessonId: string, userTurns: number, vocabulary: string[]): Progress {
+export function saveAttempt(lessonId: string, userTurns: number, vocabulary: string[], sessionId?: string): Progress {
   const current = readProgress();
   const reviews = [...current.reviews];
   for (const term of vocabulary) {
@@ -36,7 +37,10 @@ export function saveAttempt(lessonId: string, userTurns: number, vocabulary: str
       reviews.push({ term, repetitions: 0, intervalDays: 1, dueAt: Date.now() + 86400000 });
     }
   }
-  const next = { attempts: [...current.attempts, { lessonId, userTurns, at: Date.now() }].slice(-100), reviews };
+  // Persist after each finalized spoken turn: a crash or lost WebSocket must
+  // not erase the lesson. Updates for the same session replace, not duplicate.
+  const attempts = sessionId ? current.attempts.filter(a => a.sessionId !== sessionId) : current.attempts;
+  const next = { attempts: [...attempts, { lessonId, userTurns, at: Date.now(), ...(sessionId ? { sessionId } : {}) }].slice(-100), reviews };
   localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
   return next;
 }

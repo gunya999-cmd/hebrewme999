@@ -103,7 +103,7 @@ export default function AITutor() {
         autoStart: true,
         customInstruction: s.instruction,
         customGreet: s.greet,
-        customTitle: `Ракель · ${t(s.title)}`,
+        customTitle: `${t("Ракель")} · ${t(s.title)}`,
       },
     });
   };
@@ -113,11 +113,15 @@ export default function AITutor() {
       state: {
         level: lesson.level === "A1" ? "beginner" : lesson.level === "A2" ? "intermediate" : "advanced",
         autoStart: true,
-        customInstruction: lessonPrompt(lesson),
+        customInstruction: lessonPrompt(lesson, language),
         customGreet: lesson.level === "A1"
-          ? `Начни урок «${lesson.title}»: объясни цель одной короткой фразой на русском, затем переходи к ивриту.`
+          ? language === "ru"
+            ? `Начни урок «${lesson.title}»: объясни цель одной фразой по-русски, затем переходи к ивриту.`
+            : language === "en"
+              ? `Start the lesson "${t(lesson.title)}": explain the goal in one English sentence, then switch to Hebrew.`
+              : `התחילי את השיעור "${t(lesson.title)}": הסבירי בקצרה בעברית ושאלי שאלה ראשונה.`
           : `התחילי את השיעור: ${t(lesson.objective)}. שאלי שאלה ראשונה.`,
-        customTitle: `Ракель · ${lesson.level} · ${lesson.title}`,
+        customTitle: `${t("Ракель")} · ${lesson.level} · ${t(lesson.title)}`,
         lessonId: lesson.id,
       },
     });
@@ -182,7 +186,7 @@ export default function AITutor() {
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-sm font-extrabold text-indigo-800">{index + 1}</span>
                 <span className="min-w-0 flex-1">
                   <span className="block text-base font-extrabold leading-snug">{t(lesson.title)}</span>
-                  <span className="mt-1 block text-sm leading-relaxed text-slate-600">{lesson.objective}</span>
+                  <span className="mt-1 block text-sm leading-relaxed text-slate-600">{t(lesson.objective)}</span>
                   <span className="mt-2 block text-xs font-bold text-indigo-700">{lesson.minutes} {language === "ru" ? "мин" : language === "en" ? "min" : "דק׳"}{lessonAttempts.has(lesson.id) ? (language === "ru" ? " · уже пробовали" : language === "en" ? " · attempted" : " · נוסה") : (language === "ru" ? " · новый урок" : language === "en" ? " · new lesson" : " · שיעור חדש")}</span>
                 </span>
                 <ArrowLeft aria-hidden="true" className="mt-2 h-4 w-4 shrink-0 rotate-180 text-slate-400" />

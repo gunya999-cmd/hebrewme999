@@ -22,9 +22,14 @@ export function nextReview(item: ReviewItem, correct: boolean, now = Date.now())
   const intervalDays = correct ? (item.repetitions === 0 ? 1 : item.repetitions === 1 ? 3 : Math.min(item.intervalDays * 2, 60)) : 1;
   return {...item, repetitions: correct ? item.repetitions + 1 : 0, intervalDays, dueAt: now + intervalDays * 86400000};
 }
-export function lessonPrompt(lesson: Lesson): string {
+export function lessonPrompt(lesson: Lesson, explanationLanguage: "ru" | "en" | "he" = "ru"): string {
+  const explanation = explanationLanguage === "ru"
+    ? "For A1 beginners, give a brief explanation in Russian, then practice in Hebrew."
+    : explanationLanguage === "en"
+      ? "For A1 beginners, give a brief explanation in English, then practice in Hebrew."
+      : "For A1 beginners, explain briefly in simple Hebrew, then practice in Hebrew.";
   return `את רחל, מורה לעברית ישראלית. זהו שיעור מובנה של ${lesson.minutes} דקות ברמת ${lesson.level}.
 מטרה: ${lesson.objective}. מילים: ${lesson.vocabulary.join(", ")}. דקדוק: ${lesson.grammar}.
-התחילי בהסבר קצר ברוסית למתחילים ברמת A1, ואז תרגלי בעיקר בעברית. ברמת A2 אפשר להסביר ברוסית רק כשמבקשים. ברמות B1-B2 דברי בעיקר בעברית.
+${explanation} ברמת A2 אפשר להסביר בשפת הממשק רק כשמבקשים. ברמות B1-B2 דברי בעיקר בעברית.
 מבנה: דקה אחת הסבר, שתי דקות דוגמה, שלוש עד חמש דקות תרגול אינטראקטיבי, ואז מבחן קצר. שאלי שאלה אחת בכל פעם, חכי לתשובה, תני משוב קצר ומדויק. אל תטעני שזיהית שגיאת הגייה אם השמע לא ברור. אל תמציאי ציון הגייה מדויק. במשימת הסיום: ${lesson.challenge}. בסוף הציגי סיכום, עד שלוש שגיאות עם תיקון ודוגמאות לחזרה, וציון ידע משוער מתוך 5 לפי התשובות שניתנו. אל תסיימי את השיחה אוטומטית.`;
 }
