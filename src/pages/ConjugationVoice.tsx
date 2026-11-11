@@ -21,7 +21,7 @@ const LEVEL_VERB_HINT: Record<CEFR, string> = {
 };
 
 function buildSystemInstruction(level: CEFR): string {
-  return `את מרים — מורה לעברית בתל אביב, מנהלת תרגול קולי קצר על נטיית פעלים.
+  return `את רחל — מורה לעברית בתל אביב, מנהלת תרגול קולי קצר על נטיית פעלים.
 
 רמת התלמיד: ${level}.
 ${LEVEL_VERB_HINT[level]}
