@@ -11,6 +11,7 @@ import { getSupabaseAuthHeaders, getSupabaseFunctionUrl, isSupabaseConfigured, S
 import { SpeechRateSelector } from "@/components/SpeechRateSelector";
 import { LESSONS } from "@/lib/miriamCurriculum";
 import { saveAttempt } from "@/lib/miriamProgress";
+import { mergeTranscriptChunk } from "@/lib/realtimeTranscript";
 
 /* ── Types ── */
 type Level = "beginner" | "intermediate" | "advanced";
@@ -255,6 +256,7 @@ export default function VoiceDialogue() {
   // Tracks whether we are currently accumulating a fresh user turn from Gemini.
   // Reset on turnComplete so the next inputTranscription starts a clean buffer.
   const userTurnActiveRef = useRef(false);
+  const userFlushTimerRef = useRef<number | null>(null);
   // ── Silence-watchdog: detects when model went silent after a user turn
   const silenceWatchdogRef = useRef<number | null>(null);
   const lastModelActivityAtRef = useRef(0);
@@ -347,7 +349,7 @@ export default function VoiceDialogue() {
   }, []);
 
   /* ── Silence watchdog: detect "model went silent" and nudge it ── */
-  const SILENCE_TIMEOUT_MS = 3500;
+  const SILENCE_TIMEOUT_MS = 12000;
   const MAX_NUDGES = 2;
   const NUDGE_TEXT_HE = "תמשיכי בבקשה. עני לי בעברית פשוטה."; // "Please continue. Reply in simple Hebrew."
 
@@ -372,6 +374,7 @@ export default function VoiceDialogue() {
       if (nudgeAttemptsRef.current >= MAX_NUDGES) {
         console.warn("[SilenceWatchdog] giving up after", nudgeAttemptsRef.current, "nudges");
         awaitingModelReplyRef.current = false;
+        setError("Ракель не отвечает. Завершите разговор и подключитесь снова.");
         return;
       }
       sendNudgeRef.current();
@@ -509,33 +512,41 @@ export default function VoiceDialogue() {
     monitorFrameRef.current = requestAnimationFrame(tick);
   }, [stopVoiceActivityMonitor]);
 
+  // Never let an external translation request delay or hide the Hebrew text.
+  const appendTranscript = useCallback((speaker: TranscriptLine["speaker"], hebrew: string) => {
+    const id = nextLineIdRef.current++;
+    setTranscript(prev => [...prev, { id, speaker, hebrew, russian: "" }]);
+    void translateToRussian(hebrew).then(russian => {
+      if (russian) {
+        setTranscript(prev => prev.map(line => line.id === id ? { ...line, russian } : line));
+      }
+    });
+  }, []);
+
   /* ── Flush AI text buffer to transcript ── */
-  const flushAiText = useCallback(async () => {
+  const flushAiText = useCallback(() => {
     const text = aiTextBufferRef.current.trim();
     if (!text) return;
     aiTextBufferRef.current = "";
     setCurrentAiText("");
-    const russian = await translateToRussian(text);
-    const id = nextLineIdRef.current++;
-    setTranscript(prev => [...prev, { id, speaker: "miriam", hebrew: text, russian }]);
-  }, []);
+    appendTranscript("miriam", text);
+  }, [appendTranscript]);
 
-  /* ── Flush user text buffer to transcript ── */
-  const flushUserText = useCallback(async () => {
+  /* ── Finalize a user utterance independently of the model's next turn. ── */
+  const flushUserText = useCallback(() => {
+    if (userFlushTimerRef.current !== null) {
+      window.clearTimeout(userFlushTimerRef.current);
+      userFlushTimerRef.current = null;
+    }
     const text = userTextBufferRef.current.trim();
     userTextBufferRef.current = "";
     setCurrentUserText("");
     userTurnActiveRef.current = false;
     if (!text) return;
-    // Guard against duplicate flushes of the exact same final text within a short window.
-    const now = Date.now();
-    if (text === lastRecognizedTextRef.current && now - lastRecognizedAtRef.current < 3000) return;
-    lastRecognizedTextRef.current = text;
-    lastRecognizedAtRef.current = now;
-    const russian = await translateToRussian(text);
-    const id = nextLineIdRef.current++;
-    setTranscript(prev => [...prev, { id, speaker: "user", hebrew: text, russian }]);
-  }, []);
+    // Repeated words are valid spoken practice, not duplicate transcript events.
+    appendTranscript("user", text);
+    setSpeechStatus("listening");
+  }, [appendTranscript]);
 
   const startSpeechRecognition = useCallback(() => {
     const SpeechRecognitionCtor =
@@ -722,9 +733,9 @@ export default function VoiceDialogue() {
                 startOfSpeechSensitivity: "START_SENSITIVITY_LOW",
                 endOfSpeechSensitivity: "END_SENSITIVITY_LOW",
                 prefixPaddingMs: 300,
-                silenceDurationMs: 1200,
+                silenceDurationMs: 1800,
               },
-              activityHandling: "NO_INTERRUPTION",
+              activityHandling: "START_OF_ACTIVITY_INTERRUPTS",
             },
             systemInstruction: {
               parts: [{ text: customInstructionRef.current || LEVEL_INSTRUCTIONS[selectedLevel] }],
@@ -737,6 +748,7 @@ export default function VoiceDialogue() {
       };
 
       ws.onmessage = async (event) => {
+        if (wsRef.current !== ws) return;
         try {
           // Server may send Blob or string
           const raw = typeof event.data === "string"
@@ -760,10 +772,9 @@ export default function VoiceDialogue() {
             const TARGET_INPUT_RATE = 16000;
             workletNode.port.onmessage = (e) => {
               if (mutedRef.current || !e.data?.pcm) return;
-              // Don't stream mic audio while Miriam is speaking — otherwise her
-              // own voice leaks back through the mic and Gemini's VAD cuts her
-              // off mid-sentence (self-interruption from echo).
-              if (isPlayingRef.current) return;
+              // Keep the microphone streaming while Rachel speaks. Gemini must
+              // receive the student's reply/interruption; echo cancellation is
+              // enabled on the captured media track.
               const float32 = e.data.pcm as Float32Array;
               const resampled = resampleLinear(float32, inputSampleRate, TARGET_INPUT_RATE);
               const base64 = float32ToPcm16Base64(resampled);
@@ -774,7 +785,9 @@ export default function VoiceDialogue() {
                 },
               });
             };
-            startSpeechRecognition();
+            // Do not start a second browser SpeechRecognition session: on iOS
+            // it can compete with the microphone used by Gemini Live, and its
+            // Hebrew transcript is less reliable. Gemini is the ASR source.
 
             // Ask Miriam to start the dialogue
             const greetMsg = {
@@ -810,7 +823,8 @@ export default function VoiceDialogue() {
             const outText = msg.serverContent.outputTranscription?.text;
             if (outText) {
               markModelActivity();
-              aiTextBufferRef.current += outText;
+              aiTextBufferRef.current = mergeTranscriptChunk(aiTextBufferRef.current, outText);
+              flushUserText();
               setCurrentAiText(aiTextBufferRef.current);
             }
 
@@ -818,19 +832,31 @@ export default function VoiceDialogue() {
             // this is the AUTHORITATIVE source of the user's words. Web Speech is
             // only a fallback / barge-in trigger and must not write to the transcript
             // once Gemini transcription is active.
+            // Interim transcription is a UI preview only; only the final
+            // transcription becomes the student's saved utterance.
+            const interimText = msg.serverContent.interimInputTranscription?.text;
+            if (interimText && !userTextBufferRef.current) {
+              setCurrentUserText(interimText);
+              setSpeechStatus("hearing");
+            }
             const inText = msg.serverContent.inputTranscription?.text;
             if (inText) {
               geminiTranscriptionSeenRef.current = true;
-              // New user turn → start a clean buffer (don't append to leftover SR text)
-              if (!userTurnActiveRef.current) {
-                userTextBufferRef.current = "";
-                userTurnActiveRef.current = true;
-              }
-              userTextBufferRef.current += inText;
+              userTurnActiveRef.current = true;
+              userTextBufferRef.current = mergeTranscriptChunk(userTextBufferRef.current, inText);
               setCurrentUserText(userTextBufferRef.current);
+              setSpeechStatus("hearing");
               lastUserTurnAtRef.current = Date.now();
               awaitingModelReplyRef.current = true;
               if (silenceWatchdogRef.current === null) armSilenceWatchdog();
+              // Gemini delivers input transcription separately from output.
+              // It can arrive after turnComplete, so finalize after a brief
+              // quiet interval instead of waiting for the model to finish.
+              if (userFlushTimerRef.current !== null) window.clearTimeout(userFlushTimerRef.current);
+              userFlushTimerRef.current = window.setTimeout(() => {
+                userFlushTimerRef.current = null;
+                flushUserText();
+              }, 900);
             }
 
             // Turn complete — flush both buffers and stop watchdog
@@ -839,6 +865,9 @@ export default function VoiceDialogue() {
               markModelTurnComplete();
               flushUserText();
               flushAiText();
+            }
+            if (msg.serverContent.waitingForInput) {
+              markModelTurnComplete();
             }
 
             // Server signals interruption (barge-in)
@@ -855,13 +884,33 @@ export default function VoiceDialogue() {
       };
 
       ws.onerror = (e) => {
+        if (wsRef.current !== ws) return;
         console.error("[Gemini] WebSocket error:", e);
         setError("Ошибка подключения к голосовому сервису");
         setConnecting(false);
       };
 
       ws.onclose = (e) => {
+        if (wsRef.current !== ws) return;
+        wsRef.current = null;
         console.info("[Gemini] WebSocket closed:", e.code, e.reason || "(no reason)");
+        flushUserText();
+        flushAiText();
+        if (userFlushTimerRef.current !== null) {
+          window.clearTimeout(userFlushTimerRef.current);
+          userFlushTimerRef.current = null;
+        }
+        stopVoiceActivityMonitor();
+        interruptPlayback();
+        workletNodeRef.current?.disconnect();
+        workletNodeRef.current = null;
+        sourceRef.current?.disconnect();
+        sourceRef.current = null;
+        streamRef.current?.getTracks().forEach(track => track.stop());
+        streamRef.current = null;
+        void audioCtxRef.current?.close().catch(() => {});
+        audioCtxRef.current = null;
+        analyserRef.current = null;
         clearSilenceWatchdog();
         awaitingModelReplyRef.current = false;
         stopSpeechRecognition();
@@ -878,16 +927,6 @@ export default function VoiceDialogue() {
           retryCountRef.current += 1;
           const attempt = retryCountRef.current;
           setError(formatCloseError(e.code, e.reason, true, attempt));
-          // Cleanup audio nodes before retry
-          workletNodeRef.current?.disconnect();
-          workletNodeRef.current = null;
-          sourceRef.current?.disconnect();
-          sourceRef.current = null;
-          streamRef.current?.getTracks().forEach(t => t.stop());
-          streamRef.current = null;
-          audioCtxRef.current?.close().catch(() => {});
-          audioCtxRef.current = null;
-          analyserRef.current = null;
           if (retryTimerRef.current) window.clearTimeout(retryTimerRef.current);
           const delay = 800 * attempt;
           retryTimerRef.current = window.setTimeout(() => {
@@ -940,8 +979,7 @@ export default function VoiceDialogue() {
     awaitingModelReplyRef.current = false;
     nudgeAttemptsRef.current = 0;
     geminiTranscriptionSeenRef.current = false;
-    userTurnActiveRef.current = false;
-    userTextBufferRef.current = "";
+    flushUserText();
     lastRecognizedTextRef.current = "";
     stopVoiceActivityMonitor();
     stopSpeechRecognition();
@@ -997,7 +1035,10 @@ export default function VoiceDialogue() {
       stopVoiceActivityMonitor();
       stopSpeechRecognition();
       stopPlaybackSource();
-      wsRef.current?.close(1000);
+      if (userFlushTimerRef.current !== null) window.clearTimeout(userFlushTimerRef.current);
+      const socket = wsRef.current;
+      wsRef.current = null;
+      socket?.close(1000);
       streamRef.current?.getTracks().forEach(t => t.stop());
       audioCtxRef.current?.close();
     };
