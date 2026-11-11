@@ -97,6 +97,8 @@ async function startMockCall() {
 describe("Rachel Live voice regression", () => {
   beforeEach(() => {
     FakeSocket.sockets = [];
+    // JSDOM does not implement scrolling; production browsers do.
+    Object.defineProperty(HTMLElement.prototype, "scrollTo", { configurable: true, value: vi.fn() });
     vi.stubGlobal("WebSocket", FakeSocket);
     vi.stubGlobal("AudioContext", FakeAudioContext);
     vi.stubGlobal("AudioWorkletNode", FakeWorklet);
