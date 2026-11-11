@@ -82,7 +82,7 @@ export default function Vocabulary() {
         <p className="text-xs font-black uppercase tracking-[0.25em] text-primary">vocabulary</p>
         <h1 className="text-3xl font-black text-foreground mb-1">{t("Слова и фразы")}</h1>
         <p className="text-xs text-muted-foreground font-medium mb-4">
-          {t("50 нужных слов и фраз • голос Мирьям")}
+          {t("50 нужных слов и фраз • голос Ракель")}
         </p>
 
         <div className="relative mb-3">
