@@ -177,4 +177,13 @@ describe("Rachel Live voice regression", () => {
     expect(screen.getByText("מה שלומך")).toBeInTheDocument();
     expect(screen.getByRole("alert").textContent).toContain("1008");
   });
+  it("does not reopen microphone or socket after navigation during reconnect backoff", async () => {
+    const socket = await startMockCall();
+    await act(async () => { socket.close(1006); });
+    // The connection schedules an 800ms automatic retry, but the page is gone.
+    cleanup();
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    expect(FakeSocket.sockets).toHaveLength(1);
+  });
+
 });

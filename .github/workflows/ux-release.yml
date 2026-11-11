@@ -3,18 +3,8 @@ name: UX release checks
 on:
   pull_request:
     branches: [main]
-    paths:
-      - 'src/**'
-      - 'tests/browser/ux-redesign.spec.ts'
-      - 'playwright.ux.config.ts'
-      - '.github/workflows/ux-release.yml'
   push:
     branches: [release/ux-2026-10-18, main]
-    paths:
-      - 'src/**'
-      - 'tests/browser/ux-redesign.spec.ts'
-      - 'playwright.ux.config.ts'
-      - '.github/workflows/ux-release.yml'
   workflow_dispatch:
 
 permissions:

@@ -73,8 +73,11 @@ export function MicDiagnostics({ open, onOpenChange, selectedDeviceId, onDeviceC
   const rafRef = useRef<number | null>(null);
   const peakRef = useRef(0);
   const signalSeenRef = useRef(false);
+  // Invalidates pending permission/device promises when the dialog closes.
+  const requestIdRef = useRef(0);
 
   const stop = useCallback(() => {
+    requestIdRef.current += 1;
     if (rafRef.current !== null) {
       cancelAnimationFrame(rafRef.current);
       rafRef.current = null;
@@ -95,6 +98,7 @@ export function MicDiagnostics({ open, onOpenChange, selectedDeviceId, onDeviceC
 
   const start = useCallback(async (deviceId?: string) => {
     stop();
+    const requestId = requestIdRef.current;
     setError(null);
 
     if (typeof window !== "undefined" && !window.isSecureContext) {
@@ -125,12 +129,17 @@ export function MicDiagnostics({ open, onOpenChange, selectedDeviceId, onDeviceC
           ? { deviceId: { exact: deviceId }, echoCancellation: true, noiseSuppression: true, autoGainControl: true }
           : { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
       });
+      if (requestId !== requestIdRef.current) {
+        stream.getTracks().forEach(track => track.stop());
+        return;
+      }
       streamRef.current = stream;
       setPermission("granted");
 
       // Refresh device list now that labels are available
       try {
         const list = await navigator.mediaDevices.enumerateDevices();
+        if (requestId !== requestIdRef.current) return;
         const inputs = list.filter((d) => d.kind === "audioinput");
         setDevices(inputs);
         const track = stream.getAudioTracks()[0];
@@ -145,6 +154,10 @@ export function MicDiagnostics({ open, onOpenChange, selectedDeviceId, onDeviceC
       const ctx = new Ctor();
       ctxRef.current = ctx;
       await ctx.resume();
+      if (requestId !== requestIdRef.current) {
+        if (ctx.state !== "closed") void ctx.close().catch(() => {});
+        return;
+      }
 
       const source = ctx.createMediaStreamSource(stream);
       const analyser = ctx.createAnalyser();
@@ -155,6 +168,7 @@ export function MicDiagnostics({ open, onOpenChange, selectedDeviceId, onDeviceC
 
       const buf = new Float32Array(analyser.fftSize);
       const tick = () => {
+        if (requestId !== requestIdRef.current) return;
         analyser.getFloatTimeDomainData(buf);
         let energy = 0;
         for (let i = 0; i < buf.length; i++) energy += buf[i] * buf[i];
@@ -174,6 +188,9 @@ export function MicDiagnostics({ open, onOpenChange, selectedDeviceId, onDeviceC
       };
       rafRef.current = requestAnimationFrame(tick);
     } catch (err) {
+      if (requestId !== requestIdRef.current) return;
+      // Also stop a stream acquired before AudioContext initialization failed.
+      stop();
       const info = explainError(err);
       setError(info);
       const e = err as { name?: string };

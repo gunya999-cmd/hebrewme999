@@ -26,7 +26,7 @@ interface Sentence {
 }
 
 /* ───── Large pool of sentences (80+) ───── */
-const ALL_SENTENCES: SentenceData[] = [
+export const ALL_SENTENCES: SentenceData[] = [
   // בְּ (в, на)
   { before: 'אני גר', after: 'תל אביב', prepBase: 'בְּ', translation: 'Я живу в Тель-Авиве' },
   { before: 'הילדים לומדים', after: 'בית הספר', prepBase: 'בְּ', translation: 'Дети учатся в школе' },
@@ -145,21 +145,24 @@ const OPTION_PREPS = prepositions.filter(
     !p.base.includes('/')
 );
 
-function buildSentence(data: SentenceData): Sentence | null {
-  const correct = OPTION_PREPS.find(p => p.base === data.prepBase);
+export function buildSentence(data: SentenceData): Sentence | null {
+  // Some valid prepositions (for example מִ / מִן) are deliberately excluded
+  // from distractors, but must still be accepted as correct answers.
+  const correct = prepositions.find(p => p.base === data.prepBase);
   if (!correct) return null;
+  const correctOption = correct.base.includes(' / ') ? correct.base.split(' / ').at(-1)! : correct.base;
 
   const wrong = OPTION_PREPS
-    .filter(p => p.base !== data.prepBase)
+    .filter(p => p.base !== data.prepBase && p.base !== correctOption)
     .sort(() => Math.random() - 0.5)
     .slice(0, 3);
 
-  const options = [correct.base, ...wrong.map(p => p.base)].sort(() => Math.random() - 0.5);
+  const options = [correctOption, ...wrong.map(p => p.base)].sort(() => Math.random() - 0.5);
 
   return {
     textBefore: data.before,
     textAfter: data.after,
-    correctPrep: correct.base,
+    correctPrep: correctOption,
     correctTranscription: correct.baseTranscription,
     translation: data.translation,
     options,

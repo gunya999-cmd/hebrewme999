@@ -1046,17 +1046,33 @@ export default function VoiceDialogue() {
     return () => {
       document.removeEventListener("visibilitychange", resumeOnForeground);
       window.removeEventListener("pageshow", resumeOnForeground);
+      // A pending retry must not reopen a socket or the microphone after
+      // the user navigates away from the tutor.
+      if (retryTimerRef.current !== null) {
+        window.clearTimeout(retryTimerRef.current);
+        retryTimerRef.current = null;
+      }
+      clearSilenceWatchdog();
+      if (userFlushTimerRef.current !== null) {
+        window.clearTimeout(userFlushTimerRef.current);
+        userFlushTimerRef.current = null;
+      }
       stopVoiceActivityMonitor();
       stopSpeechRecognition();
       stopPlaybackSource();
-      if (userFlushTimerRef.current !== null) window.clearTimeout(userFlushTimerRef.current);
       const socket = wsRef.current;
       wsRef.current = null;
       socket?.close(1000);
+      workletNodeRef.current?.disconnect();
+      workletNodeRef.current = null;
+      sourceRef.current?.disconnect();
+      sourceRef.current = null;
       streamRef.current?.getTracks().forEach(t => t.stop());
-      audioCtxRef.current?.close();
+      streamRef.current = null;
+      void audioCtxRef.current?.close().catch(() => {});
+      audioCtxRef.current = null;
     };
-  }, [stopPlaybackSource, stopSpeechRecognition, stopVoiceActivityMonitor]);
+  }, [clearSilenceWatchdog, stopPlaybackSource, stopSpeechRecognition, stopVoiceActivityMonitor]);
 
   // Auto-start when navigating with autoStart=true (e.g. from custom game pages)
   const autoStartTriedRef = useRef(false);
