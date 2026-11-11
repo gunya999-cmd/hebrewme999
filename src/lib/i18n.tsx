@@ -691,7 +691,7 @@ const translations: Record<string, readonly [string, string]> = {
     "Words and phrases",
     "מילים וביטויים"
   ],
-  "50 нужных слов и фраз • голос Мирьям": [
+  "50 нужных слов и фраз • голос Ракель": [
     "50 useful words and phrases • voice audio",
     "50 מילים וביטויים שימושיים • שמע"
   ],
