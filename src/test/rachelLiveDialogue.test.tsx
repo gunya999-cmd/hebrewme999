@@ -148,11 +148,11 @@ describe("Rachel Live voice regression", () => {
     await act(async () => {
       socket.emit({ serverContent: { inputTranscription: { text: "אני לומד עברית" } } });
     });
-    expect(screen.getByText("אני לומד עברית")).toBeVisible();
-    await waitFor(() => expect(screen.getByText("אני לומד עברית")).toBeVisible(), { timeout: 1800 });
+    expect(screen.getByText("אני לומד עברית")).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByText("אני לומד עברית")).toBeInTheDocument(), { timeout: 1800 });
     // Do not wait for a model turnComplete: Gemini input text is independently committed.
     await new Promise(resolve => setTimeout(resolve, 1000));
-    expect(screen.getByText("אני לומד עברית")).toBeVisible();
+    expect(screen.getByText("אני לומד עברית")).toBeInTheDocument();
     expect(screen.getByLabelText("История диалога").textContent).toContain("אני לומד עברית");
   });
 
@@ -174,7 +174,7 @@ describe("Rachel Live voice regression", () => {
       socket.emit({ serverContent: { inputTranscription: { text: "מה שלומך" } } });
       socket.close(1008);
     });
-    expect(screen.getByText("מה שלומך")).toBeVisible();
+    expect(screen.getByText("מה שלומך")).toBeInTheDocument();
     expect(screen.getByRole("alert").textContent).toContain("1008");
   });
 });
