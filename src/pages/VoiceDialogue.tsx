@@ -654,6 +654,13 @@ export default function VoiceDialogue() {
         throw new Error("Браузер не поддерживает доступ к микрофону. Откройте приложение в Chrome, Edge или Safari по HTTPS.");
       }
 
+      // Resume WebAudio immediately in the call button's user gesture. On
+      // iOS Safari resuming only after permission + network awaits can leave
+      // the audio context suspended and the worklet unable to capture speech.
+      const audioCtx = createRealtimeAudioContext();
+      audioCtxRef.current = audioCtx;
+      await audioCtx.resume();
+
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
           ...(micDeviceId ? { deviceId: { exact: micDeviceId } } : {}),
@@ -678,10 +685,6 @@ export default function VoiceDialogue() {
       if (!configResp.ok) throw new Error("Не удалось получить конфигурацию");
       const { apiKey } = await configResp.json();
 
-      // Create audio context
-      const audioCtx = createRealtimeAudioContext();
-      audioCtxRef.current = audioCtx;
-      await audioCtx.resume();
       const inputSampleRate = Math.round(audioCtx.sampleRate);
 
       // Setup AudioWorklet
@@ -1031,7 +1034,18 @@ export default function VoiceDialogue() {
   }, []);
 
   useEffect(() => {
+    // Safari may suspend WebAudio when the tab is backgrounded or the screen
+    // locks. Resume on foreground instead of silently keeping a dead mic.
+    const resumeOnForeground = () => {
+      if (document.visibilityState !== "hidden" && audioCtxRef.current?.state === "suspended") {
+        void audioCtxRef.current.resume().catch(() => {});
+      }
+    };
+    document.addEventListener("visibilitychange", resumeOnForeground);
+    window.addEventListener("pageshow", resumeOnForeground);
     return () => {
+      document.removeEventListener("visibilitychange", resumeOnForeground);
+      window.removeEventListener("pageshow", resumeOnForeground);
       stopVoiceActivityMonitor();
       stopSpeechRecognition();
       stopPlaybackSource();
